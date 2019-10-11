@@ -1,0 +1,4 @@
+From https://github.com/Arahnoid/UVChecker-map
+
+"A collection of free images what can be used during unwrapping of 3D models"
+Copyright Igor Grinchesku 2015

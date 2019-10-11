@@ -1,0 +1,4 @@
+/* -*- c++ -*- */
+ArticulatedModel::Specification {
+    filename = "mori_knob.zip/testObj.obj";
+}

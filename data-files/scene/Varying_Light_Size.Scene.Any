@@ -1,0 +1,229 @@
+
+/* -*- c++ -*- */
+{ 
+    entities = { 
+        back = VisibleEntity { 
+            canChange = false; 
+            castsShadows = false; 
+            frame = CFrame::fromXYZYPRDegrees(1.30489e-07, -0.8, 3.24631, 1.00179e-05, -90 ); 
+            model = "groundModel"; 
+        }; 
+        
+        camera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -100; 
+                farSharpPlaneZ = -40; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "NONE"; 
+                nearBlurRadiusFraction = 0.015; 
+                nearBlurryPlaneZ = -0.25; 
+                nearSharpPlaneZ = -1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                effectsEnabled = true; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                temporalAntialiasingEnabled = false; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.0787234, 0.306383, 0.75532, 0.92 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.169565, 0.339131, 0.752174, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0; 
+                vignetteSizeFraction = 0; 
+                vignetteTopStrength = 0; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(-0.20484, 6.4449, -25.927, 179.34, -12.892, 0 ); 
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = false; 
+                exposureFraction = 0.75; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 27; 
+            }; 
+            
+            overridePixelOffset = true; 
+            projection = Projection { 
+                farPlaneZ = -inf; 
+                fovDegrees = 13; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.15; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        cubeLarge = VisibleEntity { 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(3, -0.51, 1 ); 
+            model = "cubeModel"; 
+        }; 
+        
+        cubeMedium = VisibleEntity { 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(0, -0.51, 1 ); 
+            model = "cubeModel"; 
+        }; 
+        
+        cubeSmall = VisibleEntity { 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(-3, -0.51, 1 ); 
+            model = "cubeModel"; 
+        }; 
+        
+        ground = VisibleEntity { 
+            canChange = false; 
+            castsShadows = false; 
+            frame = CFrame::fromXYZYPRDegrees(0, -1, 0, 0 ); 
+            model = "groundModel"; 
+        }; 
+        
+        largeLight = Light { 
+            attenuation = ( 0.0001, 0, 1 ); 
+            bulbPower = Power3(100 ); 
+            canChange = false; 
+            castsShadows = false; 
+            extent = Vector2(1.5, 1.5 ); 
+            farPlaneZLimit = -10; 
+            frame = CFrame::fromXYZYPRDegrees(-3, 1.10713, 1.74637, 0, -30, 0 ); 
+            nearPlaneZLimit = -1; 
+            rectangular = true; 
+            shadowMapSize = Vector2int16(8192, 8192 ); 
+            shadowsEnabled = true; 
+            spotHalfAngleDegrees = 87; 
+            type = "AREA"; 
+        }; 
+        
+        mediumLight = Light { 
+            attenuation = ( 0.0001, 0, 1 ); 
+            bulbPower = Power3(100 ); 
+            canChange = false; 
+            castsShadows = false; 
+            extent = Vector2(0.5, 0.5 ); 
+            farPlaneZLimit = -10; 
+            frame = CFrame::fromXYZYPRDegrees(0, 1.10713, 1.74637, 0, -30, 0 ); 
+            nearPlaneZLimit = -1; 
+            rectangular = true; 
+            shadowMapSize = Vector2int16(8192, 8192 ); 
+            shadowsEnabled = true; 
+            spotHalfAngleDegrees = 87; 
+            type = "AREA"; 
+        }; 
+        
+        smallLight = Light { 
+            attenuation = ( 0.0001, 0, 1 ); 
+            bulbPower = Power3(100 ); 
+            canChange = false; 
+            castsShadows = false; 
+            extent = Vector2(0.05, 0.05 ); 
+            farPlaneZLimit = -10; 
+            frame = CFrame::fromXYZYPRDegrees(3, 1.10713, 1.74637, 0, -30, 0 ); 
+            nearPlaneZLimit = -1; 
+            rectangular = true; 
+            shadowMapSize = Vector2int16(8192, 8192 ); 
+            shadowsEnabled = true; 
+            spotHalfAngleDegrees = 87; 
+            type = "AREA"; 
+        }; 
+        
+        wall1 = VisibleEntity { 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(-1.5, 0, 1 ); 
+            model = "wallModel"; 
+        }; 
+        
+        wall2 = VisibleEntity { 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(1.5, 0, 1 ); 
+            model = "wallModel"; 
+        }; 
+        
+    }; 
+    
+    lightingEnvironment = LightingEnvironment { 
+        ambientOcclusionSettings = AmbientOcclusionSettings { 
+            bias = 0.0458333; 
+            blurRadius = 5; 
+            blurStepSize = 1; 
+            depthPeelSeparationHint = 0.01; 
+            edgeSharpness = 1; 
+            enabled = true; 
+            highQualityBlur = true; 
+            intensity = 0.708333; 
+            monotonicallyDecreasingBilateralWeights = false; 
+            numSamples = 20; 
+            packBlurKeys = false; 
+            radius = 0.490808; 
+            temporalFilterSettings = TemporalFilter::Settings { 
+                falloffEndDistance = 0.07; 
+                falloffStartDistance = 0.05; 
+                hysteresis = 0.90625; 
+            }; 
+            
+            temporallyVarySamples = true; 
+            useDepthPeelBuffer = true; 
+            useNormalBuffer = true; 
+            useNormalsInBlur = true; 
+            zStorage = "HALF"; 
+        }; 
+        
+        environmentMap = Texture::Specification { 
+            encoding = Color3(0.05 ); 
+        }; 
+        
+    }; 
+    
+    models = { 
+        cubeModel = ArticulatedModel::Specification { 
+            filename = "model/cube/cube.obj"; 
+        }; 
+        
+        groundModel = ArticulatedModel::Specification { 
+            filename = "ifs/squarex8.ifs"; 
+            preprocess = { 
+                setCFrame(root(), CFrame::fromXYZYPRDegrees(0, 0, 0, 0, -90, 0 ) ); 
+                setTwoSided("mesh", true ); 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        glossy = Color4(
+                            Color3(0.1 ), 
+                            0.3 ); 
+                        
+                        lambertian = Color3(1, 0.6, 1 ); 
+                    } ) }; 
+            
+            scale = 15; 
+        }; 
+        
+        wallModel = ArticulatedModel::Specification { 
+            filename = "model/cube/cube.obj"; 
+            preprocess = { 
+                transformGeometry(all(), Matrix4::scale(0.1, 2, 5 ) ); 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        glossy = Color4(
+                            Color3(0.1 ), 
+                            0.3 ); 
+                        
+                        lambertian = Color3(1, 0.6, 1 ); 
+                    } ) }; 
+            
+            stripMaterials = true; 
+        }; 
+        
+    }; 
+    
+    name = "Varying Light Size"; 
+} 

@@ -1,0 +1,12 @@
+// -*- c++ -*-
+// Load this with the Material::Specification(const Any&) constructor or
+// #include() inside another Any file.
+
+UniversalMaterial::Specification {
+    lambertian   = "sand-lambertian.png",
+    glossy       = Texture::Specification {
+        filename = "sand-glossy.png";
+        encoding = Color4(1,1,1,glossyExponent(100));
+    };
+    bump         = "sand-bump.png",
+}

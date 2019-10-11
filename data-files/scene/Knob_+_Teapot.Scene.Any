@@ -1,0 +1,224 @@
+
+/* -*- c++ -*- */
+{ 
+    entities = { 
+        camera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -100; 
+                farSharpPlaneZ = -40; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "NONE"; 
+                nearBlurRadiusFraction = 0.015; 
+                nearBlurryPlaneZ = -0.25; 
+                nearSharpPlaneZ = -1; 
+                reducedResolutionFactor = 1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                effectsEnabled = true; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                temporalAntialiasingEnabled = false; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.0787234, 0.306383, 0.75532, 0.92 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.169565, 0.339131, 0.752174, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0; 
+                vignetteSizeFraction = 0; 
+                vignetteTopStrength = 0; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(7.262, 5.6372, -0.98573, 90.511, -43.296, 0 ); 
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = false; 
+                exposureFraction = 0.75; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 27; 
+            }; 
+            
+            overridePixelOffset = true; 
+            projection = Projection { 
+                farPlaneZ = -inf; 
+                fovDegrees = 25; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.15; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        ground = VisibleEntity { 
+            canChange = false; 
+            castsShadows = false; 
+            frame = CFrame::fromXYZYPRDegrees(0.296232, -1, -1.02927 ); 
+            model = "groundModel"; 
+        }; 
+        
+        knob = VisibleEntity { 
+            frame = CFrame::fromXYZYPRDegrees(0, -0.329097, 0, -71.6313 ); 
+            model = "knobModel";
+        }; 
+        
+        light = Light { 
+            attenuation = ( 0.0001, 0, 1 ); 
+            bulbPower = Power3(400 ); 
+            canChange = false; 
+            castsShadows = false; 
+            extent = Vector2(3, 3 ); 
+            farPlaneZLimit = -10; 
+            frame = CFrame::fromXYZYPRDegrees(-1.61284, 2.83561, -0.938982, -89.1637, -58.5157, -1.44258 ); 
+            nearPlaneZLimit = -1; 
+            rectangular = true; 
+            shadowMapSize = Vector2int16(4096, 4096 ); 
+            shadowsEnabled = true; 
+            spotHalfAngleDegrees = 87; 
+            type = "AREA"; 
+            varianceShadowSettings = VSMSettings { 
+                baseSize = Vector2int16(4096, 4096 ); 
+                blurMultiplier = 10; 
+                downsampleFactor = 2; 
+                enabled = false; 
+                filterRadius = 11; 
+            }; 
+            
+        }; 
+        
+        skybox = Skybox { 
+            texture = Color3(0); 
+        }; 
+        teapot = VisibleEntity { 
+            frame = CFrame::fromXYZYPRDegrees(0.103571, -0.8729, -1.90252, -66.1655 ); 
+            model = "teapotModel"; 
+        }; 
+        
+    }; 
+    
+    lightingEnvironment = LightingEnvironment { 
+        ambientOcclusionSettings = AmbientOcclusionSettings { 
+            bias = 0; 
+            blurRadius = 4; 
+            blurStepSize = 2; 
+            depthPeelSeparationHint = 0.01; 
+            edgeSharpness = 1; 
+            enabled = false; 
+            highQualityBlur = true; 
+            intensity = 0.5; 
+            monotonicallyDecreasingBilateralWeights = false; 
+            numSamples = 20; 
+            packBlurKeys = false; 
+            radius = 1.5; 
+            temporalFilterSettings = TemporalFilter::Settings { 
+                falloffEndDistance = 0.07; 
+                falloffStartDistance = 0.05; 
+                hysteresis = 0; 
+            }; 
+            
+            temporallyVarySamples = false; 
+            useDepthPeelBuffer = false; 
+            useNormalBuffer = true; 
+            useNormalsInBlur = true; 
+            zStorage = "HALF"; 
+        }; 
+        
+        environmentMap = Texture::Specification { 
+            encoding = Color3(0.07 ); 
+            
+            filename = "cubemap/uffizi/uffizi*.jpg"; 
+        }; 
+        
+    }; 
+    
+    models = { 
+        cubeModel = ArticulatedModel::Specification { 
+            filename = "model/cube/cube.obj"; 
+            preprocess = { 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        glossy = Color4(
+                            Color3(0.5 ), 
+                            1 ), 
+                        
+                        lambertian = Color3(1 ), 
+                    } ) }; 
+            
+            stripMaterials = true; 
+        }; 
+        
+        groundModel = ArticulatedModel::Specification { 
+            filename = "ifs/squarex8.ifs"; 
+            preprocess = { 
+                setCFrame(root(), CFrame::fromXYZYPRDegrees(0, 0, 0, 0, -90, 0 ) ); 
+                setTwoSided("mesh", true ); 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        glossy = Color4(
+                            Color3(0.08 ), 
+                            0.7 ), 
+                        
+                        lambertian = "material/uvcheckermap/checker-1024.png", 
+                    } ) }; 
+            
+            scale = 5; 
+        }; 
+        
+        knobModel = ArticulatedModel::Specification { 
+            filename = "model/mori_knob/mori_knob.zip/testObj.obj"; 
+            preprocess = { 
+                removeMesh("LTELogo/LTELogo"); 
+                removeMesh("Material/Material"); 
+                removeMesh("BackGroundMat/BackGroundMat"); 
+                setMaterial("OuterMat/OuterMat", UniversalMaterial::Specification { 
+                        glossy = Color4(1, 0.8, 0.3, 0.9 ); 
+                        lambertian = Color3(0.15, 0.12, 0.09 ); 
+                    } ) }; 
+            
+            scale = 1.4; 
+        }; 
+        
+        sphereModel = ArticulatedModel::Specification { 
+            filename = "ifs/sphere.ifs"; 
+            preprocess = { 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        glossy = Color4(
+                            Color3(0.5 ), 
+                            1 ), 
+                        
+                        lambertian = Color3(1 ), 
+                    } ) }; 
+            
+            scale = 0.7; 
+            stripMaterials = true; 
+        }; 
+        
+        teapotModel = ArticulatedModel::Specification { 
+            filename = "model/teapot/teapot.obj"; 
+            preprocess = { 
+                scaleAndOffsetTexCoord0(all(), 4, Vector2(0, 0 ) ); 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        glossy = Color4(
+                            Color3(0.1 ), 
+                            0.9 ), 
+                        
+                        lambertian = "model/teapot/islamic.png", 
+                    } ) }; 
+            
+            scale = 0.016; 
+            stripMaterials = true; 
+        }; 
+        
+    }; 
+    
+    name = "Knob + Teapot"; 
+} 

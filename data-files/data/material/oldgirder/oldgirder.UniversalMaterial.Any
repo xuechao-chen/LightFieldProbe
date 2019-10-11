@@ -1,0 +1,16 @@
+// -*- c++ -*-
+// Load this with the Material::Specification(const Any&) constructor or
+// #include() inside another Any file.
+
+UniversalMaterial::Specification {
+    alphaFilter = BINARY;
+
+    lambertian = "oldgirder-lambertian.png";
+    glossy     = Texture::Specification {
+        filename        = "oldgirder-glossy.png";
+        alphaFilename   = "oldgirder-glossy.png";
+        encoding        = Color4(1, 1, 1, 0.1);
+    };
+
+    bump       = "oldgirder-bump.png";
+}

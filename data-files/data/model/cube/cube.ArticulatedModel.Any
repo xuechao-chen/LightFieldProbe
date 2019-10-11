@@ -1,0 +1,4 @@
+ArticulatedModel::Specification {
+    filename = "cube.obj";
+    scale = 0.05;
+}

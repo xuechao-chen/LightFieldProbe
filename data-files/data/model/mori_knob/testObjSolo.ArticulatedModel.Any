@@ -1,0 +1,9 @@
+/* -*- c++ -*- */
+ArticulatedModel::Specification {
+    filename = "mori_knob.zip/testObj.obj";
+    preprocess = {
+     	    removeMesh("LTELogo/LTELogo");
+	        removeMesh("Material/Material");
+            removeMesh("BackGroundMat/BackGroundMat");		
+    };
+}

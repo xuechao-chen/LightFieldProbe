@@ -1,0 +1,13 @@
+// -*- c++ -*-
+// Load this with the Material::Specification(const Any&) constructor or
+// #include() inside another Any file.
+
+UniversalMaterial::Specification {
+    lambertian = "metalcrate-lambertian.png",
+    glossy     = Texture::Specification {
+        filename = "metalcrate-glossy.png";
+        alphaFilename = "metalcrate-glossy.png";
+        encoding = Color4(Color3(0.4), 0.1);
+    };
+    bump       = "metalcrate-bump.png",
+}

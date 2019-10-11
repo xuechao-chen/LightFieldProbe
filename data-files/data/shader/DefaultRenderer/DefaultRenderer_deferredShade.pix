@@ -1,0 +1,64 @@
+#version 410 or 420
+/**
+  \file data-files/shader/DefaultRenderer/DefaultRenderer_deferredShade.pix
+
+  G3D Innovation Engine http://casual-effects.com/g3d
+  Copyright 2000-2018, Morgan McGuire
+  All rights reserved
+  Available under the BSD License
+*/
+#include <compatibility.glsl>
+#include <Light/Light.glsl>
+#include <GBuffer/GBuffer.glsl>
+
+// Declare a GBuffer with no prefix
+uniform_GBuffer(gbuffer_);
+
+#include <deferredHelpers.glsl>
+#include <LightingEnvironment/LightingEnvironment_LightUniforms.glsl>
+#include <LightingEnvironment/LightingEnvironment_environmentMapUniforms.glsl>
+
+#ifdef ambientOcclusion_notNull
+    uniform_Texture(sampler2D, ambientOcclusion_);
+    uniform ivec2              ambientOcclusion_offset;
+#endif
+        
+#ifdef scatteredIndirectTexture_notNull
+    uniform_Texture(sampler2D, scatteredIndirectTexture_);
+#endif
+
+out Color3 result;
+
+void main() {
+    // Screen-space point being shaded
+    ivec2 C = ivec2(gl_FragCoord.xy);
+    Vector3 w_o;
+    UniversalMaterialSample surfel;
+    if (! readUniversalMaterialSampleFromGBuffer(C, false, true, w_o, surfel)) {
+        result = surfel.emissive;
+        return;
+    }
+
+    Radiance3 L_scatteredDirect = computeDirectLighting(surfel, w_o, 1.0);
+
+    Radiance3 L_scatteredIndirect =
+#       ifdef scatteredIndirectLightTexture_notNull
+        texelFetch(C, scatteredIndirectLightTexture_buffer, 0).rgb;
+#       else
+        computeIndirectLighting(surfel, w_o, false, 0);
+#       endif
+   
+    float AO =
+#       ifdef ambientOcclusion_notNull
+            (0.95 * texelFetch(ambientOcclusion_buffer, min(ivec2(gl_FragCoord.xy) + ambientOcclusion_offset, ivec2(ambientOcclusion_size.xy) - ivec2(1, 1)), 0).r + 0.05);
+#       else
+            1.0;
+#       endif
+
+    // How much ambient occlusion to apply to direct illumination (sort of approximates area lights,
+    // more importantly: NPR term that adds local contrast)
+    const float aoInfluenceOnDirectIllumination = 0.65;
+    float directAO = lerp(1.0, AO, aoInfluenceOnDirectIllumination);
+
+    result = surfel.emissive + L_scatteredDirect * directAO + L_scatteredIndirect * AO;
+}

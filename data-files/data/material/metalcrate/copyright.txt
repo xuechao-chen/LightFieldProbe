@@ -1,0 +1,2 @@
+Created by Morgan McGuire for the G3D Innovation Engine http://g3d.sf.net in 2012
+Released into the Public Domain.
