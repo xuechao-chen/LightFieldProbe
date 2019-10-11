@@ -16,6 +16,9 @@
     <Filter Include="Scene Files">
       <UniqueIdentifier>{cb606fff-b4b7-4ff1-bff9-4b3969fe9ac5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{92c29d29-c9e1-404f-8c3a-644079b7842f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -49,6 +52,12 @@
     </None>
     <None Include="..\data-files\scene\Varying_Light_Size.Scene.Any">
       <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\LightFieldProbe.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\octahedral.glsl">
+      <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

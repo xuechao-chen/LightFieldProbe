@@ -4,10 +4,6 @@
 class CProbeGIRenderer : public DefaultRenderer
 {
 	friend class App;
-public:
-	CProbeGIRenderer();
-	~CProbeGIRenderer();
-
 protected:
 	CProbeGIRenderer();
 
@@ -22,5 +18,8 @@ public:
 	{
 		return createShared<CProbeGIRenderer>();
 	}
+
+private:
+	shared_ptr<Framebuffer> m_CubemapFrameBuffer;
 };
 

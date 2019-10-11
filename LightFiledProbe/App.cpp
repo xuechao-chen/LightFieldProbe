@@ -1,5 +1,6 @@
 #pragma once
 #include <G3D/G3D.h>
+#include "ProbeGIRenderer.h"
 
 class App : public GApp
 {
@@ -11,8 +12,27 @@ public:
 		GApp::onInit();
 		setFrameDuration(1.0f / 60.f);
 
+		m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create());
+		m_pGIRenderer->setDeferredShading(true);
+		m_pGIRenderer->setOrderIndependentTransparency(true);
+		
+		m_renderer = m_pGIRenderer;
+
+		__makeGUI();
+
+		logPrintf("Program initialized\n");
 		loadScene("Teapot on Metal");
+		logPrintf("Loaded Scene\n");
 	}
+
+private:
+	void __makeGUI()
+	{
+		debugWindow->setVisible(false);
+		showRenderingStats = false;
+	}
+
+	shared_ptr<CProbeGIRenderer> m_pGIRenderer;
 };
 
 G3D_START_AT_MAIN();
