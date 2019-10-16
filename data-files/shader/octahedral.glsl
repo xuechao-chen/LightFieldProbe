@@ -22,7 +22,6 @@ vec2 octEncode(in vec3 v) {
     return result;
 }
 
-
 /** Returns a unit vector. Argument o is an octahedral vector packed via octEncode,
     on the [-1, +1] square*/
 vec3 octDecode(vec2 o) {
