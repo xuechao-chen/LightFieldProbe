@@ -3,9 +3,13 @@
 
 struct SLightFieldSurface
 {
-	Vector3int32        ProbeCounts;
-	Point3              ProbeStartPosition;
-	Vector3             ProbeSteps;
+	/*ProbeGrid FB
+	* texture(0): radiance
+	*/
+	shared_ptr<Framebuffer> ProbeGridFrameBuffer;
+	Vector3int32            ProbeCounts;
+	Point3                  ProbeStartPosition;
+	Vector3                 ProbeSteps;
 };
 
 class CProbeGIRenderer : public DefaultRenderer
@@ -34,6 +38,7 @@ private:
 	void __initLightFiledSurface();
 	void __placeProbe();
 	void __generateCubemap();
+	void __createSphereSampler(int vDegreeSize = 64);
 
 private:
 	AABox m_BoundingBox;
@@ -43,5 +48,10 @@ private:
 	shared_ptr<Framebuffer> m_pCubeMapFramebuffer;
 	shared_ptr<Texture> m_CubeMapColor;
 	shared_ptr<Texture> m_CubeMapDistance;
+
+	shared_ptr<Texture>  m_CubemapTexure;
+	//Vector4*             m_pSphericalSampleDirections;
+	shared_ptr<Texture>  m_SphereSamplerTexture;
+	shared_ptr<Texture>  m_ShadowMap;
 };
 

@@ -7,7 +7,7 @@
 
 // From G3D, but included directly in this supplement
 // because it is core to the algorithm
-#include "octahedral.glsl"
+#include "Octahedral.glsl"
 
 const float minThickness = 0.03; // meters
 const float maxThickness = 0.50; // meters

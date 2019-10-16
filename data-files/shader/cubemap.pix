@@ -1,11 +1,32 @@
 #version 440
 #include <g3dmath.glsl>
 
-uniform sampler2D FRONT;
+//uniform sampler2D FRONT;
+//
+//out Color3 result;
+//
+//void main() {
+//	int2 P = int2(gl_FragCoord.xy);
+//	result = texelFetch(FRONT, P, 0).rgb;
+//}
 
-out Color3 result;
+//uniform samplerCube Cubemap;
+//
+//out Color3 result;
+//
+//void main()
+//{
+//	int2 P = int2(gl_FragCoord.xy);
+//	vec3 sampleDir = vec3(1,1,1);
+//	result = texture(Cubemap, sampleDir).rgb;
+//}
 
-void main() {
+uniform sampler2D ShadowMap;
+
+out Color result;
+
+void main()
+{
 	int2 P = int2(gl_FragCoord.xy);
-	result = texelFetch(FRONT, P, 0).rgb;
+	result = texture(ShadowMap, P).rgb;
 }

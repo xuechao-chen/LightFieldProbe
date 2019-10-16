@@ -56,10 +56,13 @@
     <None Include="..\data-files\shader\LightFieldProbe.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\octahedral.glsl">
+    <None Include="..\data-files\shader\cubemap.pix">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\cubemap.pix">
+    <None Include="..\data-files\shader\ComputeProbeGrid.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\Octahedral.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
