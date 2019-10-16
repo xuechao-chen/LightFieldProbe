@@ -1,6 +1,13 @@
 #pragma once
 #include <G3D/G3D.h>
 
+struct SLightFieldSurface
+{
+	Vector3int32        ProbeCounts;
+	Point3              ProbeStartPosition;
+	Vector3             ProbeSteps;
+};
+
 class CProbeGIRenderer : public DefaultRenderer
 {
 	friend class App;
@@ -21,11 +28,13 @@ public:
 	}
 
 private:
+	void __initLightFiledSurface();
 	void __placeProbe();
 	void __generateCubemap();
 
 private:
 	AABox m_BoundingBox;
+	SLightFieldSurface   m_LightFiledSurface;
 	std::vector<Vector3> m_ProbePositionSet;
 };
 
