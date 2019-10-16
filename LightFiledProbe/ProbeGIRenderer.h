@@ -15,7 +15,7 @@ protected:
 	CProbeGIRenderer() {}
 	CProbeGIRenderer(AABox vBoundingBox);
 
-	virtual void CProbeGIRenderer::render
+	virtual void render
 	    (RenderDevice*                      rd,
 		const shared_ptr<Camera>&           camera,
 		const shared_ptr<Framebuffer>&      framebuffer,
@@ -24,12 +24,6 @@ protected:
 		const shared_ptr<GBuffer>&          gbuffer,
 		const Array<shared_ptr<Surface>>&   allSurfaces) override;
 
-	/*virtual void renderDeferredShading
-		(RenderDevice*                      vRenderDevice,
-		const Array<shared_ptr<Surface> >&  vSortedVisibleSurfaceArray,
-		const shared_ptr<GBuffer>&          vGBuffer,
-		const LightingEnvironment&          vLightEnvironment) override;
-*/
 public:
 	static shared_ptr<Renderer> create(AABox vBoundingBox)
 	{
@@ -45,5 +39,9 @@ private:
 	AABox m_BoundingBox;
 	SLightFieldSurface   m_LightFiledSurface;
 	std::vector<Vector3> m_ProbePositionSet;
+
+	shared_ptr<Framebuffer> m_pCubeMapFramebuffer;
+	shared_ptr<Texture> m_CubeMapColor;
+	shared_ptr<Texture> m_CubeMapDistance;
 };
 
