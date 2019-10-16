@@ -15,12 +15,21 @@ protected:
 	CProbeGIRenderer() {}
 	CProbeGIRenderer(AABox vBoundingBox);
 
-	virtual void renderDeferredShading
+	virtual void CProbeGIRenderer::render
+	    (RenderDevice*                      rd,
+		const shared_ptr<Camera>&           camera,
+		const shared_ptr<Framebuffer>&      framebuffer,
+		const shared_ptr<Framebuffer>&      depthPeelFramebuffer,
+		LightingEnvironment&                lightingEnvironment,
+		const shared_ptr<GBuffer>&          gbuffer,
+		const Array<shared_ptr<Surface>>&   allSurfaces) override;
+
+	/*virtual void renderDeferredShading
 		(RenderDevice*                      vRenderDevice,
 		const Array<shared_ptr<Surface> >&  vSortedVisibleSurfaceArray,
 		const shared_ptr<GBuffer>&          vGBuffer,
 		const LightingEnvironment&          vLightEnvironment) override;
-
+*/
 public:
 	static shared_ptr<Renderer> create(AABox vBoundingBox)
 	{
