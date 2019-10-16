@@ -59,6 +59,9 @@
     <None Include="..\data-files\shader\octahedral.glsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\data-files\shader\cubemap.pix">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProbeGIRenderer.h">
