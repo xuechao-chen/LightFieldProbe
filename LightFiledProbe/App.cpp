@@ -5,24 +5,27 @@
 class App : public GApp
 {
 public:
-	App(const GApp::Settings& vSettings) : GApp(vSettings) {}
+	App(const GApp::Settings& vSettings) : GApp(vSettings) 
+	{
+	}
 
 	virtual void onInit() override
 	{
 		GApp::onInit();
 		setFrameDuration(1.0f / 60.f);
 
-		m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create());
-		m_pGIRenderer->setDeferredShading(true);
-		m_pGIRenderer->setOrderIndependentTransparency(true);
-		
-		m_renderer = m_pGIRenderer;
-
 		__makeGUI();
 
 		logPrintf("Program initialized\n");
-		loadScene("Teapot on Metal");
+		loadScene("Animated Hardening");
 		logPrintf("Loaded Scene\n");
+
+		AABox BoundingBox;
+		Surface::getBoxBounds(m_posed3D, BoundingBox);
+
+		m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(BoundingBox));
+		m_pGIRenderer->setDeferredShading(true);
+		m_renderer = m_pGIRenderer;
 	}
 
 private:
@@ -41,7 +44,7 @@ int main(int argc, const char* argv[]) {
 	GApp::Settings settings(argc, argv);
 
 	settings.window.caption = "Light Filed Probe GI";
-	settings.window.width = 1024; settings.window.height = 800;
+	settings.window.width = 1024; settings.window.height = 1024;
 	settings.window.fullScreen = false;
 	settings.window.resizable = false;
 	settings.window.framed = !settings.window.fullScreen;
@@ -54,7 +57,6 @@ int main(int argc, const char* argv[]) {
 	settings.screenCapture.outputDirectory = FileSystem::currentDirectory();
 	settings.screenCapture.filenamePrefix = "_";
 	settings.renderer.deferredShading = true;
-	settings.renderer.orderIndependentTransparency = true;
 
 	return App(settings).run();
 }

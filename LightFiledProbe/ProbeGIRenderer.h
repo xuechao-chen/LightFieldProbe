@@ -5,7 +5,8 @@ class CProbeGIRenderer : public DefaultRenderer
 {
 	friend class App;
 protected:
-	CProbeGIRenderer();
+	CProbeGIRenderer() {}
+	CProbeGIRenderer(AABox vBoundingBox);
 
 	virtual void renderDeferredShading
 		(RenderDevice*                      vRenderDevice,
@@ -14,12 +15,17 @@ protected:
 		const LightingEnvironment&          vLightEnvironment) override;
 
 public:
-	static shared_ptr<Renderer> create()
+	static shared_ptr<Renderer> create(AABox vBoundingBox)
 	{
-		return createShared<CProbeGIRenderer>();
+		return createShared<CProbeGIRenderer>(vBoundingBox);
 	}
 
 private:
-	shared_ptr<Framebuffer> m_CubemapFrameBuffer;
+	void __placeProbe();
+	void __generateCubemap();
+
+private:
+	AABox m_BoundingBox;
+	std::vector<Vector3> m_ProbePositionSet;
 };
 
