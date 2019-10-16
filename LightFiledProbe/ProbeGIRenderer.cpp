@@ -6,27 +6,16 @@ CProbeGIRenderer::CProbeGIRenderer(AABox vBoundingBox) : m_BoundingBox(vBounding
 	__placeProbe();
 }
 
-void CProbeGIRenderer::renderDeferredShading(RenderDevice* vRenderDevice, const Array<shared_ptr<Surface>>& vSortedVisibleSurfaceArray, const shared_ptr<GBuffer>& vGBuffer, const LightingEnvironment& vLightEnvironment)
+void CProbeGIRenderer::render(RenderDevice* rd, const shared_ptr<Camera>& camera, const shared_ptr<Framebuffer>& framebuffer, const shared_ptr<Framebuffer>& depthPeelFramebuffer,
+							  LightingEnvironment& lightingEnvironment, const shared_ptr<GBuffer>& gbuffer, const Array<shared_ptr<Surface>>& allSurfaces) 
 {
-	//1. generate cubemap
+	rd->clear();
 
-	//2. generate octmap
-
-	//3. lighting
-		//3.0 direct
-		//3.1 diffuse
-		//3.2 glossy
-
-	//4. probe display
-
-	DefaultRenderer::renderDeferredShading(vRenderDevice, vSortedVisibleSurfaceArray, vGBuffer, vLightEnvironment);
-	
 	for (auto& ProbePos : m_ProbePositionSet)
 	{
-		Draw::sphere(Sphere(ProbePos, 0.1f), vRenderDevice);
+		Draw::sphere(Sphere(ProbePos, 0.1f), rd);
 	}
 }
-
 
 void CProbeGIRenderer::__initLightFiledSurface()
 {
