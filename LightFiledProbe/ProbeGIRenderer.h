@@ -22,8 +22,10 @@ public:
 
 private:
 	void __placeProbe();
+	void __generateCubemap();
 
 private:
 	AABox m_BoundingBox;
+	std::vector<Vector3> m_ProbePositionSet;
 };
 

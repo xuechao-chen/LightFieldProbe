@@ -7,7 +7,6 @@ CProbeGIRenderer::CProbeGIRenderer(AABox vBoundingBox) : m_BoundingBox(vBounding
 
 void CProbeGIRenderer::renderDeferredShading(RenderDevice* vRenderDevice, const Array<shared_ptr<Surface>>& vSortedVisibleSurfaceArray, const shared_ptr<GBuffer>& vGBuffer, const LightingEnvironment& vLightEnvironment)
 {
-	Surface::getBoxBounds(vSortedVisibleSurfaceArray, m_BoundingBox);
 	//1. generate cubemap
 
 	//2. generate octmap
@@ -20,4 +19,9 @@ void CProbeGIRenderer::renderDeferredShading(RenderDevice* vRenderDevice, const 
 
 void CProbeGIRenderer::__placeProbe()
 {
+}
+
+void CProbeGIRenderer::__generateCubemap()
+{
+
 }
