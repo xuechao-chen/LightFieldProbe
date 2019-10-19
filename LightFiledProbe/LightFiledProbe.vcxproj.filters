@@ -65,9 +65,24 @@
     <None Include="..\data-files\shader\Octahedral.glsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\data-files\shader\Shadowmap.vrt">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\Shadowmap.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\computeDistance.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\computeDistance.vrt">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProbeGIRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

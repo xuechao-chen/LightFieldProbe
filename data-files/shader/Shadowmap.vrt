@@ -1,0 +1,14 @@
+#version 460
+
+in vec4 Position;
+out vec3 vPosition;
+
+//uniform mat4 Model;
+//uniform mat4 View;
+//uniform mat4 Proj;
+
+void main()
+{
+	//gl_Position = Proj * View*vec4(inPosition, 1.0);
+	vPosition = Position.xyz;
+}

@@ -144,7 +144,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="ProbeGIRenderer.cpp" />
+    <ClCompile Include="ProbeGIRenderer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data-files\scene\Animated_Hardening.Scene.Any" />
@@ -155,12 +157,17 @@
     <None Include="..\data-files\scene\Teapot_on_Metal-Video.Scene.Any" />
     <None Include="..\data-files\scene\Teapot_on_Metal.Scene.Any" />
     <None Include="..\data-files\scene\Varying_Light_Size.Scene.Any" />
+    <None Include="..\data-files\shader\computeDistance.pix" />
+    <None Include="..\data-files\shader\computeDistance.vrt" />
     <None Include="..\data-files\shader\ComputeProbeGrid.pix" />
     <None Include="..\data-files\shader\cubemap.pix" />
     <None Include="..\data-files\shader\LightFieldProbe.glsl" />
     <None Include="..\data-files\shader\Octahedral.glsl" />
+    <None Include="..\data-files\shader\Shadowmap.pix" />
+    <None Include="..\data-files\shader\Shadowmap.vrt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App.h" />
     <ClInclude Include="ProbeGIRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

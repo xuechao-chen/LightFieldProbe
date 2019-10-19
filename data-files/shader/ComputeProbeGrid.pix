@@ -34,12 +34,13 @@ void main()
 		Offset = pointOnUnitSphere(i, NumSamples);
 		SampleDirection = normalize(Direction + LobeSize * Offset);
 		Color = texture(ProbeColorCubemap, SampleDirection).xyz;
+		Color = pow(Color, vec3(1.0/2.2));
 		Weight = max(dot(Direction, SampleDirection), 0.0);
 		TotalColor = TotalColor + Color * Weight;
 		SumWeight = SumWeight + Weight;
 	}
 
-	FragColor = TotalColor / SumWeight;
-	//FragColor = texture(ProbeColorCubemap, Direction).xyz;
-	//FragColor = texture(SphereSampler, gl_FragCoord.xy).xyz;
+	//FragColor = TotalColor / SumWeight;
+	FragColor = texture(ProbeColorCubemap, Direction, 0).xyz;
+	FragColor = pow(FragColor, vec3(1.0 / 2.2));
 }
