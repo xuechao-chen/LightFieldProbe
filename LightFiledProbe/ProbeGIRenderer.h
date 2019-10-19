@@ -1,26 +1,23 @@
 #pragma once
-#include <G3D/G3D.h>
+#include "Common.h"
 
 class CProbeGIRenderer : public DefaultRenderer
 {
 	friend class App;
+	SLightFieldSurface m_LightFieldSurface;
 protected:
-	CProbeGIRenderer() {}
-	CProbeGIRenderer(AABox vBoundingBox);
+	CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface);
 
-	virtual void render
+	virtual void renderDeferredShading
 	(RenderDevice*                      rd,
-		const shared_ptr<Camera>&           camera,
-		const shared_ptr<Framebuffer>&      framebuffer,
-		const shared_ptr<Framebuffer>&      depthPeelFramebuffer,
-		LightingEnvironment&                lightingEnvironment,
+		const Array<shared_ptr<Surface> >&  sortedVisibleSurfaceArray,
 		const shared_ptr<GBuffer>&          gbuffer,
-		const Array<shared_ptr<Surface>>&   allSurfaces) override;
+		const LightingEnvironment&          environment) override;
 
 public:
-	static shared_ptr<Renderer> create(AABox vBoundingBox)
+	static shared_ptr<Renderer> create(const SLightFieldSurface& vLightFieldSurface)
 	{
-		return createShared<CProbeGIRenderer>(vBoundingBox);
+		return createShared<CProbeGIRenderer>(vLightFieldSurface);
 	}
 };
 

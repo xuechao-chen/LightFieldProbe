@@ -1,5 +1,4 @@
 #pragma once
-#include <G3D/G3D.h>
 #include "App.h"
 
 void App::onInit()
@@ -9,8 +8,9 @@ void App::onInit()
 
 	__makeGUI();
 
-	m_gbufferSpecification.encoding[GBuffer::Field::LAMBERTIAN] = ImageFormat::RGB32F();
 	m_gbufferSpecification.encoding[GBuffer::Field::CS_POSITION] = ImageFormat::RGB32F();
+	m_gbufferSpecification.encoding[GBuffer::Field::WS_POSITION] = ImageFormat::RGB32F();
+	m_gbufferSpecification.encoding[GBuffer::Field::WS_NORMAL]   = ImageFormat::RGB32F();
 
 	logPrintf("Program initialized\n");
 	loadScene("G3D Sponza (Glossy)");
@@ -22,41 +22,29 @@ void App::onInit()
 
 	__precomputeLightFieldSurface(m_LightFieldSurface);
 
-	m_IsPrecomputed = true;
+	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(m_LightFieldSurface));
+	m_pGIRenderer->setDeferredShading(true);
+	m_renderer = m_pGIRenderer;
 }
 
-void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& surface)
-{
-	if (!m_IsPrecomputed) { GApp::onGraphics3D(rd, surface); return; }
+//void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& surface)
+//{
+//	if (!m_IsPrecomputed) { GApp::onGraphics3D(rd, surface); return; }
+//
+	//rd->swapBuffers();
+	//rd->clear();
 
-	rd->swapBuffers();
-	rd->clear();
-
-	rd->push2D();
-	{
-		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-
-		Args args;
-		args.setRect(rd->viewport());
-		args.setUniform("RadianceProbeGrid",   m_LightFieldSurface.RadianceProbeGrid, Sampler::buffer());
-		args.setUniform("IrradianceProbeGrid", m_LightFieldSurface.IrradianceProbeGrid, Sampler::buffer());
-		args.setUniform("DistanceProbeGrid", m_LightFieldSurface.DistanceProbeGrid, Sampler::buffer());
-		args.setUniform("MeanDistProbeGrid", m_LightFieldSurface.MeanDistProbeGrid, Sampler::buffer());
-		LAUNCH_SHADER("Playground.pix", args);
-	} rd->pop2D();
-
-	//rd->push2D(); {
+	//rd->push2D();
+	//{
 	//	rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
 
 	//	Args args;
 	//	args.setRect(rd->viewport());
-	//	args.setUniform("ProbeColorCubemap", m_LightFieldSurface.IrradianceProbeGrid, Sampler::buffer());
-	//	args.setUniform("NumSamples", 2048);
-	//	args.setUniform("LobeSize", 1.0f);
-	//	args.setUniform("SphereSampler", m_SphereSamplerTexture, Sampler::buffer());
-
-	//	LAUNCH_SHADER("ComputeProbeGrid.pix", args);
-
+	//	args.setUniform("RadianceProbeGrid",   m_LightFieldSurface.RadianceProbeGrid, Sampler::buffer());
+	//	args.setUniform("IrradianceProbeGrid", m_LightFieldSurface.IrradianceProbeGrid, Sampler::buffer());
+	//	args.setUniform("DistanceProbeGrid", m_LightFieldSurface.DistanceProbeGrid, Sampler::buffer());
+	//	args.setUniform("MeanDistProbeGrid", m_LightFieldSurface.MeanDistProbeGrid, Sampler::buffer());
+	//	LAUNCH_SHADER("Playground.pix", args);
 	//} rd->pop2D();
 
 	//GApp::onGraphics3D(rd, surface);
@@ -64,7 +52,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& surface)
 	//{
 	//	Draw::sphere(Sphere(m_ProbePositionSet[i], 0.1), rd);
 	//}
-}
+//}
 
 shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
 {
@@ -141,8 +129,8 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
 
-	LightFieldSurface.ProbeCounts = Vector3int32(4, 4, 4);//TODO
-	LightFieldSurface.ProbeSteps = BoundingBoxRange / LightFieldSurface.ProbeCounts;
+	LightFieldSurface.ProbeCounts = Vector3int32(4,4,4);
+	LightFieldSurface.ProbeSteps = BoundingBoxRange / (LightFieldSurface.ProbeCounts-Vector3int32(1,1,1));
 	LightFieldSurface.ProbeStartPosition = BoundingBox.low();
 
 	auto ProbeNum = LightFieldSurface.ProbeCounts.x * LightFieldSurface.ProbeCounts.y * LightFieldSurface.ProbeCounts.z;
