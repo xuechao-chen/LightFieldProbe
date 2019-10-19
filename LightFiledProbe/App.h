@@ -14,8 +14,6 @@ struct SLightFieldSurface
 
 class App : public GApp
 {
-	shared_ptr<Shader>      m_GbufferShader;
-
 	shared_ptr<Framebuffer> m_ProbeGBuffer;
 	shared_ptr<Framebuffer> m_LightFiledFB;
 
@@ -23,7 +21,8 @@ class App : public GApp
 	std::vector<Vector3> m_ProbePositionSet;
 
 	shared_ptr<Texture>  m_SphereSamplerTexture;
-	shared_ptr<Texture>  m_pCubemap;
+	shared_ptr<Texture>  m_pCubemapColor;
+	shared_ptr<Texture>  m_pCubemapDistance;
 
 	bool m_IsInit = false;
 public:
@@ -39,5 +38,4 @@ private:
 	void __initLightFiledSurface(const AABox& vBoundingBox);
 	void __placeProbe();
 	void __renderLightFiledProbe(uint32 vProbeIndex, Array<shared_ptr<Texture>>& vRadianceTexture, Array<shared_ptr<Texture>>& vDistanceTexture);
-	void __computeGBuffers(RenderDevice* rd, Array<shared_ptr<Surface> >& all);
 };

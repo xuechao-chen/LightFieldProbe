@@ -56,26 +56,14 @@
     <None Include="..\data-files\shader\LightFieldProbe.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\cubemap.pix">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="..\data-files\shader\ComputeProbeGrid.pix">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="..\data-files\shader\Octahedral.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\Shadowmap.vrt">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\Shadowmap.pix">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\computeDistance.pix">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\computeDistance.vrt">
-      <Filter>Shader Files</Filter>
+    <None Include="..\data-files\shader\cubemap.pix">
+      <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
