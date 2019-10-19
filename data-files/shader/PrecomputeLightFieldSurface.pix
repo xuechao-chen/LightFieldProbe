@@ -1,0 +1,65 @@
+#include "octahedral.glsl"
+
+uniform sampler2D   SphereSampler;
+uniform samplerCube RadianceCubemap;
+uniform samplerCube DistanceCubemap;
+
+uniform int   NumSamples;
+uniform float LobeSize;
+
+out vec3 octRadiance;
+out vec3 octIrradiance;
+out float octDistance;
+out vec2 octMeanDistance;
+
+const int NUM_SPHERE_SAMPLERS = 4096;
+
+vec3 pointOnUnitSphere(int i, int n)
+{
+	int k = NUM_SPHERE_SAMPLERS / n;
+	int index = i * k;
+	//vec3 point = sphereSamplers[index%NUM_SPHERE_SAMPLERS].xyz;
+	int2 SampleTexCoord = int2(i/64,i%64);
+	vec3 point = texelFetch(SphereSampler, ivec2(i/64,i%64),0).xyz;
+	return point;
+}
+
+void main()
+{
+	vec3  Radiance = vec3(0.0);
+	vec3  SumRadiance = vec3(0.0, 0.0, 0.0);
+	float RadianceWeight = 0.0;
+	float RadianceSumWeight = 0.0;
+
+	float Distance = 0.0;
+	float SumDistance = 0.0;
+	float DistanceWeight = 0.0;
+	float DistanceSumWeight = 0.0;
+
+	vec3 Direction = octDecode(gl_FragCoord.xy / 1024 * 2.0 - 1.0);
+
+	for (int i = 0; i < NumSamples; i++)
+	{
+		vec3 Offset = pointOnUnitSphere(i, NumSamples);
+		vec3 SampleDirection = normalize(Direction + LobeSize * Offset);
+
+		//Radiance
+		Radiance = pow(texture(RadianceCubemap, SampleDirection).xyz, vec3(1.0/2.2));
+		RadianceWeight = max(dot(Direction, SampleDirection), 0.0);
+		SumRadiance += Radiance * RadianceWeight;
+		RadianceSumWeight += RadianceWeight;
+
+		//Distance
+		Distance = length(texture(DistanceCubemap, SampleDirection).xyz);
+		DistanceWeight = pow(max(dot(Direction, SampleDirection), 0.0), 2.0);
+		SumDistance += Distance;
+		DistanceSumWeight += DistanceWeight;
+	}
+
+	octRadiance = pow(texture(RadianceCubemap, Direction, 0).xyz, vec3(1.0 / 2.2));
+	octIrradiance = SumRadiance / RadianceSumWeight;
+
+	octDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
+	octMeanDistance.x = SumDistance / DistanceSumWeight;
+	octMeanDistance.y = pow(octMeanDistance.x,2.0);
+}

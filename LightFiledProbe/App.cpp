@@ -17,11 +17,10 @@ void App::onInit()
 	//loadScene("Animated Hardening");
 	logPrintf("Loaded Scene\n");
 
-	m_SphereSamplerTexture = __createSphereSampler();
-	m_LightFiledSurface = __initLightFiledSurface();
-	m_ProbePositionSet  = __placeProbe(m_LightFiledSurface);
+	m_LightFieldSurface = __initLightFieldSurface();
+	m_ProbePositionSet  = __placeProbe(m_LightFieldSurface);
 
-	__precomputeLightFiledSurface(m_LightFiledSurface);
+	__precomputeLightFieldSurface(m_LightFieldSurface);
 
 	m_IsPrecomputed = true;
 }
@@ -39,7 +38,10 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& surface)
 
 		Args args;
 		args.setRect(rd->viewport());
-		args.setUniform("TempArray", m_LightFiledSurface.RadianceProbeGrid, Sampler::buffer());
+		args.setUniform("RadianceProbeGrid",   m_LightFieldSurface.RadianceProbeGrid, Sampler::buffer());
+		args.setUniform("IrradianceProbeGrid", m_LightFieldSurface.IrradianceProbeGrid, Sampler::buffer());
+		args.setUniform("DistanceProbeGrid", m_LightFieldSurface.DistanceProbeGrid, Sampler::buffer());
+		args.setUniform("MeanDistProbeGrid", m_LightFieldSurface.MeanDistProbeGrid, Sampler::buffer());
 		LAUNCH_SHADER("Playground.pix", args);
 	} rd->pop2D();
 
@@ -48,7 +50,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& surface)
 
 	//	Args args;
 	//	args.setRect(rd->viewport());
-	//	args.setUniform("ProbeColorCubemap", m_LightFiledSurface.IrradianceProbeGrid, Sampler::buffer());
+	//	args.setUniform("ProbeColorCubemap", m_LightFieldSurface.IrradianceProbeGrid, Sampler::buffer());
 	//	args.setUniform("NumSamples", 2048);
 	//	args.setUniform("LobeSize", 1.0f);
 	//	args.setUniform("SphereSampler", m_SphereSamplerTexture, Sampler::buffer());
@@ -95,37 +97,42 @@ void App::__makeGUI()
 	showRenderingStats = false;
 }
 
-void App::__precomputeLightFiledSurface(SLightFieldSurface& vioLightFieldSurface)
+void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface)
 {
+	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler();
 	shared_ptr<Texture> RadianceCubemap = Texture::createEmpty("RadianceCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP);
 	shared_ptr<Texture> DistanceCubemap = Texture::createEmpty("DistanceCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP);
 
-	shared_ptr<Framebuffer> LightFiledFramebuffer = Framebuffer::create("LightFiledFB");
+	shared_ptr<Framebuffer> LightFieldFramebuffer = Framebuffer::create("LightFieldFB");
+	
+	auto CubemapSampler = Sampler::cubeMap();
+	CubemapSampler.interpolateMode = InterpolateMode::BILINEAR_NO_MIPMAP;
 
 	for (int i = 0; i < m_ProbePositionSet.size(); ++i)
 	{
-		__renderLightFiledProbe(i, RadianceCubemap, DistanceCubemap);
+		__renderLightFieldProbe(i, RadianceCubemap, DistanceCubemap);
 
-		LightFiledFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.RadianceProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.RadianceProbeGrid,   CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface.IrradianceProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR2, vioLightFieldSurface.DistanceProbeGrid,   CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR3, vioLightFieldSurface.MeanDistProbeGrid,   CubeFace::POS_X, 0, i);
 
-		renderDevice->push2D(LightFiledFramebuffer); {
+		renderDevice->push2D(LightFieldFramebuffer); {
 			renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-			auto Sampler = Sampler::cubeMap();
-			Sampler.interpolateMode = InterpolateMode::BILINEAR_NO_MIPMAP;
-
 			Args args;
 			args.setRect(renderDevice->viewport());
-			args.setUniform("ProbeColorCubemap", RadianceCubemap, Sampler);
+			args.setUniform("RadianceCubemap", RadianceCubemap, CubemapSampler);
+			args.setUniform("DistanceCubemap", DistanceCubemap, CubemapSampler);
 			args.setUniform("NumSamples", 2048);
 			args.setUniform("LobeSize", 1.0f);
-			args.setUniform("SphereSampler", m_SphereSamplerTexture, Sampler::buffer());
+			args.setUniform("SphereSampler", SphereSamplerTexture, Sampler::buffer());
 
-			LAUNCH_SHADER("ComputeProbeGrid.pix", args);
+			LAUNCH_SHADER("PrecomputeLightFieldSurface.pix", args);
 		} renderDevice->pop2D();
 	}
 }
 
-SLightFieldSurface App::__initLightFiledSurface()
+SLightFieldSurface App::__initLightFieldSurface()
 {
 	SLightFieldSurface LightFieldSurface;
 
@@ -140,19 +147,21 @@ SLightFieldSurface App::__initLightFiledSurface()
 
 	auto ProbeNum = LightFieldSurface.ProbeCounts.x * LightFieldSurface.ProbeCounts.y * LightFieldSurface.ProbeCounts.z;
 
-	LightFieldSurface.RadianceProbeGrid = Texture::createEmpty("RaidanceProbeGrid", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	LightFieldSurface.RadianceProbeGrid   = Texture::createEmpty("RaidanceProbeGrid", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	LightFieldSurface.IrradianceProbeGrid = Texture::createEmpty("IrraidanceProbeGrid", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	LightFieldSurface.DistanceProbeGrid   = Texture::createEmpty("DistanceProbeGrid", 1024, 1024, ImageFormat::R32F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	LightFieldSurface.MeanDistProbeGrid   = Texture::createEmpty("MeanDistProbeGrid", 1024, 1024, ImageFormat::RG32F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 
 	return LightFieldSurface;
 }
 
-std::vector<Vector3> App::__placeProbe(const SLightFieldSurface& vLightFiledSurface)
+std::vector<Vector3> App::__placeProbe(const SLightFieldSurface& vLightFieldSurface)
 {
 	std::vector<Vector3> ProbePositionSet;
 
-	auto ProbeCounts   = vLightFiledSurface.ProbeCounts;
-	auto ProbeSteps    = vLightFiledSurface.ProbeSteps;
-	auto ProbeStartPos = vLightFiledSurface.ProbeStartPosition;
+	auto ProbeCounts   = vLightFieldSurface.ProbeCounts;
+	auto ProbeSteps    = vLightFieldSurface.ProbeSteps;
+	auto ProbeStartPos = vLightFieldSurface.ProbeStartPosition;
 
 	for (int i = 0; i < ProbeCounts.z; ++i)
 	{
@@ -172,7 +181,7 @@ std::vector<Vector3> App::__placeProbe(const SLightFieldSurface& vLightFiledSurf
 	return ProbePositionSet;
 }
 
-void App::__renderLightFiledProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap)
+void App::__renderLightFieldProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap)
 {
 	Array<shared_ptr<Surface> > surface;
 	{
@@ -238,7 +247,7 @@ int main(int argc, const char* argv[]) {
 	initGLG3D();
 	GApp::Settings settings(argc, argv);
 
-	settings.window.caption = "Light Filed Probe GI";
+	settings.window.caption = "Light Field Probe GI";
 	settings.window.width = 1024; settings.window.height = 1024;
 	settings.window.fullScreen = false;
 	settings.window.resizable = false;

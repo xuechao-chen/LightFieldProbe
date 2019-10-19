@@ -2,9 +2,7 @@
 #include <compatibility.glsl>
 #include <g3dmath.glsl>
 #include <Texture/Texture.glsl>
-#include <GBuffer/GBuffer.glsl>
 
-uniform_GBuffer(gbuffer_);
 //uniform sampler2D FRONT;
 //
 //out Color3 result;
@@ -25,14 +23,19 @@ uniform_GBuffer(gbuffer_);
 //	result = texture(Cubemap, sampleDir).rgb;
 //}
 
-uniform sampler2D Gbuffer;
-uniform sampler2DArray TempArray;
+uniform sampler2DArray RadianceProbeGrid;
+uniform sampler2DArray IrradianceProbeGrid;
+uniform sampler2DArray DistanceProbeGrid;
+uniform sampler2DArray MeanDistProbeGrid;
 
 out Color3 result;
 
 void main()
 {
-	result = texture(TempArray, vec3(gl_FragCoord.xy / 1024, 0)).rgb;
+	result = texture(RadianceProbeGrid, vec3(gl_FragCoord.xy / 1024, 0)).rgb;
+	result = texture(IrradianceProbeGrid, vec3(gl_FragCoord.xy / 1024, 0)).rgb;
+	result = vec3(texture(DistanceProbeGrid, vec3(gl_FragCoord.xy / 1024, 0)).r/100, 0, 0);
+	result = vec3(texture(MeanDistProbeGrid, vec3(gl_FragCoord.xy / 1024, 0)).rg, 0);
 	//int2 P = int2(gl_FragCoord.xy);
 	//result = texelFetch(Gbuffer, P, 0).rgb;
 }
