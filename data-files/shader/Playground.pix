@@ -32,7 +32,7 @@ out Color3 result;
 
 void main()
 {
-	//result = texture(TempArray, vec3(gl_FragCoord.xy / 1024, 0)).rgb;
-	int2 P = int2(gl_FragCoord.xy);
-	result = texelFetch(Gbuffer, P, 0).rgb;
+	result = texture(TempArray, vec3(gl_FragCoord.xy / 1024, 0)).rgb;
+	//int2 P = int2(gl_FragCoord.xy);
+	//result = texelFetch(Gbuffer, P, 0).rgb;
 }

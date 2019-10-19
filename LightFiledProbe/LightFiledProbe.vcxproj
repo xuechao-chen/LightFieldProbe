@@ -159,9 +159,9 @@
     <None Include="..\data-files\scene\Teapot_on_Metal.Scene.Any" />
     <None Include="..\data-files\scene\Varying_Light_Size.Scene.Any" />
     <None Include="..\data-files\shader\ComputeProbeGrid.pix" />
-    <None Include="..\data-files\shader\cubemap.pix" />
     <None Include="..\data-files\shader\LightFieldProbe.glsl" />
     <None Include="..\data-files\shader\Octahedral.glsl" />
+    <None Include="..\data-files\shader\Playground.pix" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />

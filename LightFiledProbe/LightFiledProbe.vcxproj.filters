@@ -62,8 +62,8 @@
     <None Include="..\data-files\shader\Octahedral.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\cubemap.pix">
-      <Filter>Source Files</Filter>
+    <None Include="..\data-files\shader\Playground.pix">
+      <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
