@@ -36,6 +36,4 @@ void main()
 	result = texture(IrradianceProbeGrid, vec3(gl_FragCoord.xy / 1024, 0)).rgb;
 	result = vec3(texture(DistanceProbeGrid, vec3(gl_FragCoord.xy / 1024, 0)).r/100, 0, 0);
 	result = vec3(texture(MeanDistProbeGrid, vec3(gl_FragCoord.xy / 1024, 0)).rg, 0);
-	//int2 P = int2(gl_FragCoord.xy);
-	//result = texelFetch(Gbuffer, P, 0).rgb;
 }
