@@ -60,7 +60,7 @@ void main()
 
 		//Distance
 		Distance = length(texture(DistanceCubemap, SampleDirection).xyz);
-		DistanceWeight = pow(max(dot(Direction, SampleDirection), 0.0), 2.0);
+		DistanceWeight = pow(max(dot(Direction, SampleDirection), 0.0), 10.0);
 		SumDistance += Distance;
 		DistanceSumWeight += DistanceWeight;
 	}

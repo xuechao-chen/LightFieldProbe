@@ -26,7 +26,6 @@ void CProbeGIRenderer::renderDeferredShading
 
 	} rd->pop2D();
 
-
 	//Display probes
 
 	auto ProbeCounts = m_LightFieldSurface.ProbeCounts;
