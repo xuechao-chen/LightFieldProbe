@@ -13,9 +13,10 @@ void App::onInit()
 	m_gbufferSpecification.encoding[GBuffer::Field::WS_NORMAL]   = ImageFormat::RGB32F();
 
 	logPrintf("Program initialized\n");
-	//loadScene("G3D Sponza (Glossy)");
+	loadScene("Sponza Glossy");
 	//loadScene("Animated Hardening");
-	loadScene("G3D Simple Cornell Box (Globe)");
+	//loadScene("G3D Simple Cornell Box (Globe)");
+	//loadScene("G3D Breakfast Room (Area Lights)");
 	logPrintf("Loaded Scene\n");
 
 	m_LightFieldSurface = __initLightFieldSurface();
@@ -103,7 +104,7 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
 
-	LightFieldSurface.ProbeCounts = Vector3int32(4,4,4);
+	LightFieldSurface.ProbeCounts = Vector3int32(4,4,8);
 	LightFieldSurface.ProbeSteps = BoundingBoxRange / LightFieldSurface.ProbeCounts;
 	LightFieldSurface.ProbeStartPosition = BoundingBox.low()+LightFieldSurface.ProbeSteps/2;
 
@@ -154,16 +155,10 @@ void App::__renderLightFieldProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadi
 	Array<shared_ptr<Surface>> NoLightSurface;
 	for (auto Iter = surface.begin(); Iter < surface.end(); ++Iter)
 	{
-		auto visibleEntity = dynamic_pointer_cast<VisibleEntity>((*Iter)->entity());
-		if (visibleEntity)
+		if ((*Iter)->expressiveLightScatteringProperties.castsShadows)
 		{
-			if (!visibleEntity->castsShadows())
-			{
-				NoLightSurface.push_back(*Iter);
-				continue;
-			}
+			NoLightSurface.push_back(*Iter);
 		}
-		NoLightSurface.push_back(*Iter);
 	}
 
 	const int oldFramebufferWidth = m_osWindowHDRFramebuffer->width();

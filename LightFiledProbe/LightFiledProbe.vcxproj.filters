@@ -68,6 +68,9 @@
     <None Include="..\data-files\shader\Lighting.pix">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\data-files\scene\Sponza_Glossy.Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProbeGIRenderer.h">

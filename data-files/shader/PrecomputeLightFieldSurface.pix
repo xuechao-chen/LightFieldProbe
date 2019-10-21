@@ -44,7 +44,7 @@ void main()
 		vec3 SampleDirection = normalize(Direction + LobeSize * Offset);
 
 		//Radiance
-		Radiance = pow(texture(RadianceCubemap, SampleDirection).xyz, vec3(1.0));
+		Radiance = texture(RadianceCubemap, SampleDirection).xyz;
 		RadianceWeight = max(dot(Direction, SampleDirection), 0.0);
 		SumRadiance += Radiance * RadianceWeight;
 		RadianceSumWeight += RadianceWeight;
@@ -56,7 +56,7 @@ void main()
 		DistanceSumWeight += DistanceWeight;
 	}
 
-	octRadiance = pow(texture(RadianceCubemap, Direction, 0).xyz, vec3(1.0));
+	octRadiance = texture(RadianceCubemap, Direction, 0).xyz;
 	octIrradiance = SumRadiance / RadianceSumWeight;
 
 	octDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
