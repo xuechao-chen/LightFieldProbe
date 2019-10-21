@@ -155,6 +155,7 @@
     <None Include="..\data-files\scene\Cube_+_Colored_Lights.Scene.Any" />
     <None Include="..\data-files\scene\Knob_+_Teapot.Scene.Any" />
     <None Include="..\data-files\scene\Mirror_Primitives.Scene.Any" />
+    <None Include="..\data-files\scene\Simple_Cornell_Box.Scene.Any" />
     <None Include="..\data-files\scene\Sponza_Glossy.Scene.Any" />
     <None Include="..\data-files\scene\Teapot_on_Metal-Video.Scene.Any" />
     <None Include="..\data-files\scene\Teapot_on_Metal.Scene.Any" />
