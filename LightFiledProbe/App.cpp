@@ -75,9 +75,9 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 
 	for (int i = 0; i < m_ProbePositionSet.size(); ++i)
 	{
-		__renderLightFieldProbe(i, RadianceCubemap, DistanceCubemap);
+		__renderLightFieldProbe(i, 1024, RadianceCubemap, DistanceCubemap);
 
-		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.RadianceProbeGrid,   CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.RadianceProbeGrid, CubeFace::POS_X, 0, i);
 		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface.DistanceProbeGrid, CubeFace::POS_X, 0, i);
 
 		renderDevice->push2D(LightFieldFramebuffer); {
@@ -164,7 +164,7 @@ std::vector<Vector3> App::__placeProbe(const SLightFieldSurface& vLightFieldSurf
 	return ProbePositionSet;
 }
 
-void App::__renderLightFieldProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap)
+void App::__renderLightFieldProbe(uint32 vProbeIndex, int vResolution, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap)
 {
 	Array<shared_ptr<Surface>> surface;
 	{
@@ -189,11 +189,9 @@ void App::__renderLightFieldProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadi
 	const Vector2int16  oldDepthGuard = m_settings.hdrFramebuffer.depthGuardBandThickness;
 	const shared_ptr<Camera>& oldCamera = activeCamera();
 
-	int resolution = 1024;
-
 	m_settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(128, 128);
 	m_settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(256, 256);
-	const int fullWidth = resolution + (2 * m_settings.hdrFramebuffer.depthGuardBandThickness.x);
+	const int fullWidth = vResolution + (2 * m_settings.hdrFramebuffer.depthGuardBandThickness.x);
 	m_osWindowHDRFramebuffer->resize(fullWidth, fullWidth);
 
 	shared_ptr<Camera> camera = Camera::create("Cubemap Camera");
@@ -205,7 +203,7 @@ void App::__renderLightFieldProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadi
 	camera->setTrack(nullptr);
 	camera->depthOfFieldSettings().setEnabled(false);
 	camera->motionBlurSettings().setEnabled(false);
-	camera->setFieldOfView(2.0f * ::atan(1.0f + 2.0f*(float(m_settings.hdrFramebuffer.depthGuardBandThickness.x) / float(resolution))), FOVDirection::HORIZONTAL);
+	camera->setFieldOfView(2.0f * ::atan(1.0f + 2.0f*(float(m_settings.hdrFramebuffer.depthGuardBandThickness.x) / float(vResolution))), FOVDirection::HORIZONTAL);
 
 	// Configure the base camera
 	CFrame cframe = camera->frame();
@@ -218,10 +216,9 @@ void App::__renderLightFieldProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadi
 		renderDevice->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
 
 		// Render every face twice to let the screen space reflection/refraction texture to stabilize
+		onGraphics3D(renderDevice, surface);
+		onGraphics3D(renderDevice, surface);
 
-		onGraphics3D(renderDevice, surface);
-		onGraphics3D(renderDevice, surface);
-		m_osWindowHDRFramebuffer->get(Framebuffer::DEPTH);
 		Texture::copy(m_osWindowHDRFramebuffer->texture(0), voRadianceCubemap, 0, 0, 1,
 					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voRadianceCubemap->vector2Bounds()) / 2.0f),
 					  CubeFace::POS_X, CubeFace(Face) , nullptr, false);
