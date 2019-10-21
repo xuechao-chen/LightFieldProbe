@@ -107,7 +107,7 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto Bounds = BoundingBoxRange * 0.1;//NOTE: range from 0.1 to 0.5
 
-	LightFieldSurface.ProbeCounts = Vector3int32(2,2,2);
+	LightFieldSurface.ProbeCounts = Vector3int32(4,4,4);
 	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
 	LightFieldSurface.ProbeStartPosition = BoundingBox.low()+Bounds;
 
@@ -149,18 +149,20 @@ std::vector<Vector3> App::__placeProbe(const SLightFieldSurface& vLightFieldSurf
 
 void App::__renderLightFieldProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap)
 {
-	Array<shared_ptr<Surface> > surface;
-	{
-		Array<shared_ptr<Surface2D> > ignore;
-		onPose(surface, ignore);
-	}
+	Array<shared_ptr<Surface>> surface;
+	//{
+	//	Array<shared_ptr<Surface2D> > ignore;
+	//	onPose(surface, ignore);
+	//}
 
-	Array<shared_ptr<Surface>> NoLightSurface;
-	for (auto Iter = surface.begin(); Iter < surface.end(); ++Iter)
+	Array<shared_ptr<Entity>> SceneEntities;
+	scene()->getEntityArray(SceneEntities);
+
+	for (auto& Entity : SceneEntities) 
 	{
-		if ((*Iter)->expressiveLightScatteringProperties.castsShadows)
+		if (Entity->name().find("light") == String::npos)
 		{
-			NoLightSurface.push_back(*Iter);
+			Entity->onPose(surface);
 		}
 	}
 

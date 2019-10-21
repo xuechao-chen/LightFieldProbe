@@ -185,7 +185,8 @@
     }; 
     
     models = { 
-        boxModel = "model/CornellBox/CornellBox.zip/CornellBox-Original.obj"; 
+        //boxModel = "model/CornellBox/CornellBox.zip/CornellBox-Original.obj"; 
+        boxModel = "model/CornellBox/CornellBox/CornellBox-Original.obj"; 
     }; 
     
     name = "Simple Cornell Box"; 

@@ -23,5 +23,5 @@ void main()
 	readUniversalMaterialSampleFromGBuffer(P, false, true, w_o, surfel);
 
 	vec3 IndirectLighting = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
-	Color = IndirectLighting * surfel.lambertianReflectivity;
+	Color = IndirectLighting * surfel.lambertianReflectivity / pi;
 }
