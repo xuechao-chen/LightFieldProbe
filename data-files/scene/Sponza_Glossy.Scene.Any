@@ -211,14 +211,14 @@ entities = {
 		castsShadows = false;
 	};
 
-	//skybox = Skybox {
-	//	texture = Texture::Specification {
-	//		encoding = Texture::Encoding {
-	//			readMultiplyFirst = 7;
-	//		};
-	//		filename = "cubemap/noonclouds/noonclouds_*.png";
-	//	};
-	//};
+	skybox = Skybox {
+		texture = Texture::Specification {
+			encoding = Texture::Encoding {
+				readMultiplyFirst = 7;
+			};
+			filename = "cubemap/noonclouds/noonclouds_*.png";
+		};
+	};
 
 	statue = VisibleEntity {
 		canChange = false;
@@ -227,107 +227,111 @@ entities = {
 		visible = true;
 	};
 
-	//light1 = Light {
-	//	attenuation = (0.0001, 0, 1);
-	//	bulbPower = Power3(600);
-	//	canChange = false;
-	//	shadowsEnabled = true;
-	//	enabled = true;
-	//	extent = Vector2(0.75, 0.75);
-	//	nearPlaneZLimit = -1;
-	//	frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, 0, -90, 0);
-	//	producesDirectIllumination = true;
-	//	producesIndirectIllumination = true;
-	//	shadowMapSize = Vector2int16(1024, 1024);
-	//	spotHalfAngleDegrees = 45;
-	//	rectangular = true;
-	//	type = "SPOT";
-	//};
+	light1 = Light {
+		attenuation = (0.0001, 0, 1);
+		bulbPower = Power3(600);
+		canChange = false;
+		shadowsEnabled = true;
+		enabled = true;
+		extent = Vector2(0.75, 0.75);
+		nearPlaneZLimit = -1;
+		frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, 0, -90, 0);
+		producesDirectIllumination = true;
+		producesIndirectIllumination = true;
+		shadowMapSize = Vector2int16(1024, 1024);
+		spotHalfAngleDegrees = 45;
+		rectangular = true;
+		type = "SPOT";
+	};
 
-	//light2 = Light {
-	//	attenuation = (0.0001, 0, 1);
-	//	bulbPower = Power3(600);
-	//	canChange = false;
-	//	shadowsEnabled = true;
-	//	enabled = true;
-	//	nearPlaneZLimit = -1;
-	//	extent = Vector2(0.75, 0.75);
-	//	frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, 0, 0, 0);
-	//	producesDirectIllumination = true;
-	//	producesIndirectIllumination = true;
-	//	shadowMapSize = Vector2int16(1024, 1024);
-	//	spotHalfAngleDegrees = 45;
-	//	rectangular = true;
-	//	type = "SPOT";
-	//};
+	light2 = Light {
+		attenuation = (0.0001, 0, 1);
+		bulbPower = Power3(600);
+		canChange = false;
+		shadowsEnabled = true;
+		enabled = true;
+		nearPlaneZLimit = -1;
+		extent = Vector2(0.75, 0.75);
+		frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, 0, 0, 0);
+		producesDirectIllumination = true;
+		producesIndirectIllumination = true;
+		shadowMapSize = Vector2int16(1024, 1024);
+		spotHalfAngleDegrees = 45;
+		rectangular = true;
+		type = "SPOT";
+	};
 
-	//light3 = Light {
-	//	attenuation = (0.0001, 0, 1);
-	//	bulbPower = Power3(600);
-	//	canChange = false;
-	//	shadowsEnabled = true;
-	//	enabled = true;
-	//	nearPlaneZLimit = -1;
-	//	extent = Vector2(0.75, 0.75);
-	//	frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, -90, 90, 0);
-	//	producesDirectIllumination = true;
-	//	producesIndirectIllumination = true;
-	//	shadowMapSize = Vector2int16(1024, 1024);
-	//	spotHalfAngleDegrees = 45;
-	//	rectangular = true;
-	//	type = "SPOT";
-	//};
+	light3 = Light {
+		attenuation = (0.0001, 0, 1);
+		bulbPower = Power3(600);
+		canChange = false;
+		shadowsEnabled = true;
+		enabled = true;
+		nearPlaneZLimit = -1;
+		extent = Vector2(0.75, 0.75);
+		frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, -90, 90, 0);
+		producesDirectIllumination = true;
+		producesIndirectIllumination = true;
+		shadowMapSize = Vector2int16(1024, 1024);
+		spotHalfAngleDegrees = 45;
+		rectangular = true;
+		type = "SPOT";
+	};
 
-	//light4 = Light {
-	//	attenuation = (0.0001, 0, 1);
-	//	bulbPower = Power3(600);
-	//	canChange = false;
-	//	shadowsEnabled = true;
-	//	enabled = true;
-	//	nearPlaneZLimit = -1;
-	//	extent = Vector2(0.75, 0.75);
-	//	frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, -90, 0, 0);
-	//	producesDirectIllumination = true;
-	//	producesIndirectIllumination = true;
-	//	shadowMapSize = Vector2int16(1024, 1024);
-	//	spotHalfAngleDegrees = 45;
-	//	rectangular = true;
-	//	type = "SPOT";
-	//};
+	light4 = Light {
+		attenuation = (0.0001, 0, 1);
+		bulbPower = Power3(600);
+		canChange = false;
+		shadowsEnabled = true;
+		enabled = true;
+		nearPlaneZLimit = -1;
+		extent = Vector2(0.75, 0.75);
+		frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, -90, 0, 0);
+		producesDirectIllumination = true;
+		producesIndirectIllumination = true;
+		shadowMapSize = Vector2int16(1024, 1024);
+		spotHalfAngleDegrees = 45;
+		rectangular = true;
+		type = "SPOT";
+	};
 
-	//light5 = Light {
-	//	attenuation = (0.0001, 0, 1);
-	//	bulbPower = Power3(600);
-	//	canChange = false;
-	//	shadowsEnabled = true;
-	//	nearPlaneZLimit = -1;
-	//	enabled = true;
-	//	extent = Vector2(0.75, 0.75);
-	//	frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, 180, 0, 180);
-	//	producesDirectIllumination = true;
-	//	producesIndirectIllumination = true;
-	//	shadowMapSize = Vector2int16(1024, 1024);
-	//	spotHalfAngleDegrees = 45;
-	//	rectangular = true;
-	//	type = "SPOT";
-	//};
+	light5 = Light {
+		attenuation = (0.0001, 0, 1);
+		bulbPower = Power3(600);
+		canChange = false;
+		shadowsEnabled = true;
+		nearPlaneZLimit = -1;
+		enabled = true;
+		extent = Vector2(0.75, 0.75);
+		frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, 180, 0, 180);
+		producesDirectIllumination = true;
+		producesIndirectIllumination = true;
+		shadowMapSize = Vector2int16(1024, 1024);
+		spotHalfAngleDegrees = 45;
+		rectangular = true;
+		type = "SPOT";
+	};
 
-	//light6 = Light {
-	//	attenuation = (0.0001, 0, 1);
-	//	bulbPower = Power3(600);
-	//	canChange = false;
-	//	shadowsEnabled = true;
-	//	nearPlaneZLimit = -1;
-	//	enabled = true;
-	//	extent = Vector2(0.75, 0.75);
-	//	frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, 90, 0, 0);
-	//	producesDirectIllumination = true;
-	//	producesIndirectIllumination = true;
-	//	shadowMapSize = Vector2int16(1024, 1024);
-	//	spotHalfAngleDegrees = 45;
-	//	rectangular = true;
-	//	type = "SPOT";
-	//};
+	light6 = Light {
+		attenuation = (0.0001, 0, 1);
+		bulbPower = Power3(600);
+		canChange = false;
+		shadowsEnabled = true;
+		nearPlaneZLimit = -1;
+		enabled = true;
+		extent = Vector2(0.75, 0.75);
+		frame = CFrame::fromXYZYPRDegrees(-20, 3, -0.5, 90, 0, 0);
+		producesDirectIllumination = true;
+		producesIndirectIllumination = true;
+		shadowMapSize = Vector2int16(1024, 1024);
+		spotHalfAngleDegrees = 45;
+		rectangular = true;
+		type = "SPOT";
+	};
+
+	skybox = Skybox{
+		texture = 0.0;
+	};
 };
 
 lightingEnvironment = LightingEnvironment{
@@ -357,13 +361,13 @@ lightingEnvironment = LightingEnvironment{
 		zStorage = "HALF";
 	};
 
-	environmentMap = Texture::Specification {
-		encoding = Texture::Encoding {
-			readMultiplyFirst = 0.2;
-		};
+	//environmentMap = Texture::Specification {
+	//	encoding = Texture::Encoding {
+	//		readMultiplyFirst = 0.2;
+	//	};
 
-		filename = "cubemap/uffizi/uffizi*.jpg";
-	};
+	//	filename = "cubemap/uffizi/uffizi*.jpg";
+	//};
 
 	//environmentMap = Texture::Specification{
 	//	encoding = Color3(0.0);

@@ -153,6 +153,7 @@
     <None Include="..\data-files\scene\Animated_Hardening.Scene.Any" />
     <None Include="..\data-files\scene\AnimationTest.Scene.Any" />
     <None Include="..\data-files\scene\Cube_+_Colored_Lights.Scene.Any" />
+    <None Include="..\data-files\scene\G3D_Sponza_(Area_Light).Scene.Any" />
     <None Include="..\data-files\scene\Knob_+_Teapot.Scene.Any" />
     <None Include="..\data-files\scene\Mirror_Primitives.Scene.Any" />
     <None Include="..\data-files\scene\Simple_Cornell_Box.Scene.Any" />
