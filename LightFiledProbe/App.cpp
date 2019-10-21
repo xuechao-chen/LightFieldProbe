@@ -105,9 +105,11 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
 
+	auto Bounds = BoundingBoxRange * 0.1;//NOTE: range from 0.1 to 0.5
+
 	LightFieldSurface.ProbeCounts = Vector3int32(2,2,2);
-	LightFieldSurface.ProbeSteps = BoundingBoxRange / LightFieldSurface.ProbeCounts;
-	LightFieldSurface.ProbeStartPosition = BoundingBox.low()+LightFieldSurface.ProbeSteps/2;
+	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
+	LightFieldSurface.ProbeStartPosition = BoundingBox.low()+Bounds;
 
 	auto ProbeNum = LightFieldSurface.ProbeCounts.x * LightFieldSurface.ProbeCounts.y * LightFieldSurface.ProbeCounts.z;
 
@@ -198,8 +200,8 @@ void App::__renderLightFieldProbe(uint32 vProbeIndex, shared_ptr<Texture> voRadi
 
 		// Render every face twice to let the screen space reflection/refraction texture to stabilize
 
-		onGraphics3D(renderDevice, NoLightSurface);
-		onGraphics3D(renderDevice, NoLightSurface);
+		onGraphics3D(renderDevice, surface);
+		onGraphics3D(renderDevice, surface);
 		m_osWindowHDRFramebuffer->get(Framebuffer::DEPTH);
 		Texture::copy(m_osWindowHDRFramebuffer->texture(0), voRadianceCubemap, 0, 0, 1,
 					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voRadianceCubemap->vector2Bounds()) / 2.0f),
