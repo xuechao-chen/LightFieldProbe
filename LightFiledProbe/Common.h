@@ -14,3 +14,17 @@ struct SLightFieldSurface
 	Point3                  ProbeStartPosition;
 	Vector3                 ProbeSteps;
 };
+
+struct SLightFieldCubemap
+{
+	SLightFieldCubemap(int vResolution, Texture::Encoding vImageFormat)
+	{
+		RadianceCubemap = Texture::createEmpty("RadianceCubemap", vResolution, vResolution, vImageFormat, Texture::DIM_CUBE_MAP);
+		DistanceCubemap = Texture::createEmpty("DistanceCubemap", vResolution, vResolution, vImageFormat, Texture::DIM_CUBE_MAP);
+		NormalCubemap = Texture::createEmpty("NormalCubemap", vResolution, vResolution, vImageFormat, Texture::DIM_CUBE_MAP);
+	}
+
+	shared_ptr<Texture> RadianceCubemap;
+	shared_ptr<Texture> DistanceCubemap;
+	shared_ptr<Texture> NormalCubemap;
+};
