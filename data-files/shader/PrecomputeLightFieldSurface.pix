@@ -24,7 +24,6 @@ vec3 pointOnUnitSphere(int i, int n)
 {
 	int k = NUM_SPHERE_SAMPLERS / n;
 	int index = i * k;
-	//vec3 point = sphereSamplers[index%NUM_SPHERE_SAMPLERS].xyz;
 	int2 SampleTexCoord = int2(i/64,i%64);
 	vec3 point = texelFetch(SphereSampler, ivec2(i/64,i%64),0).xyz;
 	return point;
@@ -38,7 +37,9 @@ void main()
 	float RadianceSumWeight = 0.0;
 
 	float Distance = 0.0;
+	float SquareDistance = 0.0;
 	float SumDistance = 0.0;
+	float SumSquareDistance = 0.0;
 	float DistanceWeight = 0.0;
 	float DistanceSumWeight = 0.0;
 
@@ -63,15 +64,17 @@ void main()
 		RadianceSumWeight += RadianceWeight;
 
 		//Distance
-		Distance = length(texture(DistanceCubemap, SampleDirection).xyz);
+		Distance = length(texture(DistanceCubemap, SampleDirection, 0).xyz);
+		SquareDistance = pow(Distance, 2.0);
 		DistanceWeight = pow(max(dot(Direction, SampleDirection), 0.0), 10.0);
 		SumDistance += Distance;
+		SumSquareDistance += SquareDistance;
 		DistanceSumWeight += DistanceWeight;
 	}
 
 	octIrradiance = SumRadiance / RadianceSumWeight;
 	octMeanDistance.x = SumDistance / DistanceSumWeight;
-	octMeanDistance.y = pow(octMeanDistance.x, 2.0);
+	octMeanDistance.y = SumSquareDistance / DistanceSumWeight;
 	octLowResDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
 #endif
 }

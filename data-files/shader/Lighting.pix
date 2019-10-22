@@ -25,5 +25,5 @@ void main()
 	vec3 IndirectDiffuseLighting = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
 	vec3 IndirectGlossyLighting = computeGlossyRay(lightFieldSurface, surfel.position, w_o, surfel.shadingNormal);
 
-	Color = IndirectDiffuseLighting * surfel.lambertianReflectivity / pi + IndirectGlossyLighting;
+	Color = IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
 }

@@ -425,7 +425,8 @@ TraceResult traceOneRaySegment
 			// The whole trace failed to hit anything           
 			return TRACE_RESULT_MISS;
 		}
-		else {
+		else 
+		{
 
 			// The low-resolution trace already guaranted that endTexCoord is no farther along the ray than segmentEndTexCoord if this point is reached,
 			// so we don't need to clamp to the segment length
@@ -571,7 +572,7 @@ Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPositio
 	int     probeIndex;
 	//TODO: 1. define FILL_HOLES micro
 	//      2. define computeGlossyEnvironmentMapLighting
-	if (!trace(lightFieldSurface, worldSpaceRay, hitDistance, hitProbeTexCoord, probeIndex, true)) {
+	if (!trace(lightFieldSurface, worldSpaceRay, hitDistance, hitProbeTexCoord, probeIndex, false)) {
 		// Missed the entire scene; fall back to the environment map
 		//return computeGlossyEnvironmentMapLighting(wi, true, glossyExponent, false);
 		return Radiance3(0);
