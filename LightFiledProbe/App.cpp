@@ -67,6 +67,8 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler();
 	shared_ptr<Texture> RadianceCubemap = Texture::createEmpty("RadianceCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP);
 	shared_ptr<Texture> DistanceCubemap = Texture::createEmpty("DistanceCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP);
+	shared_ptr<Texture> NormalCubemap = Texture::createEmpty("NormalCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP);
+
 
 	shared_ptr<Framebuffer> LightFieldFramebuffer = Framebuffer::create("LightFieldFB");
 	
@@ -79,6 +81,7 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 
 		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.RadianceProbeGrid, CubeFace::POS_X, 0, i);
 		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface.DistanceProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR2, vioLightFieldSurface.NormalProbeGrid, CubeFace::POS_X, 0, i);
 
 		renderDevice->push2D(LightFieldFramebuffer); {
 			renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
@@ -87,6 +90,7 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 			args.setMacro("OCT_HIGH_RES", 1);
 			args.setUniform("RadianceCubemap", RadianceCubemap, CubemapSampler);
 			args.setUniform("DistanceCubemap", DistanceCubemap, CubemapSampler);
+			args.setUniform("NormalCubemap", NormalCubemap, CubemapSampler);
 			args.setUniform("NumSamples", 2048);
 			args.setUniform("LobeSize", 1.0f);
 			args.setUniform("SphereSampler", SphereSamplerTexture, Sampler::buffer());
@@ -96,6 +100,7 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 
 		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.IrradianceProbeGrid, CubeFace::POS_X, 0, i);
 		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface.MeanDistProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR2, vioLightFieldSurface.LowResolutionDistanceProbeGrid, CubeFace::POS_X, 0, i);
 
 		renderDevice->push2D(LightFieldFramebuffer); {
 			renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
@@ -135,6 +140,7 @@ SLightFieldSurface App::__initLightFieldSurface()
 	LightFieldSurface.IrradianceProbeGrid = Texture::createEmpty("IrraidanceProbeGrid", 128, 128, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	LightFieldSurface.MeanDistProbeGrid   = Texture::createEmpty("MeanDistProbeGrid", 128, 128, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	LightFieldSurface.NormalProbeGrid     = Texture::createEmpty("NormalProbeGrid", 1024, 1024, ImageFormat::RGB16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	LightFieldSurface.LowResolutionDistanceProbeGrid = Texture::createEmpty("LowResolutionDistanceProbeGrid", 128, 128, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 
 	return LightFieldSurface;
 }

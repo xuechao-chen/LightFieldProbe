@@ -11,7 +11,7 @@ void CProbeGIRenderer::renderDeferredShading
 	DefaultRenderer::renderDeferredShading(rd, sortedVisibleSurfaceArray, gbuffer, environment);
 	
 	rd->push2D(); {
-		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
 		
 		Args args;
 		gbuffer->setShaderArgsRead(args, "gbuffer_");
@@ -23,12 +23,14 @@ void CProbeGIRenderer::renderDeferredShading
 		args.setUniform("lightFieldSurface.meanDistProbeGrid", m_LightFieldSurface.MeanDistProbeGrid, Sampler::buffer());
 		args.setUniform("lightFieldSurface.radianceProbeGrid", m_LightFieldSurface.RadianceProbeGrid, Sampler::buffer());
 		args.setUniform("lightFieldSurface.distanceProbeGrid", m_LightFieldSurface.DistanceProbeGrid, Sampler::buffer());
+		args.setUniform("lightFieldSurface.normalProbeGrid", m_LightFieldSurface.NormalProbeGrid, Sampler::buffer());
+		args.setUniform("lightFieldSurface.lowResolutionDistanceProbeGrid", m_LightFieldSurface.LowResolutionDistanceProbeGrid, Sampler::buffer());
 
 		LAUNCH_SHADER("shader/Lighting.pix", args);
 
 	} rd->pop2D();
 
-	__displayProbes(rd);
+	//__displayProbes(rd);
 }
 
 void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbeRadius/*=-1*/)

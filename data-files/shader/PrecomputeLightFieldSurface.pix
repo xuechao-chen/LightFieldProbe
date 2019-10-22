@@ -3,6 +3,7 @@
 uniform sampler2D   SphereSampler;
 uniform samplerCube RadianceCubemap;
 uniform samplerCube DistanceCubemap;
+uniform samplerCube NormalCubemap;
 
 uniform int   NumSamples;
 uniform float LobeSize;
@@ -10,9 +11,11 @@ uniform float LobeSize;
 #if OCT_HIGH_RES
 out vec3 octRadiance;
 out float octDistance;
+out vec3 octNormal;
 #else
-out vec3 octIrradiance;
-out vec2 octMeanDistance;
+out vec3  octIrradiance;
+out vec2  octMeanDistance;
+out float octLowResDistance;
 #endif
 
 const int NUM_SPHERE_SAMPLERS = 4096;
@@ -44,6 +47,7 @@ void main()
 
 	octRadiance = texture(RadianceCubemap, Direction, 0).xyz;
 	octDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
+	octNormal = texture(NormalCubemap, Direction, 0).xyz;
 #else
 	vec3 Direction = octDecode(gl_FragCoord.xy / 128 * 2.0 - 1.0);
 
@@ -68,5 +72,6 @@ void main()
 	octIrradiance = SumRadiance / RadianceSumWeight;
 	octMeanDistance.x = SumDistance / DistanceSumWeight;
 	octMeanDistance.y = pow(octMeanDistance.x, 2.0);
+	octLowResDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
 #endif
 }
