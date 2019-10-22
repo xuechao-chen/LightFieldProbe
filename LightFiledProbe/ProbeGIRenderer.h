@@ -19,5 +19,8 @@ public:
 	{
 		return createShared<CProbeGIRenderer>(vLightFieldSurface);
 	}
+
+private:
+	void __displayProbes(RenderDevice* vRenderDevice, float vProbeRadius=-1);
 };
 

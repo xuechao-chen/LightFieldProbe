@@ -7,6 +7,7 @@ struct SLightFieldSurface
 	shared_ptr<Texture>     IrradianceProbeGrid;
 	shared_ptr<Texture>		DistanceProbeGrid;
 	shared_ptr<Texture>		MeanDistProbeGrid;
+	shared_ptr<Texture>     NormalProbeGrid;
 
 	Vector3int32            ProbeCounts;
 	Point3                  ProbeStartPosition;

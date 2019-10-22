@@ -75,7 +75,7 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 
 	for (int i = 0; i < m_ProbePositionSet.size(); ++i)
 	{
-		__renderLightFieldProbe(i, 1024, RadianceCubemap, DistanceCubemap);
+		__renderLightFieldProbe(i, 1024, vioLightFieldSurface);
 
 		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.RadianceProbeGrid, CubeFace::POS_X, 0, i);
 		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface.DistanceProbeGrid, CubeFace::POS_X, 0, i);
@@ -134,6 +134,7 @@ SLightFieldSurface App::__initLightFieldSurface()
 	LightFieldSurface.DistanceProbeGrid   = Texture::createEmpty("DistanceProbeGrid", 1024, 1024, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	LightFieldSurface.IrradianceProbeGrid = Texture::createEmpty("IrraidanceProbeGrid", 128, 128, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	LightFieldSurface.MeanDistProbeGrid   = Texture::createEmpty("MeanDistProbeGrid", 128, 128, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	LightFieldSurface.NormalProbeGrid     = Texture::createEmpty("NormalProbeGrid", 1024, 1024, ImageFormat::RGB16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 
 	return LightFieldSurface;
 }
@@ -164,7 +165,7 @@ std::vector<Vector3> App::__placeProbe(const SLightFieldSurface& vLightFieldSurf
 	return ProbePositionSet;
 }
 
-void App::__renderLightFieldProbe(uint32 vProbeIndex, int vResolution, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap)
+void App::__renderLightFieldProbe(uint32 vProbeIndex, int vResolution, SLightFieldSurface& voLightFieldSurface)
 {
 	Array<shared_ptr<Surface>> surface;
 	{
@@ -208,12 +209,16 @@ void App::__renderLightFieldProbe(uint32 vProbeIndex, int vResolution, shared_pt
 		onGraphics3D(renderDevice, surface);
 		onGraphics3D(renderDevice, surface);
 
-		Texture::copy(m_osWindowHDRFramebuffer->texture(0), voRadianceCubemap, 0, 0, 1,
-					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voRadianceCubemap->vector2Bounds()) / 2.0f),
+		Texture::copy(m_osWindowHDRFramebuffer->texture(0), voLightFieldSurface.RadianceProbeGrid, 0, 0, 1,
+					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldSurface.RadianceProbeGrid->vector2Bounds()) / 2.0f),
 					  CubeFace::POS_X, CubeFace(Face) , nullptr, false);
 
-		Texture::copy(m_gbuffer->texture(GBuffer::Field::CS_POSITION), voDistanceCubemap, 0, 0, 1,
-					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voDistanceCubemap->vector2Bounds()) / 2.0f),
+		Texture::copy(m_gbuffer->texture(GBuffer::Field::CS_POSITION), voLightFieldSurface.DistanceProbeGrid, 0, 0, 1,
+					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldSurface.DistanceProbeGrid->vector2Bounds()) / 2.0f),
+					  CubeFace::POS_X, CubeFace(Face), nullptr, false);
+
+		Texture::copy(m_gbuffer->texture(GBuffer::Field::WS_NORMAL), voLightFieldSurface.NormalProbeGrid,0, 0, 1,
+					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldSurface.NormalProbeGrid->vector2Bounds()) / 2.0f),
 					  CubeFace::POS_X, CubeFace(Face), nullptr, false);
 	}
 

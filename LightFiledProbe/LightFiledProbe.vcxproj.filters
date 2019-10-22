@@ -73,6 +73,9 @@
     <None Include="..\data-files\scene\G3D_Sponza_(Area_Light).Scene.Any">
       <Filter>Scene Files</Filter>
     </None>
+    <None Include="..\data-files\shader\Common.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProbeGIRenderer.h">

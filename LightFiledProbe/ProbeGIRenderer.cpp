@@ -21,26 +21,38 @@ void CProbeGIRenderer::renderDeferredShading
 		args.setUniform("lightFieldSurface.probeStep", m_LightFieldSurface.ProbeSteps);
 		args.setUniform("lightFieldSurface.irradianceProbeGrid", m_LightFieldSurface.IrradianceProbeGrid, Sampler::buffer());
 		args.setUniform("lightFieldSurface.meanDistProbeGrid", m_LightFieldSurface.MeanDistProbeGrid, Sampler::buffer());
+		args.setUniform("lightFieldSurface.radianceProbeGrid", m_LightFieldSurface.RadianceProbeGrid, Sampler::buffer());
+		args.setUniform("lightFieldSurface.distanceProbeGrid", m_LightFieldSurface.DistanceProbeGrid, Sampler::buffer());
 
 		LAUNCH_SHADER("shader/Lighting.pix", args);
 
 	} rd->pop2D();
 
-	//Display probes
+	__displayProbes(rd);
+}
 
-	//auto ProbeCounts = m_LightFieldSurface.ProbeCounts;
-	//auto ProbeSteps = m_LightFieldSurface.ProbeSteps;
-	//auto ProbeStartPos = m_LightFieldSurface.ProbeStartPosition;
+void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbeRadius/*=-1*/)
+{
+	auto ProbeCounts = m_LightFieldSurface.ProbeCounts;
+	auto ProbeSteps = m_LightFieldSurface.ProbeSteps;
+	auto ProbeStartPos = m_LightFieldSurface.ProbeStartPosition;
 
-	//for (int i = 0; i < ProbeCounts.x; ++i)
-	//{
-	//	for (int j = 0; j < ProbeCounts.y; ++j)
-	//	{
-	//		for (int k = 0; k < ProbeCounts.z; ++k)
-	//		{
-	//			auto ProbePos = ProbeStartPos + Vector3(i, j, k) * ProbeSteps;
-	//			Draw::sphere(Sphere(ProbePos, 0.05), rd);
-	//		}
-	//	}
-	//}
+	const Color4 ProbeColor = Color4(1, 1, 0, 1);
+
+	if (vProbeRadius <= 0)
+	{
+		vProbeRadius = ProbeSteps.min() * 0.05;
+	}
+
+	for (int i = 0; i < ProbeCounts.x; ++i)
+	{
+		for (int j = 0; j < ProbeCounts.y; ++j)
+		{
+			for (int k = 0; k < ProbeCounts.z; ++k)
+			{
+				auto ProbePos = ProbeStartPos + Vector3(i, j, k) * ProbeSteps;
+				Draw::sphere(Sphere(ProbePos, vProbeRadius), vRenderDevice, ProbeColor, ProbeColor);
+			}
+		}
+	}
 }

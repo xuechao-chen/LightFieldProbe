@@ -161,6 +161,7 @@
     <None Include="..\data-files\scene\Teapot_on_Metal-Video.Scene.Any" />
     <None Include="..\data-files\scene\Teapot_on_Metal.Scene.Any" />
     <None Include="..\data-files\scene\Varying_Light_Size.Scene.Any" />
+    <None Include="..\data-files\shader\Common.glsl" />
     <None Include="..\data-files\shader\Lighting.pix" />
     <None Include="..\data-files\shader\PrecomputeLightFieldSurface.pix" />
     <None Include="..\data-files\shader\LightFieldProbe.glsl" />

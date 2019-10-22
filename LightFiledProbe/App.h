@@ -19,6 +19,6 @@ private:
 	shared_ptr<Texture>  __createSphereSampler(int vDegreeSize = 64);
 	SLightFieldSurface   __initLightFieldSurface();
 	std::vector<Vector3> __placeProbe(const SLightFieldSurface& vLightFieldSurface);
-	void __renderLightFieldProbe(uint32 vProbeIndex, int vResolution, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap);
+	void __renderLightFieldProbe(uint32 vProbeIndex, int vResolution, SLightFieldSurface& voLightFieldSurface);
 	void __enableEmissiveLight(bool vEnable);
 };
