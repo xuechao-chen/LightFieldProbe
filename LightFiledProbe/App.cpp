@@ -13,18 +13,18 @@ void App::onInit()
 	m_gbufferSpecification.encoding[GBuffer::Field::WS_NORMAL]   = ImageFormat::RGB32F();
 
 	logPrintf("Program initialized\n");
-	//loadScene("Sponza Glossy");
 	loadScene("Simple Cornell Box");
 	//loadScene("Animated Hardening");
-	//loadScene("G3D Simple Cornell Box (Globe)");
-	//loadScene("G3D Breakfast Room (Area Lights)");
+	//loadScene("Sponza Glossy");
 	//loadScene("G3D Sponza (Area Light)");
 	logPrintf("Loaded Scene\n");
 
 	m_LightFieldSurface = __initLightFieldSurface();
 	m_ProbePositionSet  = __placeProbe(m_LightFieldSurface);
 
-	__precomputeLightFieldSurface(m_LightFieldSurface);
+	__enableEmissiveLight(false); {
+		__precomputeLightFieldSurface(m_LightFieldSurface);
+	} __enableEmissiveLight(true);
 
 	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(m_LightFieldSurface));
 	m_pGIRenderer->setDeferredShading(true);
@@ -172,17 +172,6 @@ void App::__renderLightFieldProbe(uint32 vProbeIndex, int vResolution, shared_pt
 		onPose(surface, ignore);
 	}
 
-	//Array<shared_ptr<Entity>> SceneEntities;
-	//scene()->getEntityArray(SceneEntities);
-
-	//for (auto& Entity : SceneEntities) 
-	//{
-	//	if (Entity->name().find("light") == String::npos)
-	//	{
-	//		Entity->onPose(surface);
-	//	}
-	//}
-
 	const int oldFramebufferWidth = m_osWindowHDRFramebuffer->width();
 	const int oldFramebufferHeight = m_osWindowHDRFramebuffer->height();
 	const Vector2int16  oldColorGuard = m_settings.hdrFramebuffer.colorGuardBandThickness;
@@ -232,6 +221,21 @@ void App::__renderLightFieldProbe(uint32 vProbeIndex, int vResolution, shared_pt
 	m_osWindowHDRFramebuffer->resize(oldFramebufferWidth, oldFramebufferHeight);
 	m_settings.hdrFramebuffer.colorGuardBandThickness = oldColorGuard;
 	m_settings.hdrFramebuffer.depthGuardBandThickness = oldDepthGuard;
+}
+
+void App::__enableEmissiveLight(bool vEnable)
+{
+	Array<shared_ptr<Entity>> EntityArray;
+	scene()->getEntityArray(EntityArray);
+	for (auto e : EntityArray)
+	{
+		if (e->name().find("emissiveLight")!=String::npos)
+		{
+			shared_ptr<VisibleEntity> EmissiveLight = dynamic_pointer_cast<VisibleEntity>(e);
+			if (EmissiveLight)
+				EmissiveLight->setVisible(vEnable);
+		}
+	}
 }
 
 G3D_START_AT_MAIN();

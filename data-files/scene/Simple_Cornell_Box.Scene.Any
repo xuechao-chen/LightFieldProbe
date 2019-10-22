@@ -6,6 +6,12 @@
             canChange = false; 
             model = "boxModel"; 
         }; 
+
+		emissiveLight = VisibleEntity{
+			canChange = false;
+			model = "lightModel";
+			castsShadows = false;
+		};
         
         camera = Camera { 
             canChange = false; 
@@ -69,7 +75,7 @@
         
         light1 = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
-            bulbPower = Power3(40 ); 
+            bulbPower = Power3(35 ); 
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
@@ -85,7 +91,7 @@
         
         light2 = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
-            bulbPower = Power3(40 ); 
+            bulbPower = Power3(35 ); 
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
@@ -101,7 +107,7 @@
         
         light3 = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
-            bulbPower = Power3(40 ); 
+            bulbPower = Power3(35 ); 
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
@@ -117,7 +123,7 @@
         
         light4 = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
-            bulbPower = Power3(40 ); 
+            bulbPower = Power3(35 ); 
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
@@ -133,7 +139,7 @@
         
         light5 = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
-            bulbPower = Power3(40 ); 
+            bulbPower = Power3(35 ); 
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
@@ -186,7 +192,8 @@
     
     models = { 
         //boxModel = "model/CornellBox/CornellBox.zip/CornellBox-Original.obj"; 
-        boxModel = "model/CornellBox/CornellBox/CornellBox-Original.obj"; 
+        boxModel = "data/model/CornellBox/CornellBox/CornellBox-Original.obj"; 
+		lightModel = "data/model/CornellBox/CornellBox/AreaLight.obj"
     }; 
     
     name = "Simple Cornell Box"; 

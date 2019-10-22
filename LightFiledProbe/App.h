@@ -20,4 +20,5 @@ private:
 	SLightFieldSurface   __initLightFieldSurface();
 	std::vector<Vector3> __placeProbe(const SLightFieldSurface& vLightFieldSurface);
 	void __renderLightFieldProbe(uint32 vProbeIndex, int vResolution, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap);
+	void __enableEmissiveLight(bool vEnable);
 };

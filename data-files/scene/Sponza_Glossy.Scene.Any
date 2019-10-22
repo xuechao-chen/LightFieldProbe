@@ -369,9 +369,9 @@ lightingEnvironment = LightingEnvironment{
 	//	filename = "cubemap/uffizi/uffizi*.jpg";
 	//};
 
-	//environmentMap = Texture::Specification{
-	//	encoding = Color3(0.0);
-	//};
+	environmentMap = Texture::Specification{
+		encoding = Color3(0.01);
+	};
 
 };
 

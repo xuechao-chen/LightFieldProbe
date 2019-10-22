@@ -28,19 +28,19 @@ void CProbeGIRenderer::renderDeferredShading
 
 	//Display probes
 
-	auto ProbeCounts = m_LightFieldSurface.ProbeCounts;
-	auto ProbeSteps = m_LightFieldSurface.ProbeSteps;
-	auto ProbeStartPos = m_LightFieldSurface.ProbeStartPosition;
+	//auto ProbeCounts = m_LightFieldSurface.ProbeCounts;
+	//auto ProbeSteps = m_LightFieldSurface.ProbeSteps;
+	//auto ProbeStartPos = m_LightFieldSurface.ProbeStartPosition;
 
-	for (int i = 0; i < ProbeCounts.x; ++i)
-	{
-		for (int j = 0; j < ProbeCounts.y; ++j)
-		{
-			for (int k = 0; k < ProbeCounts.z; ++k)
-			{
-				auto ProbePos = ProbeStartPos + Vector3(i, j, k) * ProbeSteps;
-				Draw::sphere(Sphere(ProbePos, 0.05), rd);
-			}
-		}
-	}
+	//for (int i = 0; i < ProbeCounts.x; ++i)
+	//{
+	//	for (int j = 0; j < ProbeCounts.y; ++j)
+	//	{
+	//		for (int k = 0; k < ProbeCounts.z; ++k)
+	//		{
+	//			auto ProbePos = ProbeStartPos + Vector3(i, j, k) * ProbeSteps;
+	//			Draw::sphere(Sphere(ProbePos, 0.05), rd);
+	//		}
+	//	}
+	//}
 }
