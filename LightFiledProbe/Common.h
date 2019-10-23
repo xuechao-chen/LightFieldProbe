@@ -17,6 +17,8 @@ struct SLightFieldSurface
 
 struct SLightFieldCubemap
 {
+	SLightFieldCubemap(int vResolution) : SLightFieldCubemap(vResolution, ImageFormat::RGB32F()) {}
+
 	SLightFieldCubemap(int vResolution, Texture::Encoding vImageFormat)
 	{
 		RadianceCubemap = Texture::createEmpty("RadianceCubemap", vResolution, vResolution, vImageFormat, Texture::DIM_CUBE_MAP);

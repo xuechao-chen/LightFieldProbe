@@ -65,7 +65,7 @@ void App::__makeGUI()
 void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface)
 {
 	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler();
-	SLightFieldCubemap LightFieldCubemap(1024, ImageFormat::RGB32F());
+	SLightFieldCubemap LightFieldCubemap(1024);
 	shared_ptr<Framebuffer> LightFieldFramebuffer = Framebuffer::create("LightFieldFB");
 	
 	auto CubemapSampler = Sampler::cubeMap();
@@ -88,7 +88,6 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 			args.setUniform("DistanceCubemap", LightFieldCubemap.DistanceCubemap, CubemapSampler);
 			args.setUniform("NormalCubemap", LightFieldCubemap.NormalCubemap, CubemapSampler);
 			args.setUniform("NumSamples", 2048);
-			args.setUniform("LobeSize", 1.0f);
 			args.setUniform("SphereSampler", SphereSamplerTexture, Sampler::buffer());
 
 			LAUNCH_SHADER("PrecomputeLightFieldSurface.pix", args);
@@ -106,7 +105,6 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 			args.setUniform("RadianceCubemap", LightFieldCubemap.RadianceCubemap, CubemapSampler);
 			args.setUniform("DistanceCubemap", LightFieldCubemap.DistanceCubemap, CubemapSampler);
 			args.setUniform("NumSamples", 2048);
-			args.setUniform("LobeSize", 1.0f);
 			args.setUniform("SphereSampler", SphereSamplerTexture, Sampler::buffer());
 
 			LAUNCH_SHADER("PrecomputeLightFieldSurface.pix", args);
@@ -125,7 +123,7 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto Bounds = BoundingBoxRange * 0.1;//NOTE: range from 0.1 to 0.5
 
-	LightFieldSurface.ProbeCounts = Vector3int32(6,6,6);
+	LightFieldSurface.ProbeCounts = Vector3int32(2,2,2);
 	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
 	LightFieldSurface.ProbeStartPosition = BoundingBox.low()+Bounds;
 
