@@ -22,8 +22,9 @@ void main()
 
 	readUniversalMaterialSampleFromGBuffer(P, false, true, w_o, surfel);
 
+	
 	vec3 IndirectDiffuseLighting = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
 	vec3 IndirectGlossyLighting = computeGlossyRay(lightFieldSurface, surfel.position, w_o, surfel.shadingNormal);
 
-	Color = IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
+	Color = 0.6*IndirectDiffuseLighting * surfel.lambertianReflectivity / pi + 0.4*IndirectGlossyLighting;
 }

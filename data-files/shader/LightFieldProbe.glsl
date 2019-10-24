@@ -34,7 +34,7 @@ Irradiance3 computePrefilteredIrradiance(LightFieldSurface lightFieldSurface, Po
         Vector3 dir = normalize(-probeToPoint);
 
         // Smooth back-face test
-        weight *= max(0.05, dot(dir, wsNormal));//TODO:
+        weight *= max(0.05, dot(dir, wsNormal));
 
 		vec2 hitProbeTexCoord = (octEncode(-dir)*0.5+0.5);
         float2 temp = texture(lightFieldSurface.meanDistProbeGrid, float3(hitProbeTexCoord, p)).rg;
@@ -89,7 +89,7 @@ void computeRaySegments
 
 	// Time values for intersection with x = 0, y = 0, and z = 0 planes, sorted
 	// in increasing order
-	Vector3 t = origin * -directionFrac;//NOTE: why does it make sense?
+	Vector3 t = origin * -directionFrac;
 	sort(t);
 
 	// Copy the values into the interval boundaries.
@@ -141,13 +141,13 @@ TraceResult highResolutionTraceOneRaySegment
 	inout float tMax,
 	inout vec2  hitProbeTexCoord) {
 
+	vec2 DistanceProbeSize = size(lightFieldSurface.distanceProbeGrid);
+	vec2 DistanceProbeInvSize = vec2(1.0) / DistanceProbeSize;
+
 	Vector2 texCoordDelta = endTexCoord - startTexCoord;
 	float texCoordDistance = length(texCoordDelta);
 	Vector2 texCoordDirection = texCoordDelta * (1.0 / texCoordDistance);
-	float texCoordStep = invSize(lightFieldSurface.distanceProbeGrid).x * (texCoordDistance / maxComponent(abs(texCoordDelta)));
-
-	vec2 DistanceProbeSize = size(lightFieldSurface.distanceProbeGrid);
-	vec2 DistanceProbeInvSize = vec2(1.0) / DistanceProbeSize;
+	float texCoordStep = DistanceProbeInvSize.x * (texCoordDistance / maxComponent(abs(texCoordDelta)));
 
 	Vector3 directionFromProbeBefore = octDecode(startTexCoord * 2.0 - 1.0);
 	float distanceFromProbeToRayBefore = max(0.0, distanceToIntersection(probeSpaceRay, directionFromProbeBefore));
@@ -193,7 +193,7 @@ TraceResult highResolutionTraceOneRaySegment
 		float distanceFromProbeToRayAfter = max(0.0, distanceToIntersection(probeSpaceRay, directionFromProbeAfter));
 		float maxDistFromProbeToRay = max(distanceFromProbeToRayBefore, distanceFromProbeToRayAfter);
 
-		if (maxDistFromProbeToRay >= distanceFromProbeToSurface) {
+		if (maxDistFromProbeToRay >= distanceFromProbeToSurface ) {
 			// At least a one-sided hit; see if the ray actually passed through the surface, or was behind it
 
 			float minDistFromProbeToRay = min(distanceFromProbeToRayBefore, distanceFromProbeToRayAfter);
@@ -215,8 +215,7 @@ TraceResult highResolutionTraceOneRaySegment
 
 			// Only extrude towards and away from the view ray, not perpendicular to it
 			// Don't allow extrusion TOWARDS the viewer, only away
-			float surfaceThickness = minThickness
-				+ (maxThickness - minThickness) *
+			float surfaceThickness = minThickness + (maxThickness - minThickness) *
 
 				// Alignment of probe and view ray
 				max(dot(probeSpaceRay.direction, directionFromProbe), 0.0) *
@@ -411,6 +410,8 @@ TraceResult traceOneRaySegment
 	Point2 texCoord = startOctCoord * 0.5 + 0.5;
 	Point2 segmentEndTexCoord = endOctCoord * 0.5 + 0.5;
 
+	return highResolutionTraceOneRaySegment(lightFieldSurface, probeSpaceRay, texCoord, segmentEndTexCoord, probeIndex, tMin, tMax, hitProbeTexCoord);
+
 	while (true) {
 		Point2 endTexCoord;
 
@@ -427,7 +428,6 @@ TraceResult traceOneRaySegment
 		}
 		else 
 		{
-
 			// The low-resolution trace already guaranted that endTexCoord is no farther along the ray than segmentEndTexCoord if this point is reached,
 			// so we don't need to clamp to the segment length
 			TraceResult result = highResolutionTraceOneRaySegment(lightFieldSurface, probeSpaceRay, texCoord, endTexCoord, probeIndex, tMin, tMax, hitProbeTexCoord);
@@ -517,8 +517,7 @@ bool trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float t
 
 	hitProbeIndex = -1;
 
-	// TODO: This variable doesn't exist in the source, but this makes sense I guess
-	ProbeIndex baseIndex = 0;
+	ProbeIndex baseIndex = baseProbeIndex(lightFieldSurface, worldSpaceRay.origin);
 
 	int i = nearestProbeIndices(lightFieldSurface, worldSpaceRay.origin);
 	int probesLeft = 8;
@@ -558,8 +557,6 @@ bool trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float t
 
 // Stochastically samples one glossy ray
 Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPosition, Vector3 wo, Vector3 n) {
-	const float rayBumpEpsilon = 0.001;
-
 	// TODO: Don't assume perfect mirror!!!
 	//Vector3 wi = importanceSampleBRDFDirection(wo, n);
 	//Ray worldSpaceRay = Ray(wsPosition + wi * rayBumpEpsilon, wi);
@@ -572,7 +569,7 @@ Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPositio
 	int     probeIndex;
 	//TODO: 1. define FILL_HOLES micro
 	//      2. define computeGlossyEnvironmentMapLighting
-	if (!trace(lightFieldSurface, worldSpaceRay, hitDistance, hitProbeTexCoord, probeIndex, false)) {
+	if (!trace(lightFieldSurface, worldSpaceRay, hitDistance, hitProbeTexCoord, probeIndex, true)) {
 		// Missed the entire scene; fall back to the environment map
 		//return computeGlossyEnvironmentMapLighting(wi, true, glossyExponent, false);
 		return Radiance3(0);

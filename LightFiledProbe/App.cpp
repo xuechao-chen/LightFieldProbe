@@ -123,7 +123,7 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto Bounds = BoundingBoxRange * 0.1;//NOTE: range from 0.1 to 0.5
 
-	LightFieldSurface.ProbeCounts = Vector3int32(2,2,2);
+	LightFieldSurface.ProbeCounts = Vector3int32(4,4,4);
 	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
 	LightFieldSurface.ProbeStartPosition = BoundingBox.low()+Bounds;
 
