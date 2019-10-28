@@ -43,13 +43,13 @@ void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbe
 
 	if (vProbeRadius <= 0) vProbeRadius = ProbeSteps.min() * 0.05;
 
-	for (int i = 0; i < ProbeCounts.x; ++i)
+	for (int x = 0; x < ProbeCounts.x; ++x)
 	{
-		for (int j = 0; j < ProbeCounts.y; ++j)
+		for (int y = 0; y < ProbeCounts.y; ++y)
 		{
-			for (int k = 0; k < ProbeCounts.z; ++k)
+			for (int z = 0; z < ProbeCounts.z; ++z)
 			{
-				auto ProbePos = ProbeStartPos + Vector3(i, j, k) * ProbeSteps;
+				auto ProbePos = ProbeStartPos + Vector3(x, y, z) * ProbeSteps;
 				Draw::sphere(Sphere(ProbePos, vProbeRadius), vRenderDevice, ProbeColor, ProbeColor);
 			}
 		}
