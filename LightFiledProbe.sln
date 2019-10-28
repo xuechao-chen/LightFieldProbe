@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightFiledProbe", "LightFiledProbe\LightFiledProbe.vcxproj", "{9384CA5A-6216-4528-B3A9-6E296BE62E40}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderCubemap", "RenderCubemap\main.vcxproj", "{B87D787E-E674-465A-AED3-8264ED17DFB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,12 @@ Global
 		{9384CA5A-6216-4528-B3A9-6E296BE62E40}.Release|x64.Build.0 = Release|x64
 		{9384CA5A-6216-4528-B3A9-6E296BE62E40}.Release|x86.ActiveCfg = Release|Win32
 		{9384CA5A-6216-4528-B3A9-6E296BE62E40}.Release|x86.Build.0 = Release|Win32
+		{B87D787E-E674-465A-AED3-8264ED17DFB1}.Debug|x64.ActiveCfg = Debug|x64
+		{B87D787E-E674-465A-AED3-8264ED17DFB1}.Debug|x64.Build.0 = Debug|x64
+		{B87D787E-E674-465A-AED3-8264ED17DFB1}.Debug|x86.ActiveCfg = Debug|x64
+		{B87D787E-E674-465A-AED3-8264ED17DFB1}.Release|x64.ActiveCfg = Release|x64
+		{B87D787E-E674-465A-AED3-8264ED17DFB1}.Release|x64.Build.0 = Release|x64
+		{B87D787E-E674-465A-AED3-8264ED17DFB1}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

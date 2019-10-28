@@ -147,16 +147,16 @@ std::vector<Vector3> App::__placeProbe(const SLightFieldSurface& vLightFieldSurf
 	auto ProbeSteps    = vLightFieldSurface.ProbeSteps;
 	auto ProbeStartPos = vLightFieldSurface.ProbeStartPosition;
 
-	for (int i = 0; i < ProbeCounts.z; ++i)
+	for (int z = 0; z < ProbeCounts.z; ++z)
 	{
-		for (int j = 0; j < ProbeCounts.y; ++j)
+		for (int y = 0; y < ProbeCounts.y; ++y)
 		{
-			for (int k = 0; k < ProbeCounts.x; ++k)
+			for (int x = 0; x < ProbeCounts.x; ++x)
 			{
 				ProbePositionSet.emplace_back(Vector3(
-					ProbeStartPos.x + k * ProbeSteps.x,
-					ProbeStartPos.y + j * ProbeSteps.y,
-					ProbeStartPos.z + i * ProbeSteps.z
+					ProbeStartPos.x + x * ProbeSteps.x,
+					ProbeStartPos.y + y * ProbeSteps.y,
+					ProbeStartPos.z + z * ProbeSteps.z
 				));
 			}
 		}
