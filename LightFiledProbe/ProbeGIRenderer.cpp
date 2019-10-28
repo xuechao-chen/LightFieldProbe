@@ -30,7 +30,7 @@ void CProbeGIRenderer::renderDeferredShading
 
 	} rd->pop2D();
 
-	//__displayProbes(rd);
+	__displayProbes(rd);
 }
 
 void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbeRadius/*=-1*/)
@@ -41,10 +41,7 @@ void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbe
 
 	const Color4 ProbeColor = Color4(1, 1, 0, 1);
 
-	if (vProbeRadius <= 0)
-	{
-		vProbeRadius = ProbeSteps.min() * 0.05;
-	}
+	if (vProbeRadius <= 0) vProbeRadius = ProbeSteps.min() * 0.05;
 
 	for (int i = 0; i < ProbeCounts.x; ++i)
 	{
