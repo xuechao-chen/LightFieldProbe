@@ -6,7 +6,6 @@
 #include <Texture/Texture.glsl>
 #include "Octahedral.glsl"
 
-
 const float minThickness = 0.03; // meters
 const float maxThickness = 0.50; // meters
 
@@ -35,16 +34,15 @@ const float minProgressDistance = 0.01;
 #define TRACE_RESULT_UNKNOWN 2
 
 struct LightFieldSurface {
-	sampler2DArray          radianceProbeGrid;
-	sampler2DArray          normalProbeGrid;
-	sampler2DArray          distanceProbeGrid;
-	sampler2DArray          lowResolutionDistanceProbeGrid;
+	Texture2DArray          radianceProbeGrid;
+	Texture2DArray          normalProbeGrid;
+	Texture2DArray          distanceProbeGrid;
+	Texture2DArray          lowResolutionDistanceProbeGrid;
+	Texture2DArray          irradianceProbeGrid;
+	Texture2DArray          meanDistProbeGrid;
 	Vector3int32            probeCounts;
 	Point3                  probeStartPosition;
 	Vector3                 probeStep;
-	int                     lowResolutionDownsampleFactor;
-	sampler2DArray          irradianceProbeGrid;
-	sampler2DArray          meanDistProbeGrid;
 };
 
 
@@ -188,26 +186,6 @@ void sort(inout float3 v) {
 	minSwap(v[0], v[1]);
 	minSwap(v[1], v[2]);
 	minSwap(v[0], v[1]);
-}
-
-vec2 size(in sampler2DArray tex)
-{
-	return vec2(textureSize(tex, 0));
-}
-
-vec2 invSize(in sampler2DArray tex)
-{
-	return vec2(1.0) / size(tex);
-}
-
-vec3 packNormal(vec3 N)
-{
-	return N * vec3(0.5) + vec3(0.5);
-}
-
-vec3 unpackNormal(vec3 packedNormal)
-{
-	return normalize(packedNormal * vec3(2.0) - vec3(1.0));
 }
 
 #endif // Header guard

@@ -4,7 +4,7 @@
 #include "Common.glsl"
 
 // Engine-specific arguments and helper functions have been removed from the following code 
-
+//
 Irradiance3 computePrefilteredIrradiance(LightFieldSurface lightFieldSurface, Point3 wsPosition, Point3 wsNormal) {
     GridCoord baseGridCoord = baseGridCoord(lightFieldSurface, wsPosition);
     Point3 baseProbePos = gridCoordToPosition(lightFieldSurface, baseGridCoord);
@@ -37,7 +37,7 @@ Irradiance3 computePrefilteredIrradiance(LightFieldSurface lightFieldSurface, Po
         weight *= max(0.05, dot(dir, wsNormal));
 
 		vec2 hitProbeTexCoord = (octEncode(-dir)*0.5+0.5);
-        float2 temp = texture(lightFieldSurface.meanDistProbeGrid, float3(hitProbeTexCoord, p)).rg;
+        float2 temp = texture(lightFieldSurface.meanDistProbeGrid.sampler, float3(hitProbeTexCoord, p)).rg;
 
 		float mean = temp.x;
         float variance = abs(temp.y - square(mean));
@@ -56,7 +56,7 @@ Irradiance3 computePrefilteredIrradiance(LightFieldSurface lightFieldSurface, Po
 
         Vector3 irradianceDir = wsNormal;
 		hitProbeTexCoord = (octEncode(irradianceDir)*0.5 + 0.5);
-		Irradiance3 probeIrradiance = texture(lightFieldSurface.irradianceProbeGrid, float3(hitProbeTexCoord, p)).rgb;
+		Irradiance3 probeIrradiance = texture(lightFieldSurface.irradianceProbeGrid.sampler, float3(hitProbeTexCoord, p)).rgb;
 		//return probeIrradiance;
         // Debug probe contribution by visualizing as colors
         // probeIrradiance = 0.5 * probeIndexToColor(lightFieldSurface, p);
@@ -141,13 +141,11 @@ TraceResult highResolutionTraceOneRaySegment
 	inout float tMax,
 	inout vec2  hitProbeTexCoord) {
 
-	vec2 DistanceProbeSize = size(lightFieldSurface.distanceProbeGrid);
-	vec2 DistanceProbeInvSize = vec2(1.0) / DistanceProbeSize;
-
 	Vector2 texCoordDelta = endTexCoord - startTexCoord;
 	float texCoordDistance = length(texCoordDelta);
 	Vector2 texCoordDirection = texCoordDelta * (1.0 / texCoordDistance);
-	float texCoordStep = DistanceProbeInvSize.x * (texCoordDistance / maxComponent(abs(texCoordDelta)));
+
+	float texCoordStep = lightFieldSurface.distanceProbeGrid.invSize.x * (texCoordDistance / maxComponent(abs(texCoordDelta)));
 
 	Vector3 directionFromProbeBefore = octDecode(startTexCoord * 2.0 - 1.0);
 	float distanceFromProbeToRayBefore = max(0.0, distanceToIntersection(probeSpaceRay, directionFromProbeBefore));
@@ -159,13 +157,8 @@ TraceResult highResolutionTraceOneRaySegment
 			// Check if the ray is going in the same direction as a ray from the probe through the start texel
 			if (cosTheta > 0) {
 				// If so, return a hit
-
-				//float distanceFromProbeToSurface = texelFetch(lightFieldSurface.distanceProbeGrid.sampler,
-				//	ivec3(DistanceProbeSize * startTexCoord, probeIndex), 0).r;
-
-				float distanceFromProbeToSurface = texelFetch(lightFieldSurface.distanceProbeGrid,
-					ivec3(DistanceProbeSize * startTexCoord, probeIndex), 0).r;
-
+				float distanceFromProbeToSurface = texelFetch(lightFieldSurface.distanceProbeGrid.sampler,
+					ivec3(lightFieldSurface.distanceProbeGrid.size.xy * startTexCoord, probeIndex), 0).r;
 				tMax = length(probeSpaceRay.origin - directionFromProbeBefore * distanceFromProbeToSurface);
 				hitProbeTexCoord = startTexCoord;
 				return TRACE_RESULT_HIT;
@@ -181,8 +174,8 @@ TraceResult highResolutionTraceOneRaySegment
 		Point2 texCoord = (texCoordDirection * min(d + texCoordStep * 0.5, texCoordDistance)) + startTexCoord;
 
 		// Fetch the probe data
-		float distanceFromProbeToSurface = texelFetch(lightFieldSurface.distanceProbeGrid,
-			ivec3(DistanceProbeSize * texCoord, probeIndex), 0).r;
+		float distanceFromProbeToSurface = texelFetch(lightFieldSurface.distanceProbeGrid.sampler,
+			ivec3(lightFieldSurface.distanceProbeGrid.size.xy * texCoord, probeIndex), 0).r;
 
 		// Find the corresponding point in probe space. This defines a line through the 
 		// probe origin
@@ -193,7 +186,7 @@ TraceResult highResolutionTraceOneRaySegment
 		float distanceFromProbeToRayAfter = max(0.0, distanceToIntersection(probeSpaceRay, directionFromProbeAfter));
 		float maxDistFromProbeToRay = max(distanceFromProbeToRayBefore, distanceFromProbeToRayAfter);
 
-		if (maxDistFromProbeToRay >= distanceFromProbeToSurface ) {
+		if (maxDistFromProbeToRay >= distanceFromProbeToSurface) {
 			// At least a one-sided hit; see if the ray actually passed through the surface, or was behind it
 
 			float minDistFromProbeToRay = min(distanceFromProbeToRayBefore, distanceFromProbeToRayAfter);
@@ -207,15 +200,12 @@ TraceResult highResolutionTraceOneRaySegment
 			float distAlongRay = dot(probeSpaceHitPoint - probeSpaceRay.origin, probeSpaceRay.direction);
 
 			// Read the normal for use in detecting backfaces
-			vec3 packedNormal = texelFetch(lightFieldSurface.normalProbeGrid, ivec3(DistanceProbeSize * texCoord, probeIndex), 0).rgb;
-			vec3 normal = vec3(0.0);
-			if (lengthSquared(packedNormal) > 0.0001) {
-				normal = unpackNormal(packedNormal);
-			}
+			vec3 normal = octDecode(texelFetch(lightFieldSurface.normalProbeGrid.sampler, ivec3(lightFieldSurface.distanceProbeGrid.size.xy * texCoord, probeIndex), 0).xy * lightFieldSurface.normalProbeGrid.readMultiplyFirst.xy + lightFieldSurface.normalProbeGrid.readAddSecond.xy);
 
 			// Only extrude towards and away from the view ray, not perpendicular to it
 			// Don't allow extrusion TOWARDS the viewer, only away
-			float surfaceThickness = minThickness + (maxThickness - minThickness) *
+			float surfaceThickness = minThickness
+				+ (maxThickness - minThickness) *
 
 				// Alignment of probe and view ray
 				max(dot(probeSpaceRay.direction, directionFromProbe), 0.0) *
@@ -226,6 +216,10 @@ TraceResult highResolutionTraceOneRaySegment
 				// Scale with distance along the ray
 				clamp(distAlongRay * 0.1, 0.05, 1.0);
 
+			//float alpha = pi *0.5 / 1024.0 / 2.0;
+			//float beta = acos(dot(normal, -directionFromProbe));
+			//surfaceThickness = max(0, 2 * distanceFromProbeToSurface * tan(alpha) * tan(beta));
+			
 
 			if ((minDistFromProbeToRay < distanceFromProbeToSurface + surfaceThickness) && (dot(normal, probeSpaceRay.direction) < 0)) {
 				// Two-sided hit
@@ -276,106 +270,106 @@ TraceResult highResolutionTraceOneRaySegment
 	when resuming the low res trace.
 
   */
-bool lowResolutionTraceOneSegment
-(in LightFieldSurface lightFieldSurface,
-	in Ray               probeSpaceRay,
-	in ProbeIndex        probeIndex,
-	inout Point2         texCoord,
-	in Point2            segmentEndTexCoord,
-	inout Point2         endHighResTexCoord) {
-
-	Vector2 lowResSize = size(lightFieldSurface.lowResolutionDistanceProbeGrid);
-	Vector2 lowResInvSize = vec2(1.0)/lowResSize;
-
-	// Convert the texels to pixel coordinates:
-	Point2 P0 = texCoord * lowResSize;
-	Point2 P1 = segmentEndTexCoord * lowResSize;
-
-	// If the line is degenerate, make it cover at least one pixel
-	// to avoid handling zero-pixel extent as a special case later
-	P1 += vec2((distanceSquared(P0, P1) < 0.0001) ? 0.01 : 0.0);
-	// In pixel coordinates
-	Vector2 delta = P1 - P0;
-
-	// Permute so that the primary iteration is in x to reduce
-	// large branches later
-	bool permute = false;
-	if (abs(delta.x) < abs(delta.y)) {
-		// This is a more-vertical line
-		permute = true;
-		delta = delta.yx; P0 = P0.yx; P1 = P1.yx;
-	}
-
-	float   stepDir = sign(delta.x);
-	float   invdx = stepDir / delta.x;
-	Vector2 dP = vec2(stepDir, delta.y * invdx);
-
-	Vector3 initialDirectionFromProbe = octDecode(texCoord * 2.0 - 1.0);
-	float prevRadialDistMaxEstimate = max(0.0, distanceToIntersection(probeSpaceRay, initialDirectionFromProbe));
-	// Slide P from P0 to P1
-	float  end = P1.x * stepDir;
-
-	float absInvdPY = 1.0 / abs(dP.y);
-
-	// Don't ever move farther from texCoord than this distance, in texture space,
-	// because you'll move past the end of the segment and into a different projection
-	float maxTexCoordDistance = lengthSquared(segmentEndTexCoord - texCoord);
-
-	for (Point2 P = P0; ((P.x * sign(delta.x)) <= end); ) {
-
-		Point2 hitPixel = permute ? P.yx : P;
-
-		float sceneRadialDistMin = texelFetch(lightFieldSurface.lowResolutionDistanceProbeGrid, int3(hitPixel, probeIndex), 0).r;
-
-		// Distance along each axis to the edge of the low-res texel
-		Vector2 intersectionPixelDistance = (sign(delta) * 0.5 + 0.5) - sign(delta) * frac(P);
-
-		// abs(dP.x) is 1.0, so we skip that division
-		// If we are parallel to the minor axis, the second parameter will be inf, which is fine
-		float rayDistanceToNextPixelEdge = min(intersectionPixelDistance.x, intersectionPixelDistance.y * absInvdPY);
-
-		// The exit coordinate for the ray (this may be *past* the end of the segment, but the 
-		// callr will handle that)
-		endHighResTexCoord = (P + dP * rayDistanceToNextPixelEdge) * lowResInvSize;
-		endHighResTexCoord = permute ? endHighResTexCoord.yx : endHighResTexCoord;
-
-		if (lengthSquared(endHighResTexCoord - texCoord) > maxTexCoordDistance) {
-			// Clamp the ray to the segment, because if we cross a segment boundary in oct space
-			// then we bend the ray in probe and world space.
-			endHighResTexCoord = segmentEndTexCoord;
-		}
-
-		// Find the 3D point *on the trace ray* that corresponds to the tex coord.
-		// This is the intersection of the ray out of the probe origin with the trace ray.
-		Vector3 directionFromProbe = octDecode(endHighResTexCoord * 2.0 - 1.0);
-		float distanceFromProbeToRay = max(0.0, distanceToIntersection(probeSpaceRay, directionFromProbe));
-
-		float maxRadialRayDistance = max(distanceFromProbeToRay, prevRadialDistMaxEstimate);
-		prevRadialDistMaxEstimate = distanceFromProbeToRay;
-
-		if (sceneRadialDistMin < maxRadialRayDistance) {
-			// A conservative hit.
-			//
-			//  -  endHighResTexCoord is already where the ray would have LEFT the texel
-			//     that created the hit.
-			//
-			//  -  texCoord should be where the ray entered the texel
-			texCoord = (permute ? P.yx : P) * lowResInvSize;
-			return true;
-		}
-
-		// Ensure that we step just past the boundary, so that we're slightly inside the next
-		// texel, rather than at the boundary and randomly rounding one way or the other.
-		const float epsilon = 0.001; // pixels
-		P += dP * (rayDistanceToNextPixelEdge + epsilon);
-	} // for each pixel on ray
-
-	// If exited the loop, then we went *past* the end of the segment, so back up to it (in practice, this is ignored
-	// by the caller because it indicates a miss for the whole segment)
-	texCoord = segmentEndTexCoord;
-
-	return false;
-}
+//bool lowResolutionTraceOneSegment
+//(in LightFieldSurface lightFieldSurface,
+//	in Ray               probeSpaceRay,
+//	in ProbeIndex        probeIndex,
+//	inout Point2         texCoord,
+//	in Point2            segmentEndTexCoord,
+//	inout Point2         endHighResTexCoord) {
+//
+//	Vector2 lowResSize = size(lightFieldSurface.lowResolutionDistanceProbeGrid);
+//	Vector2 lowResInvSize = vec2(1.0)/lowResSize;
+//
+//	// Convert the texels to pixel coordinates:
+//	Point2 P0 = texCoord * lowResSize;
+//	Point2 P1 = segmentEndTexCoord * lowResSize;
+//
+//	// If the line is degenerate, make it cover at least one pixel
+//	// to avoid handling zero-pixel extent as a special case later
+//	P1 += vec2((distanceSquared(P0, P1) < 0.0001) ? 0.01 : 0.0);
+//	// In pixel coordinates
+//	Vector2 delta = P1 - P0;
+//
+//	// Permute so that the primary iteration is in x to reduce
+//	// large branches later
+//	bool permute = false;
+//	if (abs(delta.x) < abs(delta.y)) {
+//		// This is a more-vertical line
+//		permute = true;
+//		delta = delta.yx; P0 = P0.yx; P1 = P1.yx;
+//	}
+//
+//	float   stepDir = sign(delta.x);
+//	float   invdx = stepDir / delta.x;
+//	Vector2 dP = vec2(stepDir, delta.y * invdx);
+//
+//	Vector3 initialDirectionFromProbe = octDecode(texCoord * 2.0 - 1.0);
+//	float prevRadialDistMaxEstimate = max(0.0, distanceToIntersection(probeSpaceRay, initialDirectionFromProbe));
+//	// Slide P from P0 to P1
+//	float  end = P1.x * stepDir;
+//
+//	float absInvdPY = 1.0 / abs(dP.y);
+//
+//	// Don't ever move farther from texCoord than this distance, in texture space,
+//	// because you'll move past the end of the segment and into a different projection
+//	float maxTexCoordDistance = lengthSquared(segmentEndTexCoord - texCoord);
+//
+//	for (Point2 P = P0; ((P.x * sign(delta.x)) <= end); ) {
+//
+//		Point2 hitPixel = permute ? P.yx : P;
+//
+//		float sceneRadialDistMin = texelFetch(lightFieldSurface.lowResolutionDistanceProbeGrid, int3(hitPixel, probeIndex), 0).r;
+//
+//		// Distance along each axis to the edge of the low-res texel
+//		Vector2 intersectionPixelDistance = (sign(delta) * 0.5 + 0.5) - sign(delta) * frac(P);
+//
+//		// abs(dP.x) is 1.0, so we skip that division
+//		// If we are parallel to the minor axis, the second parameter will be inf, which is fine
+//		float rayDistanceToNextPixelEdge = min(intersectionPixelDistance.x, intersectionPixelDistance.y * absInvdPY);
+//
+//		// The exit coordinate for the ray (this may be *past* the end of the segment, but the 
+//		// callr will handle that)
+//		endHighResTexCoord = (P + dP * rayDistanceToNextPixelEdge) * lowResInvSize;
+//		endHighResTexCoord = permute ? endHighResTexCoord.yx : endHighResTexCoord;
+//
+//		if (lengthSquared(endHighResTexCoord - texCoord) > maxTexCoordDistance) {
+//			// Clamp the ray to the segment, because if we cross a segment boundary in oct space
+//			// then we bend the ray in probe and world space.
+//			endHighResTexCoord = segmentEndTexCoord;
+//		}
+//
+//		// Find the 3D point *on the trace ray* that corresponds to the tex coord.
+//		// This is the intersection of the ray out of the probe origin with the trace ray.
+//		Vector3 directionFromProbe = octDecode(endHighResTexCoord * 2.0 - 1.0);
+//		float distanceFromProbeToRay = max(0.0, distanceToIntersection(probeSpaceRay, directionFromProbe));
+//
+//		float maxRadialRayDistance = max(distanceFromProbeToRay, prevRadialDistMaxEstimate);
+//		prevRadialDistMaxEstimate = distanceFromProbeToRay;
+//
+//		if (sceneRadialDistMin < maxRadialRayDistance) {
+//			// A conservative hit.
+//			//
+//			//  -  endHighResTexCoord is already where the ray would have LEFT the texel
+//			//     that created the hit.
+//			//
+//			//  -  texCoord should be where the ray entered the texel
+//			texCoord = (permute ? P.yx : P) * lowResInvSize;
+//			return true;
+//		}
+//
+//		// Ensure that we step just past the boundary, so that we're slightly inside the next
+//		// texel, rather than at the boundary and randomly rounding one way or the other.
+//		const float epsilon = 0.001; // pixels
+//		P += dP * (rayDistanceToNextPixelEdge + epsilon);
+//	} // for each pixel on ray
+//
+//	// If exited the loop, then we went *past* the end of the segment, so back up to it (in practice, this is ignored
+//	// by the caller because it indicates a miss for the whole segment)
+//	texCoord = segmentEndTexCoord;
+//
+//	return false;
+//}
 
 
 TraceResult traceOneRaySegment
@@ -410,53 +404,54 @@ TraceResult traceOneRaySegment
 	Point2 texCoord = startOctCoord * 0.5 + 0.5;
 	Point2 segmentEndTexCoord = endOctCoord * 0.5 + 0.5;
 
+	//NOTE: ignore low resolution ray trace
 	return highResolutionTraceOneRaySegment(lightFieldSurface, probeSpaceRay, texCoord, segmentEndTexCoord, probeIndex, tMin, tMax, hitProbeTexCoord);
 
-	while (true) {
-		Point2 endTexCoord;
+	//while (true) {
+	//	Point2 endTexCoord;
 
-		// Trace low resolution, min probe until we:
-		// - reach the end of the segment (return "miss" from the whole function)
-		// - "hit" the surface (invoke high-resolution refinement, and then iterate if *that* misses)
+	//	// Trace low resolution, min probe until we:
+	//	// - reach the end of the segment (return "miss" from the whole function)
+	//	// - "hit" the surface (invoke high-resolution refinement, and then iterate if *that* misses)
 
-		// If lowResolutionTraceOneSegment conservatively "hits", it will set texCoord and endTexCoord to be the high-resolution texture coordinates.
-		// of the intersection between the low-resolution texel that was hit and the ray segment.
-		Vector2 originalStartCoord = texCoord;
-		if (!lowResolutionTraceOneSegment(lightFieldSurface, probeSpaceRay, probeIndex, texCoord, segmentEndTexCoord, endTexCoord)) {
-			// The whole trace failed to hit anything           
-			return TRACE_RESULT_MISS;
-		}
-		else 
-		{
-			// The low-resolution trace already guaranted that endTexCoord is no farther along the ray than segmentEndTexCoord if this point is reached,
-			// so we don't need to clamp to the segment length
-			TraceResult result = highResolutionTraceOneRaySegment(lightFieldSurface, probeSpaceRay, texCoord, endTexCoord, probeIndex, tMin, tMax, hitProbeTexCoord);
+	//	// If lowResolutionTraceOneSegment conservatively "hits", it will set texCoord and endTexCoord to be the high-resolution texture coordinates.
+	//	// of the intersection between the low-resolution texel that was hit and the ray segment.
+	//	Vector2 originalStartCoord = texCoord;
+	//	if (!lowResolutionTraceOneSegment(lightFieldSurface, probeSpaceRay, probeIndex, texCoord, segmentEndTexCoord, endTexCoord)) {
+	//		// The whole trace failed to hit anything           
+	//		return TRACE_RESULT_MISS;
+	//	}
+	//	else 
+	//	{
+	//		// The low-resolution trace already guaranted that endTexCoord is no farther along the ray than segmentEndTexCoord if this point is reached,
+	//		// so we don't need to clamp to the segment length
+	//		TraceResult result = highResolutionTraceOneRaySegment(lightFieldSurface, probeSpaceRay, texCoord, endTexCoord, probeIndex, tMin, tMax, hitProbeTexCoord);
 
-			if (result != TRACE_RESULT_MISS) {
-				// High-resolution hit or went behind something, which must be the result for the whole segment trace
-				return result;
-			}
-		} // else...continue the outer loop; we conservatively refined and didn't actually find a hit
+	//		if (result != TRACE_RESULT_MISS) {
+	//			// High-resolution hit or went behind something, which must be the result for the whole segment trace
+	//			return result;
+	//		}
+	//	} // else...continue the outer loop; we conservatively refined and didn't actually find a hit
 
-		// Recompute each time around the loop to avoid increasing the peak register count
-		Vector2 texCoordRayDirection = normalize(segmentEndTexCoord - texCoord);
+	//	// Recompute each time around the loop to avoid increasing the peak register count
+	//	Vector2 texCoordRayDirection = normalize(segmentEndTexCoord - texCoord);
 
-		if (dot(texCoordRayDirection, segmentEndTexCoord - endTexCoord) <= invSize(lightFieldSurface.distanceProbeGrid).x) {
-			// The high resolution trace reached the end of the segment; we've failed to find a hit
-			return TRACE_RESULT_MISS;
-		}
-		else {
-			// We made it to the end of the low-resolution texel using the high-resolution trace, so that's
-			// the starting point for the next low-resolution trace. Bump the ray to guarantee that we advance
-			// instead of getting stuck back on the low-res texel we just verified...but, if that fails on the 
-			// very first texel, we'll want to restart the high-res trace exactly where we left off, so
-			// don't bump by an entire high-res texel
-			texCoord = endTexCoord + texCoordRayDirection * invSize(lightFieldSurface.distanceProbeGrid).x * 0.1;
-		}
-	} // while low-resolution trace
+	//	if (dot(texCoordRayDirection, segmentEndTexCoord - endTexCoord) <= invSize(lightFieldSurface.distanceProbeGrid).x) {
+	//		// The high resolution trace reached the end of the segment; we've failed to find a hit
+	//		return TRACE_RESULT_MISS;
+	//	}
+	//	else {
+	//		// We made it to the end of the low-resolution texel using the high-resolution trace, so that's
+	//		// the starting point for the next low-resolution trace. Bump the ray to guarantee that we advance
+	//		// instead of getting stuck back on the low-res texel we just verified...but, if that fails on the 
+	//		// very first texel, we'll want to restart the high-res trace exactly where we left off, so
+	//		// don't bump by an entire high-res texel
+	//		texCoord = endTexCoord + texCoordRayDirection * invSize(lightFieldSurface.distanceProbeGrid).x * 0.1;
+	//	}
+	//} // while low-resolution trace
 
-	// Reached the end of the segment
-	return TRACE_RESULT_MISS;
+	//// Reached the end of the segment
+	//return TRACE_RESULT_MISS;
 }
 
 
@@ -544,7 +539,7 @@ bool trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float t
 		hitProbeIndex = nearestProbeIndex(lightFieldSurface, worldSpaceRay.origin, ignore);
 		hitProbeTexCoord = octEncode(worldSpaceRay.direction) * 0.5 + 0.5;
 
-		float probeDistance = texelFetch(lightFieldSurface.distanceProbeGrid, ivec3(ivec2(hitProbeTexCoord * size(lightFieldSurface.distanceProbeGrid)), hitProbeIndex), 0).r;
+		float probeDistance = texelFetch(lightFieldSurface.distanceProbeGrid.sampler, ivec3(ivec2(hitProbeTexCoord * lightFieldSurface.distanceProbeGrid.size.xy), hitProbeIndex), 0).r;
 		if (probeDistance < 10000) {
 			Point3 hitLocation = probeLocation(lightFieldSurface, hitProbeIndex) + worldSpaceRay.direction * probeDistance;
 			tMax = length(worldSpaceRay.origin - hitLocation);
@@ -557,7 +552,6 @@ bool trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float t
 
 // Stochastically samples one glossy ray
 Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPosition, Vector3 wo, Vector3 n) {
-	// TODO: Don't assume perfect mirror!!!
 	//Vector3 wi = importanceSampleBRDFDirection(wo, n);
 	//Ray worldSpaceRay = Ray(wsPosition + wi * rayBumpEpsilon, wi);
 
@@ -567,8 +561,7 @@ Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPositio
 	float   hitDistance = 10000;
 	Point2  hitProbeTexCoord;
 	int     probeIndex;
-	//TODO: 1. define FILL_HOLES micro
-	//      2. define computeGlossyEnvironmentMapLighting
+
 	if (!trace(lightFieldSurface, worldSpaceRay, hitDistance, hitProbeTexCoord, probeIndex, true)) {
 		// Missed the entire scene; fall back to the environment map
 		//return computeGlossyEnvironmentMapLighting(wi, true, glossyExponent, false);
@@ -576,8 +569,8 @@ Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPositio
 	}
 	else {
 		// Sample the light probe radiance texture
-		//TODO: 3. change textureLod to texture
-		return textureLod(lightFieldSurface.radianceProbeGrid, float3(hitProbeTexCoord, probeIndex), 0).rgb;
+		return textureLod(lightFieldSurface.radianceProbeGrid.sampler, float3(hitProbeTexCoord, probeIndex), 0).rgb;
 	}
+
 }
 #endif // Header guard
