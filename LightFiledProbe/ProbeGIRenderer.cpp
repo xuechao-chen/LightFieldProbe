@@ -3,9 +3,9 @@
 
 CProbeGIRenderer::CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface) : m_LightFieldSurface(vLightFieldSurface)
 {
-	m_pTempFramebuffer = Framebuffer::create("TempFramebuffer");
-	m_pTempFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Irradiance", 1024, 1024, ImageFormat::R11G11B10F()));
-	m_pTempFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("Radiance", 1024, 1024, ImageFormat::R11G11B10F()));
+	m_pLightingFramebuffer = Framebuffer::create("LightingFramebuffer");
+	m_pLightingFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Diffuse", 1024, 1024, ImageFormat::R11G11B10F()));
+	m_pLightingFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("Glossy", 1024, 1024, ImageFormat::R11G11B10F()));
 	
 	m_pDenoiser = CDenoiser::create();
 	
@@ -19,8 +19,8 @@ void CProbeGIRenderer::renderDeferredShading
 	const LightingEnvironment&          environment) 
 {
 	DefaultRenderer::renderDeferredShading(rd, sortedVisibleSurfaceArray, gbuffer, environment);
-	return;
-	rd->push2D(m_pTempFramebuffer); {
+	
+	rd->push2D(m_pLightingFramebuffer); {
 		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
 		
 		Args args;
@@ -43,13 +43,13 @@ void CProbeGIRenderer::renderDeferredShading
 
 	} rd->pop2D();
 
-	m_pDenoiser->apply(rd, m_pTempFramebuffer->texture(1), m_pFilteredGlossyTexture, gbuffer);
+	m_pDenoiser->apply(rd, m_pLightingFramebuffer->texture(1), m_pFilteredGlossyTexture, gbuffer);
 
 	rd->push2D(); {
 		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
 		Args args;
-		args.setUniform("IndirectIrradiance", m_pTempFramebuffer->texture(0), Sampler::buffer());
-		args.setUniform("IndirectRadiance", m_pFilteredGlossyTexture, Sampler::buffer());
+		args.setUniform("IndirectDiffuseTexture", m_pLightingFramebuffer->texture(0), Sampler::buffer());
+		args.setUniform("IndirectGlossyTexture", m_pFilteredGlossyTexture, Sampler::buffer());
 		args.setRect(rd->viewport());
 		LAUNCH_SHADER("shader/Merge.pix", args);
 

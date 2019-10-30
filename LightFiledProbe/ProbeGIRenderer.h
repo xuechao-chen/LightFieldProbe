@@ -6,11 +6,12 @@ class CDenoiser;
 class CProbeGIRenderer : public DefaultRenderer
 {
 	friend class App;
-	SLightFieldSurface m_LightFieldSurface;
-	shared_ptr<Framebuffer> m_pTempFramebuffer;
-	shared_ptr<Texture> m_pFilteredGlossyTexture;
 
-	shared_ptr<CDenoiser> m_pDenoiser;
+	SLightFieldSurface      m_LightFieldSurface;
+	shared_ptr<Texture>     m_pFilteredGlossyTexture;
+	shared_ptr<CDenoiser>   m_pDenoiser;
+	shared_ptr<Framebuffer> m_pLightingFramebuffer;
+
 protected:
 	CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface);
 
@@ -27,6 +28,6 @@ public:
 	}
 
 private:
-	void __displayProbes(RenderDevice* vRenderDevice, float vProbeRadius=-1);
+	void __displayProbes(RenderDevice* vRenderDevice, float vProbeRadius = -1);
 };
 

@@ -1,12 +1,12 @@
 #include <compatibility.glsl>
 
-uniform sampler2D IndirectIrradiance;
-uniform sampler2D IndirectRadiance;
+uniform sampler2D IndirectDiffuseTexture;
+uniform sampler2D IndirectGlossyTexture;
 
 out vec4 result;
 
 void main()
 {
 	int2 P = int2(gl_FragCoord.xy);
-	result = texelFetch(IndirectIrradiance, P, 0) + texelFetch(IndirectRadiance, P, 0);
+	result = texelFetch(IndirectDiffuseTexture, P, 0) + texelFetch(IndirectGlossyTexture, P, 0);
 }

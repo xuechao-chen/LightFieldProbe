@@ -10,14 +10,14 @@ uniform_GBuffer(gbuffer_);
 #include "LightFieldProbe.glsl"
 #include "BRDFImportanceSampling.glsl"
 
-out vec3 IndirectIrradiance;
-out vec3 IndirectRadiance;
+out vec3 IndirectDiffuseColor;
+out vec3 IndirectGlossyColor;
 
 uniform LightFieldSurface lightFieldSurface;
 uniform int seed;
 uniform int numofSamples;
 
-float3 ggxIndirectSpecular(LightFieldSurface lightFieldSurface, inout uint rndSeed, vec3 posW, vec3 normalW, vec3 view, float smoothness, vec3 glossy, int samplescount)
+float3 ggxIndirectGlossy(LightFieldSurface lightFieldSurface, inout uint rndSeed, vec3 posW, vec3 normalW, vec3 view, float smoothness, vec3 glossy, int samplescount)
 {
 	// We have to decide whether we sample our diffuse or specular/ggx lobe.
 	// We'll need NdotV for both diffuse and specular
@@ -77,9 +77,9 @@ void main()
 	uint seed_s = uint(seed*gl_FragCoord.x*(sin(gl_FragCoord.y) + 2));
 	rand_next(seed_s);
 
-	vec3 IndirectSpecularLighting = ggxIndirectSpecular(lightFieldSurface, seed_s, surfel.position, surfel.shadingNormal, w_o, surfel.smoothness, surfel.fresnelReflectionAtNormalIncidence, numofSamples);
+	vec3 IndirectGlossyLighting = ggxIndirectGlossy(lightFieldSurface, seed_s, surfel.position, surfel.shadingNormal, w_o, surfel.smoothness, surfel.fresnelReflectionAtNormalIncidence, numofSamples);
 	vec3 IndirectDiffuseLighting  = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
 
-	IndirectIrradiance = 0.6*IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
-	IndirectRadiance   = saturate(0.4*IndirectSpecularLighting);
+	IndirectDiffuseColor = 0.6*IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
+	IndirectGlossyColor   = saturate(0.4*IndirectGlossyLighting);
 }
