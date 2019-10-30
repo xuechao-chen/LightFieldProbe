@@ -171,6 +171,7 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Denoiser.h" />
     <ClInclude Include="ProbeGIRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
