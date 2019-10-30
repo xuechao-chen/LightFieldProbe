@@ -6,8 +6,6 @@ void App::onInit()
 	GApp::onInit();
 	setFrameDuration(1.0f / 60.f);
 
-	__makeGUI();
-
 	m_gbufferSpecification.encoding[GBuffer::Field::CS_POSITION] = ImageFormat::RGB32F();
 	m_gbufferSpecification.encoding[GBuffer::Field::WS_POSITION] = ImageFormat::RGB32F();
 	m_gbufferSpecification.encoding[GBuffer::Field::WS_NORMAL]   = ImageFormat::RGB32F();
@@ -18,8 +16,8 @@ void App::onInit()
 
 	logPrintf("Program initialized\n");
 	//loadScene("Simple Cornell Box");
-	//loadScene("Simple Cornell Box (Mirror)");
-	loadScene("Sponza (Glossy Area Lights)");
+	loadScene("Simple Cornell Box (Mirror)");
+	//loadScene("Sponza (Glossy Area Lights)");
 	//loadScene("Sponza (Statue Glossy)");
 	logPrintf("Loaded Scene\n");
 
@@ -34,6 +32,7 @@ void App::onInit()
 	m_pGIRenderer->setDeferredShading(true);
 	m_renderer = m_pGIRenderer;
 
+	__makeGUI();
 	//m_debugController->setTurnRate(1);
 	//m_debugController->setMoveRate(1);
 }
@@ -65,8 +64,22 @@ shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
 
 void App::__makeGUI()
 {
-	debugWindow->setVisible(false);
+	debugWindow->setVisible(true);
 	showRenderingStats = false;
+
+	debugPane->beginRow(); {
+		debugPane->addCheckBox("Direct", &m_pGIRenderer->m_Settings.Direct)->moveBy(10, 0);
+		debugPane->addCheckBox("Indirect Diffuse", &m_pGIRenderer->m_Settings.IndirectDiffuse)->moveBy(20, 0);
+		debugPane->addCheckBox("Indirect Glossy", &m_pGIRenderer->m_Settings.IndirectGlossy)->moveBy(30, 0);
+		debugPane->addCheckBox("Display Probe", &m_pGIRenderer->m_Settings.DisplayProbe)->moveBy(40, 0);
+	} debugPane->endRow();
+
+	debugWindow->pack();
+	debugWindow->setRect(Rect2D::xywh(0, 0, (float)window()->width(), debugWindow->rect().height()));
+	developerWindow->cameraControlWindow->moveTo(Vector2(0, 450));
+	developerWindow->cameraControlWindow->setVisible(false);
+	developerWindow->setVisible(false);
+	developerWindow->sceneEditorWindow->moveTo(Point2int16(0, 50));
 }
 
 void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface)

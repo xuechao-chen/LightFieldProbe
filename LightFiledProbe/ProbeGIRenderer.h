@@ -3,10 +3,19 @@
 
 class CDenoiser;
 
+struct SRendererSettings
+{
+	bool Direct  = true;
+	bool IndirectDiffuse = true;
+	bool IndirectGlossy  = true;
+	bool DisplayProbe = false;
+};
+
 class CProbeGIRenderer : public DefaultRenderer
 {
 	friend class App;
 
+	SRendererSettings       m_Settings;
 	SLightFieldSurface      m_LightFieldSurface;
 	shared_ptr<Texture>     m_pFilteredGlossyTexture;
 	shared_ptr<CDenoiser>   m_pDenoiser;

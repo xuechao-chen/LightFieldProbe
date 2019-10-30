@@ -27,6 +27,7 @@ float3 ggxIndirectGlossy(LightFieldSurface lightFieldSurface, inout uint rndSeed
 
 	float roughness = pow(1.0 - smoothness, 2) + 0.01;
 	//roughness = 1 - roughness;
+	roughness = 0.01;
 	for (int i = 0; i < samplescount; i++)
 	{
 		vec2 randVal = float2(rand_next(rndSeed), rand_next(rndSeed));
@@ -39,7 +40,7 @@ float3 ggxIndirectGlossy(LightFieldSurface lightFieldSurface, inout uint rndSeed
 
 		// Compute our color by tracing a ray in this direction
 		vec3 bounceColor = computeGlossyRay(lightFieldSurface, posW, view, H);
-
+		return bounceColor;
 		// Check to make sure our randomly selected, normal mapped diffuse ray didn't go below the surface.
 		if (dot(normalW, L) <= 0.0f) bounceColor = vec3(0, 0, 0);
 

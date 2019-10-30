@@ -18,8 +18,13 @@ void CProbeGIRenderer::renderDeferredShading
 	const shared_ptr<GBuffer>&          gbuffer,
 	const LightingEnvironment&          environment) 
 {
-	DefaultRenderer::renderDeferredShading(rd, sortedVisibleSurfaceArray, gbuffer, environment);
-	
+	RenderDevice::BlendFunc DstBlendFunc = RenderDevice::BLEND_ZERO;
+	if (m_Settings.Direct)
+	{
+		DefaultRenderer::renderDeferredShading(rd, sortedVisibleSurfaceArray, gbuffer, environment);
+		DstBlendFunc = RenderDevice::BLEND_ONE;
+	}
+
 	rd->push2D(m_pLightingFramebuffer); {
 		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
 		
@@ -46,8 +51,10 @@ void CProbeGIRenderer::renderDeferredShading
 	m_pDenoiser->apply(rd, m_pLightingFramebuffer->texture(1), m_pFilteredGlossyTexture, gbuffer);
 
 	rd->push2D(); {
-		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+		rd->setBlendFunc(RenderDevice::BLEND_ONE, DstBlendFunc);
 		Args args;
+		args.setMacro("ENABLE_INDIRECT_DIFFUSE", m_Settings.IndirectDiffuse);
+		args.setMacro("ENABLE_INDIRECT_GLOSSY",  m_Settings.IndirectGlossy);
 		args.setUniform("IndirectDiffuseTexture", m_pLightingFramebuffer->texture(0), Sampler::buffer());
 		args.setUniform("IndirectGlossyTexture", m_pFilteredGlossyTexture, Sampler::buffer());
 		args.setRect(rd->viewport());
@@ -55,7 +62,7 @@ void CProbeGIRenderer::renderDeferredShading
 
 	} rd->pop2D();
 
-	__displayProbes(rd);
+	if (m_Settings.DisplayProbe) __displayProbes(rd);
 }
 
 void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbeRadius/*=-1*/)
