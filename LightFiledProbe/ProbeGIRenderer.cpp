@@ -1,6 +1,16 @@
 #include "ProbeGIRenderer.h"
+#include "Denoiser.h"
 
-CProbeGIRenderer::CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface) : m_LightFieldSurface(vLightFieldSurface){}
+CProbeGIRenderer::CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface) : m_LightFieldSurface(vLightFieldSurface)
+{
+	m_pTempFramebuffer = Framebuffer::create("TempFramebuffer");
+	m_pTempFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Irradiance", 1024, 1024, ImageFormat::R11G11B10F()));
+	m_pTempFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("Radiance", 1024, 1024, ImageFormat::R11G11B10F()));
+	
+	m_pDenoiser = CDenoiser::create();
+	
+	m_pFilteredGlossyTexture = Texture::createEmpty("FilterredGlossyTexture", 1024, 1024, ImageFormat::R11G11B10F());
+}
 
 void CProbeGIRenderer::renderDeferredShading
 	(RenderDevice*                      rd,
@@ -9,9 +19,9 @@ void CProbeGIRenderer::renderDeferredShading
 	const LightingEnvironment&          environment) 
 {
 	DefaultRenderer::renderDeferredShading(rd, sortedVisibleSurfaceArray, gbuffer, environment);
-	
-	rd->push2D(); {
-		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+	return;
+	rd->push2D(m_pTempFramebuffer); {
+		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
 		
 		Args args;
 		args.setRect(rd->viewport());
@@ -30,6 +40,18 @@ void CProbeGIRenderer::renderDeferredShading
 		m_LightFieldSurface.LowResolutionDistanceProbeGrid->setShaderArgs(args, "lightFieldSurface.lowResolutionDistanceProbeGrid.", Sampler::buffer());
 
 		LAUNCH_SHADER("shader/Lighting.pix", args);
+
+	} rd->pop2D();
+
+	m_pDenoiser->apply(rd, m_pTempFramebuffer->texture(1), m_pFilteredGlossyTexture, gbuffer);
+
+	rd->push2D(); {
+		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+		Args args;
+		args.setUniform("IndirectIrradiance", m_pTempFramebuffer->texture(0), Sampler::buffer());
+		args.setUniform("IndirectRadiance", m_pFilteredGlossyTexture, Sampler::buffer());
+		args.setRect(rd->viewport());
+		LAUNCH_SHADER("shader/Merge.pix", args);
 
 	} rd->pop2D();
 

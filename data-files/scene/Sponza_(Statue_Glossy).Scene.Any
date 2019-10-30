@@ -1,0 +1,556 @@
+/* -*- c++ -*- */
+{ 
+   
+    defaultCamera = "defaultCamera";
+
+    entities = { 
+        building = VisibleEntity { 
+            canChange = false; 
+            model = "sponzaModel"; 
+            visible = true; 
+        }; 
+        
+        defaultCamera = Camera { 
+            canChange = false; 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = true; 
+                farBlurRadiusFraction = 0.0142308; 
+                farBlurryPlaneZ = -47.849; 
+                farSharpPlaneZ = -11; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "ARTIST"; 
+                nearBlurRadiusFraction = 0.005; 
+                nearBlurryPlaneZ = -3.07562; 
+                nearSharpPlaneZ = -3.07662; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                effectsEnabled = true; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.0787234, 0.306383, 0.75532, 0.829787 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.169565, 0.339131, 0.752174, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(-22.623, 0.33302, -2.518, -111.16, 17.543, 0); 
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = true; 
+                exposureFraction = 0.25; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 15; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -150; 
+                fovDegrees = 50.5; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        dynamicBlueOrb = VisibleEntity { 
+            castsShadows = false; 
+            model = "blueOrbModel"; 
+            track = PFrameSpline { 
+                control = ( 
+                    CFrame::fromXYZYPRDegrees(10.2399, 1.68949, -2.45834, 116.679, 0.0548282 ), 
+                    CFrame::fromXYZYPRDegrees(6.40264, 3.07359, 0.259886, 134.442, 28.7027 ), 
+                    CFrame::fromXYZYPRDegrees(3.59201, 5.66381, 1.624, 153.349, 5.78441 ), 
+                    CFrame::fromXYZYPRDegrees(-0.803997, 5.75501, 3.98568, 92.0428, 0.627796 ), 
+                    CFrame::fromXYZYPRDegrees(-7.35383, 5.69478, 4.06013, 2.08804, -2.23717 ), 
+                    CFrame::fromXYZYPRDegrees(-11.1407, 5.53176, 1.59912, -19.6843, -3.95587 ), 
+                    CFrame::fromXYZYPRDegrees(-11.0455, 5.34818, -4.05481, -90.1586, -0.518121 ), 
+                    CFrame::fromXYZYPRDegrees(-4.34075, 5.42604, -4.3737, -86.7209, -0.518121 ), 
+                    CFrame::fromXYZYPRDegrees(0.31051, 5.51211, -3.7668, -141.725, 2.34667 ), 
+                    CFrame::fromXYZYPRDegrees(5.2423, 3.1526, 0.0721042, -93.0234, -30.3119 ) ); 
+                
+                extrapolationMode = "CYCLIC"; 
+                finalInterval = 1; 
+                interpolationMode = "CUBIC"; 
+                time = ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ); 
+            }; 
+            
+            visible = false; 
+        }; 
+        
+        dynamicBlueOrbLight = Light { 
+            attenuation = ( 0.0001, 0, 1 ); 
+            bulbPower = Power3(0, 400, 800 ); 
+            shadowsEnabled = false; 
+            enabled = false; 
+            spotHalfAngleDegrees = 180; 
+            track = combine(Matrix4::identity(), entity("dynamicBlueOrb") ); 
+            type = "OMNI"; 
+        }; 
+        
+        dynamicSun = Light { 
+            attenuation = ( 0, 0, 1 ); 
+            bulbPower = Power3(2e+07 ); 
+            shadowsEnabled = true; 
+            enabled = false; 
+            frame = CFrame::fromXYZYPRDegrees(-5.5767, 207.755, -37.952, -180, -73.5466, 90 ); 
+            nearPlaneZLimit = -170; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = true; 
+            shadowMapSize = Vector2int16(4096, 4096 ); 
+            spotHalfAngleDegrees = 6; 
+            rectangular = true; 
+            track = with(
+                { 
+                    spline = PFrameSpline { 
+                        control = ( 
+                            CFrame::fromXYZYPRDegrees(-5.5767, 207.755, -57.952 ), 
+                            CFrame::fromXYZYPRDegrees(-5.5767, 227.755, 0 ), 
+                            CFrame::fromXYZYPRDegrees(-5.5767, 207.755, 57.952, 0 ), 
+                            CFrame::fromXYZYPRDegrees(-5.5767, 207.755, 57.952, 0 ), 
+                            CFrame::fromXYZYPRDegrees(-5.5767, 227.755, 0 ), 
+                            CFrame::fromXYZYPRDegrees(-5.5767, 207.755, -57.952 ) ); 
+                        
+                        extrapolationMode = "CYCLIC"; 
+                        finalInterval = -2; 
+                        interpolationMode = "CUBIC"; 
+                        time = ( 0, 2, 4, 6, 8, 10 ); 
+                    }; 
+                    
+                    target = Point3(0, 0, 0 ); 
+                }, 
+                lookAt("spline", "target", Vector3(1, 0, 0 ) ) ); 
+            
+            type = "SPOT"; 
+        }; 
+        
+        pillarStrafeCamera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -55; 
+                farSharpPlaneZ = -11; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "ARTIST"; 
+                nearBlurRadiusFraction = 0; 
+                nearBlurryPlaneZ = -0.1; 
+                nearSharpPlaneZ = -1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                effectsEnabled = true; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.0787234, 0.306383, 0.75532, 0.829787 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.169565, 0.339131, 0.752174, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(-23.4, 3.4, 2.8, -66.3, -2.8, 0 ); 
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = true; 
+                exposureFraction = 0.25; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 15; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -150; 
+                fovDegrees = 77.5; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            track = PFrameSpline { 
+                control = ( 
+                    CFrame::fromXYZYPRDegrees(-20.2, 11.65, 1.2, 4.20003, -2.8 ), 
+                    CFrame::fromXYZYPRDegrees(10.2, 11.65, -1, 4.20003, -2.8 ) ); 
+                
+                extrapolationMode = "CYCLIC"; 
+                finalInterval = -1; 
+                interpolationMode = "CUBIC"; 
+                time = ( 0, 10 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        skybox = Skybox { 
+            texture = "cubemap/noonclouds/noonclouds_*.png"; 
+        }; 
+        
+        staticAOCamera = Camera { 
+            canChange = false; 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -55; 
+                farSharpPlaneZ = -11; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "ARTIST"; 
+                nearBlurRadiusFraction = 0; 
+                nearBlurryPlaneZ = -0.1; 
+                nearSharpPlaneZ = -1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                effectsEnabled = true; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.0787234, 0.306383, 0.75532, 0.829787 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.169565, 0.339131, 0.752174, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(-20.4, 13.3, 3.9, 0, -9.1, 0 ); 
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = true; 
+                exposureFraction = 0.25; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 15; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -150; 
+                fovDegrees = 77.5; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        staticStatueCamera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -55; 
+                farSharpPlaneZ = -11; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "ARTIST"; 
+                nearBlurRadiusFraction = 0; 
+                nearBlurryPlaneZ = -0.1; 
+                nearSharpPlaneZ = -1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                effectsEnabled = true; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.0787234, 0.306383, 0.75532, 0.829787 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.169565, 0.339131, 0.752174, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(-23.8, 3.4, 1.2, -91.5, 1.8, 0 ); 
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = true; 
+                exposureFraction = 0.25; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 15; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -150; 
+                fovDegrees = 77.5; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        statue = VisibleEntity { 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(-14, 2.9, 3, -90, 0, 0 ); 
+            model = "statueModel"; 
+            visible = true; 
+        }; 
+        
+        statuteStrafeCamera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -55; 
+                farSharpPlaneZ = -11; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "ARTIST"; 
+                nearBlurRadiusFraction = 0; 
+                nearBlurryPlaneZ = -0.1; 
+                nearSharpPlaneZ = -1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                effectsEnabled = true; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.0787234, 0.306383, 0.75532, 0.829787 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.169565, 0.339131, 0.752174, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(-23.4, 3.4, 2.8, -66.3, -2.8, 0 ); 
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = true; 
+                exposureFraction = 0.25; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 15; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -150; 
+                fovDegrees = 77.5; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            track = PFrameSpline { 
+                control = ( 
+                    CFrame::fromXYZYPRDegrees(-22.9, 3.4, -9.8, -143.6, -8 ), 
+                    CFrame::fromXYZYPRDegrees(-23.4, 3.4, 2.8, -66.3, -2.8 ), 
+                    CFrame::fromXYZYPRDegrees(-21.9, 3.4, 6.8, -40.6, -6.2 ) ); 
+                
+                extrapolationMode = "CYCLIC"; 
+                finalInterval = -1; 
+                interpolationMode = "CUBIC"; 
+                time = ( 0, 4, 6.3 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        sun = Light { 
+            attenuation = ( 0, 0, 1 ); 
+            bulbPower = Power3(4e+07 ); 
+            shadowsEnabled = true; 
+            enabled = true; 
+            frame = CFrame::fromXYZYPRDegrees(-5.5767, 207.755, -37.952, -180, -73.5466, 90 ); 
+            nearPlaneZLimit = -170; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = true; 
+            shadowMapSize = Vector2int16(2048, 2048 ); 
+            spotHalfAngleDegrees = 5; 
+            rectangular = true; 
+            type = "SPOT"; 
+        }; 
+        
+    }; 
+    
+    lightingEnvironment = LightingEnvironment { 
+        ambientOcclusionSettings = AmbientOcclusionSettings { 
+            bias = 0.042; 
+            blurRadius = 2; 
+            blurStepSize = 1; 
+            depthPeelSeparationHint = 0.001; 
+            edgeSharpness = 1; 
+            enabled = true; 
+            highQualityBlur = true; 
+            intensity = 1.2; 
+            monotonicallyDecreasingBilateralWeights = false; 
+            numSamples = 21; 
+            packBlurKeys = false; 
+            radius = 1; 
+            temporalFilterSettings = TemporalFilter::Settings { 
+                falloffEndDistance = 0.07; 
+                falloffStartDistance = 0.05; 
+                hysteresis = 0.84375; 
+            }; 
+            
+            temporallyVarySamples = true; 
+            useDepthPeelBuffer = true; 
+            useNormalBuffer = true; 
+            useNormalsInBlur = true; 
+            zStorage = "HALF"; 
+        }; 
+    }; 
+    
+    maxPerformanceDeepGBufferRadiosityPresets = DeepGBufferRadiositySettings { 
+        blurRadius = 4; 
+        blurStepSize = 2; 
+        computeGuardBandFraction = 0.1; 
+        depthPeelSeparationHint = 1.6; 
+        edgeSharpness = 1; 
+        minMipLevel = 3; 
+        monotonicallyDecreasingBilateralWeights = true; 
+        numBounces = 1; 
+        numSamples = 19; 
+        propagationDamping = 0.1; 
+        radius = 7.4; 
+        saturatedBoost = 2; 
+        temporalFilterSettings = TemporalFilter::Settings { 
+            hysteresis = 0.931; 
+        }; 
+        
+        temporallyVarySamples = true; 
+        unsaturatedBoost = 1; 
+        useDepthPeelBuffer = true; 
+        useHalfPrecisionColors = true; 
+        useMipMaps = true; 
+        useOct16 = true; 
+        useTapNormal = false; 
+    }; 
+    
+    maxQualityDeepGBufferRadiosityPresets = DeepGBufferRadiositySettings { 
+        blurRadius = 6; 
+        blurStepSize = 1; 
+        computeGuardBandFraction = 0.8; 
+        depthPeelSeparationHint = 1.6; 
+        edgeSharpness = 1; 
+        minMipLevel = 1; 
+        monotonicallyDecreasingBilateralWeights = true; 
+        numBounces = 1; 
+        numSamples = 30; 
+        propagationDamping = 0.1; 
+        radius = 7.4; 
+        saturatedBoost = 2; 
+        temporalFilterSettings = TemporalFilter::Settings { 
+            hysteresis = 0.931; 
+        }; 
+        
+        temporallyVarySamples = true; 
+        unsaturatedBoost = 1; 
+        useDepthPeelBuffer = true; 
+        useHalfPrecisionColors = true; 
+        useMipMaps = true; 
+        useOct16 = true; 
+        useTapNormal = true; 
+    }; 
+    
+    models = { 
+        blueOrbModel = ArticulatedModel::Specification { 
+            filename = "ifs/icosa.ifs"; 
+            preprocess = { 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        emissive = Power3(0, 8, 16 ); 
+                        lambertian = Color3(0 ); 
+                    } ) }; 
+            
+            scale = 0.25; 
+        }; 
+        
+        sponzaModel = ArticulatedModel::Specification { 
+            alphaFilter = "BINARY";
+            filename = "model/crytek_sponza/sponza.zip/sponza.obj"; 
+            preprocess = 
+            (  setMaterial("sponza_117/floor", UniversalMaterial::Specification { 
+                        glossy = Texture::Specification {
+                            filename = "model/crytek_sponza/sponza.zip/textures/floor_gloss.png"; 
+                            encoding = Color4(0.4, 0.4, 0.4, 0.95);
+                        };
+                        lambertian = "model/crytek_sponza/sponza.zip/textures/sponza_floor_a_diff.png"; 
+                    } );
+                setMaterial("sponza_284/fabric_a", UniversalMaterial::Specification { 
+                        lambertian = "model/crytek_sponza/sponza.zip/textures/sponza_fabric_purple.png"; 
+                    } ); 
+                setMaterial("sponza_321/fabric_c", UniversalMaterial::Specification { 
+                        lambertian = "model/crytek_sponza/sponza.zip/textures/sponza_fabric_purple.png"; 
+                    } ); 
+                setMaterial("sponza_283/fabric_d", UniversalMaterial::Specification { 
+                        lambertian = "model/crytek_sponza/sponza.zip/textures/sponza_fabric_purple.png"; 
+                    } ); 
+                setMaterial("sponza_282/fabric_e", UniversalMaterial::Specification { 
+                        lambertian = "model/crytek_sponza/sponza.zip/textures/sponza_fabric_purple.png"; 
+                    } ); 
+                setMaterial("sponza_322/fabric_f", UniversalMaterial::Specification { 
+                        lambertian = "model/crytek_sponza/sponza.zip/textures/sponza_fabric_purple.png"; 
+                    } ); 
+                setMaterial("sponza_320/fabric_g", UniversalMaterial::Specification { 
+                        lambertian = "model/crytek_sponza/sponza.zip/textures/sponza_fabric_purple.png"; 
+                    } ) ); 
+            
+            scale = 0.02; 
+        }; 
+        
+        statueModel = ArticulatedModel::Specification { 
+            filename = "ifs/lucy.ply"; 
+            preprocess = { 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        glossy = Color4(0.0325, 0.0325, 0.0325, 0.75 ); 
+                        lambertian = Color3(0.95 ); 
+                    } ) }; 
+            
+            scale = 0.005; 
+        }; 
+        
+    }; 
+    
+    name = "Sponza (Statue Glossy)"; 
+} 

@@ -12,12 +12,15 @@ void App::onInit()
 	m_gbufferSpecification.encoding[GBuffer::Field::WS_POSITION] = ImageFormat::RGB32F();
 	m_gbufferSpecification.encoding[GBuffer::Field::WS_NORMAL]   = ImageFormat::RGB32F();
 	m_gbufferSpecification.encoding[GBuffer::Field::GLOSSY] = ImageFormat::RGBA32F();
+	m_gbufferSpecification.encoding[GBuffer::Field::DEPTH_AND_STENCIL] = ImageFormat::DEPTH32F();
+	m_gbufferSpecification.encoding[GBuffer::Field::CS_NORMAL] = Texture::Encoding(ImageFormat::RGB10A2(), FrameName::CAMERA, 2.0f, -1.0f);
+	m_gbufferSpecification.encoding[GBuffer::Field::SS_POSITION_CHANGE] = ImageFormat::RGB32F();
 
 	logPrintf("Program initialized\n");
-	loadScene("Simple Cornell Box");
-	//loadScene("G3D Simple Cornell Box (Mirror)");
-	//loadScene("Sponza Glossy");
-	//loadScene("G3D Sponza (Area Light)");
+	//loadScene("Simple Cornell Box");
+	//loadScene("Simple Cornell Box (Mirror)");
+	loadScene("Sponza (Glossy Area Lights)");
+	//loadScene("Sponza (Statue Glossy)");
 	logPrintf("Loaded Scene\n");
 
 	m_LightFieldSurface = __initLightFieldSurface();
@@ -30,6 +33,9 @@ void App::onInit()
 	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(m_LightFieldSurface));
 	m_pGIRenderer->setDeferredShading(true);
 	m_renderer = m_pGIRenderer;
+
+	//m_debugController->setTurnRate(1);
+	//m_debugController->setMoveRate(1);
 }
 
 shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
@@ -122,7 +128,7 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
 
-	auto Bounds = BoundingBoxRange * 0.2;//NOTE: range from 0.1 to 0.5
+	auto Bounds = BoundingBoxRange * 0.1;//NOTE: range from 0.1 to 0.5
 
 	LightFieldSurface.ProbeCounts = Vector3int32(2,2,2);
 	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));

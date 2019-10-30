@@ -10,7 +10,8 @@ uniform_GBuffer(gbuffer_);
 #include "LightFieldProbe.glsl"
 #include "BRDFImportanceSampling.glsl"
 
-out vec3 Color;
+out vec3 IndirectIrradiance;
+out vec3 IndirectRadiance;
 
 uniform LightFieldSurface lightFieldSurface;
 uniform int seed;
@@ -25,7 +26,7 @@ float3 ggxIndirectSpecular(LightFieldSurface lightFieldSurface, inout uint rndSe
 	vec3 sum = vec3(0);
 
 	float roughness = pow(1.0 - smoothness, 2) + 0.01;
-	roughness = 1 - roughness;
+	//roughness = 1 - roughness;
 	for (int i = 0; i < samplescount; i++)
 	{
 		vec2 randVal = float2(rand_next(rndSeed), rand_next(rndSeed));
@@ -38,7 +39,7 @@ float3 ggxIndirectSpecular(LightFieldSurface lightFieldSurface, inout uint rndSe
 
 		// Compute our color by tracing a ray in this direction
 		vec3 bounceColor = computeGlossyRay(lightFieldSurface, posW, view, H);
-		
+
 		// Check to make sure our randomly selected, normal mapped diffuse ray didn't go below the surface.
 		if (dot(normalW, L) <= 0.0f) bounceColor = vec3(0, 0, 0);
 
@@ -79,5 +80,6 @@ void main()
 	vec3 IndirectSpecularLighting = ggxIndirectSpecular(lightFieldSurface, seed_s, surfel.position, surfel.shadingNormal, w_o, surfel.smoothness, surfel.fresnelReflectionAtNormalIncidence, numofSamples);
 	vec3 IndirectDiffuseLighting  = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
 
-	Color = 0.6*IndirectDiffuseLighting * surfel.lambertianReflectivity / pi + 0.4*IndirectSpecularLighting;
+	IndirectIrradiance = 0.6*IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
+	IndirectRadiance   = saturate(0.4*IndirectSpecularLighting);
 }

@@ -1,10 +1,16 @@
 #pragma once
 #include "Common.h"
 
+class CDenoiser;
+
 class CProbeGIRenderer : public DefaultRenderer
 {
 	friend class App;
 	SLightFieldSurface m_LightFieldSurface;
+	shared_ptr<Framebuffer> m_pTempFramebuffer;
+	shared_ptr<Texture> m_pFilteredGlossyTexture;
+
+	shared_ptr<CDenoiser> m_pDenoiser;
 protected:
 	CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface);
 
