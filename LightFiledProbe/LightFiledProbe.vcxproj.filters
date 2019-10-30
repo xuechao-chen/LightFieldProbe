@@ -76,6 +76,9 @@
     <None Include="..\data-files\shader\Common.glsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\data-files\shader\BRDFImportanceSampling.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProbeGIRenderer.h">
