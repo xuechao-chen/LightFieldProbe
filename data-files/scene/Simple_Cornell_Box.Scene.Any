@@ -185,13 +185,9 @@
             useNormalsInBlur = true; 
             zStorage = "HALF"; 
         }; 
-        
-
-        
     }; 
     
     models = { 
-        //boxModel = "model/CornellBox/CornellBox.zip/CornellBox-Original.obj"; 
         boxModel = "data/model/CornellBox/CornellBox/CornellBox-Original.obj"; 
 		lightModel = "data/model/CornellBox/CornellBox/AreaLight.obj"
     }; 

@@ -13,7 +13,7 @@
         defaultCamera = Camera { 
             canChange = false; 
             depthOfFieldSettings = DepthOfFieldSettings { 
-                enabled = true; 
+                enabled = false; 
                 farBlurRadiusFraction = 0.0142308; 
                 farBlurryPlaneZ = -47.849; 
                 farSharpPlaneZ = -11; 
@@ -50,7 +50,7 @@
             
             frame = CFrame::fromXYZYPRDegrees(-22.623, 0.33302, -2.518, -111.16, 17.543, 0); 
             motionBlurSettings = MotionBlurSettings { 
-                enabled = true; 
+                enabled = false; 
                 exposureFraction = 0.25; 
                 maxBlurDiameterFraction = 0.1; 
                 numSamples = 15; 
@@ -207,6 +207,7 @@
         
         skybox = Skybox { 
             texture = "cubemap/noonclouds/noonclouds_*.png"; 
+			//texture = 0.0;
         }; 
         
         staticAOCamera = Camera { 

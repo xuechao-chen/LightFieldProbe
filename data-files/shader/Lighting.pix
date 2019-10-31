@@ -52,8 +52,8 @@ float3 ggxIndirectGlossy(LightFieldSurface lightFieldSurface, inout uint rndSeed
 		float D = evalGGX(roughness, NdotH) * M_INV_PI; // Our GGX function does not include division by PI
 		float G = evalSmithGGX(NdotL, NdotV, roughness); // Includes division by 4 * NdotL * NdotV
 		vec3 f90 = vec3(0.5 + 2 * roughness *pow(dot(((L - view) / 2.0), L), 2));
-		vec3 F = fresnelSchlick(vec3(0.1), f90, LdotH);
-		//vec3 F = schlickFresnel(glossy, NdotV, smoothness); //g3d inside func
+		//vec3 F = fresnelSchlick(vec3(0.1), f90, LdotH);
+		vec3 F = schlickFresnel(glossy, NdotV, smoothness); //g3d inside func
 		vec3 brdf = D * G * F;
 
 		// Probability of sampling vector H from getGGXMicrofacet()

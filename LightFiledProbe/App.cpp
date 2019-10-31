@@ -15,8 +15,8 @@ void App::onInit()
 	m_gbufferSpecification.encoding[GBuffer::Field::SS_POSITION_CHANGE] = ImageFormat::RGB32F();
 
 	logPrintf("Program initialized\n");
-	//loadScene("Simple Cornell Box");
-	loadScene("Simple Cornell Box (Mirror)");
+	loadScene("Simple Cornell Box");
+	//loadScene("Simple Cornell Box (Mirror)");
 	//loadScene("Sponza (Glossy Area Lights)");
 	//loadScene("Sponza (Statue Glossy)");
 	logPrintf("Loaded Scene\n");
@@ -141,7 +141,7 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
 
-	auto Bounds = BoundingBoxRange * 0.1;//NOTE: range from 0.1 to 0.5
+	auto Bounds = BoundingBoxRange * 0.2;//NOTE: range from 0.1 to 0.5
 
 	LightFieldSurface.ProbeCounts = Vector3int32(2,2,2);
 	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
