@@ -13,12 +13,16 @@ public:
 	App(const GApp::Settings& vSettings) : GApp(vSettings) {}
 
 	virtual void onInit() override;
+	void __specifyGBufferEncoding();
+	void onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces) override;
 
 private:
 	void __makeGUI();
 	void __enableEmissiveLight(bool vEnable);
 	void __precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface);
-	void __renderLightFieldProbe(uint32 vProbeIndex, int vResolution, SLightFieldCubemap& voLightFieldCubemap);
+	void __generateLowResOctmap(std::shared_ptr<Framebuffer>& vLightFieldFramebuffer, SLightFieldCubemap& vLightFieldCubemap, shared_ptr<Texture>& vSphereSamplerTexture);
+	void __generateHighResOctmap(std::shared_ptr<Framebuffer>& vLightFieldFramebuffer, SLightFieldCubemap& vLightFieldCubemap);
+	void __renderLightFieldProbe2Cubemap(uint32 vProbeIndex, int vResolution, SLightFieldCubemap& voLightFieldCubemap);
 
 	SLightFieldSurface   __initLightFieldSurface();
 	shared_ptr<Texture>  __createSphereSampler(int vDegreeSize = 64);

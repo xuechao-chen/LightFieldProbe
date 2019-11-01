@@ -3,13 +3,16 @@
 
 CProbeGIRenderer::CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface) : m_LightFieldSurface(vLightFieldSurface)
 {
+	auto Width  = GApp::current()->settings().window.width;
+	auto Height = GApp::current()->settings().window.height;
+
 	m_pLightingFramebuffer = Framebuffer::create("LightingFramebuffer");
-	m_pLightingFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Diffuse", 1024, 1024, ImageFormat::R11G11B10F()));
-	m_pLightingFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("Glossy", 1024, 1024, ImageFormat::R11G11B10F()));
+	m_pLightingFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Diffuse", Width, Height, ImageFormat::R11G11B10F()));
+	m_pLightingFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("Glossy", Width, Height, ImageFormat::R11G11B10F()));
 	
 	m_pDenoiser = CDenoiser::create();
 	
-	m_pFilteredGlossyTexture = Texture::createEmpty("FilterredGlossyTexture", 1024, 1024, ImageFormat::R11G11B10F());
+	m_pFilteredGlossyTexture = Texture::createEmpty("FilterredGlossyTexture", Width, Height, ImageFormat::R11G11B10F());
 }
 
 void CProbeGIRenderer::renderDeferredShading
@@ -30,11 +33,15 @@ void CProbeGIRenderer::renderDeferredShading
 		
 		Args args;
 		args.setRect(rd->viewport());
+
 		args.setUniform("seed", rand());
 		args.setUniform("numofSamples", 1);
 		args.setUniform("lightFieldSurface.probeStep",		    m_LightFieldSurface.ProbeSteps);
 		args.setUniform("lightFieldSurface.probeCounts",        m_LightFieldSurface.ProbeCounts);
 		args.setUniform("lightFieldSurface.probeStartPosition", m_LightFieldSurface.ProbeStartPosition);
+
+		args.setMacro("ENABLE_INDIRECT_DIFFUSE", m_Settings.IndirectDiffuse);
+		args.setMacro("ENABLE_INDIRECT_GLOSSY", m_Settings.IndirectGlossy);
 
 		gbuffer->setShaderArgsRead(args, "gbuffer_");
 		m_LightFieldSurface.RadianceProbeGrid->setShaderArgs(args,   "lightFieldSurface.radianceProbeGrid.",   Sampler::buffer());
@@ -53,8 +60,6 @@ void CProbeGIRenderer::renderDeferredShading
 	rd->push2D(); {
 		rd->setBlendFunc(RenderDevice::BLEND_ONE, DstBlendFunc);
 		Args args;
-		args.setMacro("ENABLE_INDIRECT_DIFFUSE", m_Settings.IndirectDiffuse);
-		args.setMacro("ENABLE_INDIRECT_GLOSSY",  m_Settings.IndirectGlossy);
 		args.setUniform("IndirectDiffuseTexture", m_pLightingFramebuffer->texture(0), Sampler::buffer());
 		args.setUniform("IndirectGlossyTexture", m_pFilteredGlossyTexture, Sampler::buffer());
 		args.setRect(rd->viewport());
@@ -73,7 +78,7 @@ void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbe
 
 	const Color4 ProbeColor = Color4(Color3::yellow(), 1);
 
-	if (vProbeRadius <= 0) vProbeRadius = ProbeSteps.min() * 0.05;
+	if (vProbeRadius <= 0) vProbeRadius = ProbeSteps.min() * 0.05f;
 
 	for (int x = 0; x < ProbeCounts.x; ++x)
 	{

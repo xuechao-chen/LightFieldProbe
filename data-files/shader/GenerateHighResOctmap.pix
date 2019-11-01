@@ -1,0 +1,20 @@
+#include "octahedral.glsl"
+
+uniform samplerCube RadianceCubemap;
+uniform samplerCube DistanceCubemap;
+uniform samplerCube NormalCubemap;
+
+uniform int OctmapResolution;
+
+out vec3  OctRadiance;
+out float OctDistance;
+out vec3  OctNormal;
+
+void main()
+{
+	vec3 Direction = octDecode(gl_FragCoord.xy / OctmapResolution * 2.0 - 1.0);
+
+	OctRadiance = texture(RadianceCubemap, Direction, 0).xyz;
+	OctDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
+	OctNormal = texture(NormalCubemap, Direction, 0).xyz;
+}

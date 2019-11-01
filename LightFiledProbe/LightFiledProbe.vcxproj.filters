@@ -34,9 +34,6 @@
     <None Include="..\data-files\shader\Playground.pix">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\PrecomputeLightFieldSurface.pix">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="..\data-files\shader\Lighting.pix">
       <Filter>Shader Files</Filter>
     </None>
@@ -60,6 +57,12 @@
     </None>
     <None Include="..\data-files\scene\Sponza_(Glossy_Area_Lights).Scene.Any">
       <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\GenerateHighResOctmap.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\GenerateLowResOctmap.pix">
+      <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

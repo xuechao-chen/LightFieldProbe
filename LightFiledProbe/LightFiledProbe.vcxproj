@@ -156,9 +156,10 @@
     <None Include="..\data-files\scene\Sponza_(Statue_Glossy).Scene.Any" />
     <None Include="..\data-files\shader\BRDFImportanceSampling.glsl" />
     <None Include="..\data-files\shader\Common.glsl" />
+    <None Include="..\data-files\shader\GenerateHighResOctmap.pix" />
     <None Include="..\data-files\shader\Lighting.pix" />
     <None Include="..\data-files\shader\Merge.pix" />
-    <None Include="..\data-files\shader\PrecomputeLightFieldSurface.pix" />
+    <None Include="..\data-files\shader\GenerateLowResOctmap.pix" />
     <None Include="..\data-files\shader\LightFieldProbe.glsl" />
     <None Include="..\data-files\shader\Octahedral.glsl" />
     <None Include="..\data-files\shader\Playground.pix" />

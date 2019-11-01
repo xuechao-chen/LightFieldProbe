@@ -52,8 +52,8 @@ float3 ggxIndirectGlossy(LightFieldSurface lightFieldSurface, inout uint rndSeed
 		float D = evalGGX(roughness, NdotH) * M_INV_PI; // Our GGX function does not include division by PI
 		float G = evalSmithGGX(NdotL, NdotV, roughness); // Includes division by 4 * NdotL * NdotV
 		vec3 f90 = vec3(0.5 + 2 * roughness *pow(dot(((L - view) / 2.0), L), 2));
-		//vec3 F = fresnelSchlick(vec3(0.1), f90, LdotH);
-		vec3 F = schlickFresnel(glossy, NdotV, smoothness); //g3d inside func
+		vec3 F = fresnelSchlick(vec3(0.1), f90, LdotH);
+		//vec3 F = schlickFresnel(glossy, NdotV, smoothness); //g3d inside func
 		vec3 brdf = D * G * F;
 
 		// Probability of sampling vector H from getGGXMicrofacet()
@@ -74,13 +74,19 @@ void main()
 	Vector3 w_o;
 	UniversalMaterialSample surfel;
 	readUniversalMaterialSampleFromGBuffer(P, false, true, w_o, surfel);
+	vec3 IndirectGlossyLighting = vec3(0);
+	vec3 IndirectDiffuseLighting = vec3(0);
 
+#if ENABLE_INDIRECT_DIFFUSE
+	IndirectDiffuseLighting  = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
+#endif
+
+#if ENABLE_INDIRECT_GLOSSY
 	uint seed_s = uint(seed*gl_FragCoord.x*(sin(gl_FragCoord.y) + 2));
 	rand_next(seed_s);
+	IndirectGlossyLighting = ggxIndirectGlossy(lightFieldSurface, seed_s, surfel.position, surfel.shadingNormal, w_o, surfel.smoothness, surfel.fresnelReflectionAtNormalIncidence, numofSamples);
+#endif
 
-	vec3 IndirectGlossyLighting = ggxIndirectGlossy(lightFieldSurface, seed_s, surfel.position, surfel.shadingNormal, w_o, surfel.smoothness, surfel.fresnelReflectionAtNormalIncidence, numofSamples);
-	vec3 IndirectDiffuseLighting  = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
-
-	IndirectDiffuseColor = 0.6*IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
+	IndirectDiffuseColor = 0.6 * IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
 	IndirectGlossyColor   = saturate(0.4*IndirectGlossyLighting);
 }

@@ -11,8 +11,8 @@ int main(int argc, const char* argv[]) {
 
 	settings.window.defaultIconFilename = "icon.png";
 
-	settings.window.width = 1024;
-	settings.window.height = 1024;
+	settings.window.width = 400;
+	settings.window.height = 800;
 	settings.window.fullScreen = false;
 	settings.window.resizable = false;
 	settings.window.framed = !settings.window.fullScreen;
@@ -78,13 +78,13 @@ void App::__renderLightFieldProbe(const Point3& vPosition, shared_ptr<Texture> v
 	_ASSERT(voCubemapTexture->width() == voCubemapTexture->height());
 	auto Resolution = voCubemapTexture->width();
 
-	m_settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(128, 128);
-	m_settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(256, 256);
+	m_settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(128,128);
+	m_settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(256,256);
 	const int fullWidth = Resolution + (2 * m_settings.hdrFramebuffer.depthGuardBandThickness.x);
 	m_osWindowHDRFramebuffer->resize(fullWidth, fullWidth);
 
 	shared_ptr<Camera> camera = Camera::create("Cubemap Camera");
-	camera->copyParametersFrom(activeCamera());
+	camera->copyParametersFrom(m_debugCamera);
 	auto Position = vPosition;
 	CFrame cf = CFrame::fromXYZYPRDegrees(Position.x, Position.y, Position.z);
 	camera->setFrame(cf);
