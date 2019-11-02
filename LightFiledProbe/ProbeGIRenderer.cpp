@@ -76,16 +76,17 @@ void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbe
 	auto ProbeSteps    = m_LightFieldSurface.ProbeSteps;
 	auto ProbeStartPos = m_LightFieldSurface.ProbeStartPosition;
 
-	const Color4 ProbeColor = Color4(Color3::yellow(), 1);
+	//const Color4 ProbeColor = Color4(Color3::yellow(), 1);
 
 	if (vProbeRadius <= 0) vProbeRadius = ProbeSteps.min() * 0.05f;
-
-	for (int x = 0; x < ProbeCounts.x; ++x)
+	
+	for (int z = 0; z < ProbeCounts.z; ++z)
 	{
 		for (int y = 0; y < ProbeCounts.y; ++y)
 		{
-			for (int z = 0; z < ProbeCounts.z; ++z)
+			for (int x = 0; x < ProbeCounts.x; ++x)
 			{
+				Color4 ProbeColor = Color4(x * 1.0f / ProbeCounts.x, y * 1.0f / ProbeCounts.z, z * 1.0f / ProbeCounts.z, 1.0f);
 				auto ProbePos = ProbeStartPos + Vector3(x, y, z) * ProbeSteps;
 				Draw::sphere(Sphere(ProbePos, vProbeRadius), vRenderDevice, ProbeColor, ProbeColor);
 			}
