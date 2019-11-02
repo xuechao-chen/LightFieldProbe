@@ -25,7 +25,7 @@ protected:
 	CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface);
 
 	virtual void renderDeferredShading
-	(RenderDevice*                      rd,
+		(RenderDevice*                      rd,
 		const Array<shared_ptr<Surface> >&  sortedVisibleSurfaceArray,
 		const shared_ptr<GBuffer>&          gbuffer,
 		const LightingEnvironment&          environment) override;

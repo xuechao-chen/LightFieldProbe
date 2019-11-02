@@ -16,6 +16,9 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data-files\scene\Simple_Cornell_Box_(No_Little_Boxes).Scene.Any" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B87D787E-E674-465A-AED3-8264ED17DFB1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

@@ -9,6 +9,9 @@
       <UniqueIdentifier>{7808eb57-c0e1-4947-8248-1127238ea26e}</UniqueIdentifier>
       <Extensions>*.h</Extensions>
     </Filter>
+    <Filter Include="Scene Files">
+      <UniqueIdentifier>{2e92d33e-301a-4406-a289-47e2a1a8e2ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -19,5 +22,10 @@
     <ClCompile Include="App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data-files\scene\Simple_Cornell_Box_(No_Little_Boxes).Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
