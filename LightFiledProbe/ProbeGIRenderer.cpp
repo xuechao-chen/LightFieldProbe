@@ -70,7 +70,7 @@ void CProbeGIRenderer::renderDeferredShading
 	if (m_Settings.DisplayProbe) __displayProbes(rd);
 }
 
-void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbeRadius/*=-1*/)
+void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbeRadius)
 {
 	auto ProbeCounts   = m_LightFieldSurface.ProbeCounts;
 	auto ProbeSteps    = m_LightFieldSurface.ProbeSteps;
