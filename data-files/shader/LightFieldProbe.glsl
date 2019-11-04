@@ -3,16 +3,21 @@
 
 #include "Common.glsl"
 
+#include <LightingEnvironment/LightingEnvironment_environmentMapUniforms.glsl>
+
 // Engine-specific arguments and helper functions have been removed from the following code 
 //
-Irradiance3 computePrefilteredIrradiance(LightFieldSurface lightFieldSurface, Point3 wsPosition, Point3 wsNormal) {
-    GridCoord baseGridCoord = baseGridCoord(lightFieldSurface, wsPosition);
+Irradiance3 computePrefilteredIrradiance(LightFieldSurface lightFieldSurface, UniversalMaterialSample surfel) {
+    Point3 wsPosition = surfel.position;
+	Vector3 wsNormal = surfel.shadingNormal;
+	
+	GridCoord baseGridCoord = baseGridCoord(lightFieldSurface, wsPosition);
     Point3 baseProbePos = gridCoordToPosition(lightFieldSurface, baseGridCoord);
     Irradiance3 sumIrradiance = Irradiance3(0);
     float sumWeight = 0.0;
     // Trilinear interpolation values along axes
     Vector3 alpha = clamp((wsPosition - baseProbePos) / lightFieldSurface.probeStep, Vector3(0), Vector3(1));
-
+	
     // Iterate over the adjacent probes defining the surrounding vertex "cage"
     for (int i = 0; i < 8; ++i) {
         // Compute the offset grid coord and clamp to the probe grid boundary
@@ -556,9 +561,13 @@ int trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float tM
 }
 
 // Stochastically samples one glossy ray
-Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPosition, Vector3 wo, Vector3 n) {
+Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Vector3 wo, UniversalMaterialSample surfel) {
 	//Vector3 wi = importanceSampleBRDFDirection(wo, n);
 	//Ray worldSpaceRay = Ray(wsPosition + wi * rayBumpEpsilon, wi);
+
+	float glossyExponent = smoothnessToBlinnPhongExponent(surfel.smoothness);
+	Point3 wsPosition = surfel.position;
+	Vector3 n = surfel.shadingNormal;
 
 	Vector3 wi = normalize(reflect(-wo, n));
 	Ray worldSpaceRay = Ray(wsPosition + wi*rayBumpEpsilon, wi);
@@ -570,12 +579,10 @@ Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPositio
 	int result = trace(lightFieldSurface, worldSpaceRay, hitDistance, hitProbeTexCoord, probeIndex, true);
 	if (result == TRACE_RESULT_UNKNOWN) {
 		// Missed the entire scene; fall back to the environment map
-		//return computeGlossyEnvironmentMapLighting(wi, true, glossyExponent, false);
-		//return vec3(hitDistance,0,0);
-		return Radiance3(0,0,1);
+		return Radiance3(0, 0, 1);
 	}
 	else if (result == TRACE_RESULT_MISS) {
-		return Radiance3(1, 0, 0);
+		return computeGlossyEnvironmentMapLighting(wi, true, glossyExponent, false);
 	}
 	else {
 		// Sample the light probe radiance texture

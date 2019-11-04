@@ -10,9 +10,7 @@ CProbeGIRenderer::CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface)
 	m_pLightingFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Diffuse", Width, Height, ImageFormat::RGB32F()));
 	m_pLightingFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("Glossy", Width, Height, ImageFormat::RGB32F()));
 	
-	m_pDenoiser = CDenoiser::create();
-	
-	m_pFilteredGlossyTexture = Texture::createEmpty("FilterredGlossyTexture", Width, Height, ImageFormat::RGB32F());
+	m_pDenoiser = CDenoiser::create();	
 }
 
 void CProbeGIRenderer::renderDeferredShading
@@ -42,6 +40,8 @@ void CProbeGIRenderer::renderDeferredShading
 
 		args.setMacro("ENABLE_INDIRECT_DIFFUSE", m_Settings.IndirectDiffuse);
 		args.setMacro("ENABLE_INDIRECT_GLOSSY", m_Settings.IndirectGlossy);
+
+		environment.setShaderArgs(args);
 
 		gbuffer->setShaderArgsRead(args, "gbuffer_");
 		m_LightFieldSurface.RadianceProbeGrid->setShaderArgs(args,   "lightFieldSurface.radianceProbeGrid.",   Sampler::buffer());
@@ -75,8 +75,6 @@ void CProbeGIRenderer::__displayProbes(RenderDevice* vRenderDevice, float vProbe
 	auto ProbeCounts   = m_LightFieldSurface.ProbeCounts;
 	auto ProbeSteps    = m_LightFieldSurface.ProbeSteps;
 	auto ProbeStartPos = m_LightFieldSurface.ProbeStartPosition;
-
-	//const Color4 ProbeColor = Color4(Color3::yellow(), 1);
 
 	if (vProbeRadius <= 0) vProbeRadius = ProbeSteps.min() * 0.05f;
 	

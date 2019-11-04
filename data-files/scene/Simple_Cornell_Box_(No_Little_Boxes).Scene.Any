@@ -73,7 +73,7 @@
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
-            frame = CFrame::fromXYZYPRDegrees(0, 1.92, 0, 0, -90, 0 ); 
+            frame = CFrame::fromXYZYPRDegrees(0, 1.99, 0, 0, -90, 0 ); 
             producesDirectIllumination = true; 
             producesIndirectIllumination = false; 
             rectangular = true; 
@@ -89,7 +89,7 @@
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
-            frame = CFrame::fromXYZYPRDegrees(0, 1.92, 0, 0, 0, 0 ); 
+            frame = CFrame::fromXYZYPRDegrees(0, 1.99, 0, 0, 0, 0 ); 
             producesDirectIllumination = true; 
             producesIndirectIllumination = false; 
             rectangular = true; 
@@ -105,7 +105,7 @@
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
-            frame = CFrame::fromXYZYPRDegrees(0, 1.92, 0, 90, 0, 0 ); 
+            frame = CFrame::fromXYZYPRDegrees(0, 1.99, 0, 90, 0, 0 ); 
             producesDirectIllumination = true; 
             producesIndirectIllumination = false; 
             rectangular = true; 
@@ -121,7 +121,7 @@
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
-            frame = CFrame::fromXYZYPRDegrees(0, 1.92, 0, -90, 0, 0 ); 
+            frame = CFrame::fromXYZYPRDegrees(0, 1.99, 0, -90, 0, 0 ); 
             producesDirectIllumination = true; 
             producesIndirectIllumination = false; 
             rectangular = true; 
@@ -137,7 +137,7 @@
             canChange = false; 
             enabled = true; 
             extent = Vector2(0.75, 0.75 ); 
-            frame = CFrame::fromXYZYPRDegrees(0, 1.92, 0, 180, 0, 180 ); 
+            frame = CFrame::fromXYZYPRDegrees(0, 1.99, 0, 180, 0, 180 ); 
             producesDirectIllumination = true; 
             producesIndirectIllumination = false; 
             rectangular = true; 

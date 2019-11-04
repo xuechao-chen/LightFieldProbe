@@ -38,9 +38,12 @@ float3 ggxIndirectGlossy(LightFieldSurface lightFieldSurface, inout uint rndSeed
 		// Compute the outgoing direction based on this (perfectly reflective) microfacet
 		vec3 L = reflect(-view, H);
 
+		float glossyExponent = smoothnessToBlinnPhongExponent(smoothness);
+
 		// Compute our color by tracing a ray in this direction
-		vec3 bounceColor = computeGlossyRay(lightFieldSurface, posW, view, H);
-		return bounceColor;
+		vec3 bounceColor;
+		//vec3 bounceColor = computeGlossyRay(lightFieldSurface, glossyExponent, posW, view, H);
+		//return bounceColor;
 		// Check to make sure our randomly selected, normal mapped diffuse ray didn't go below the surface.
 		if (dot(normalW, L) <= 0.0f) bounceColor = vec3(0, 0, 0);
 
@@ -81,14 +84,15 @@ void main()
 	vec3 IndirectDiffuseLighting = vec3(0);
 	
 #if ENABLE_INDIRECT_DIFFUSE
-	IndirectDiffuseLighting  = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
+	IndirectDiffuseLighting  = computePrefilteredIrradiance(lightFieldSurface, surfel);
 #endif
 
 #if ENABLE_INDIRECT_GLOSSY	
 	uint seed_s = uint(seed*gl_FragCoord.x*(sin(gl_FragCoord.y) + 2));
 	rand_next(seed_s);
+	
 	//IndirectGlossyLighting = ggxIndirectGlossy(lightFieldSurface, seed_s, surfel.position, surfel.shadingNormal, w_o, surfel.smoothness, surfel.fresnelReflectionAtNormalIncidence, numofSamples);
-	IndirectGlossyLighting = computeGlossyRay(lightFieldSurface, surfel.position, w_o, surfel.shadingNormal);
+	IndirectGlossyLighting = computeGlossyRay(lightFieldSurface, w_o, surfel);
 #endif
 
 	IndirectDiffuseColor = 0.6 * IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;

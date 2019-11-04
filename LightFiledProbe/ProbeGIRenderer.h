@@ -17,7 +17,6 @@ class CProbeGIRenderer : public DefaultRenderer
 
 	SRendererSettings       m_Settings;
 	SLightFieldSurface      m_LightFieldSurface;
-	shared_ptr<Texture>     m_pFilteredGlossyTexture;
 	shared_ptr<CDenoiser>   m_pDenoiser;
 	shared_ptr<Framebuffer> m_pLightingFramebuffer;
 

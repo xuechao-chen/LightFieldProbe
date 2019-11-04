@@ -8,8 +8,10 @@ void App::onInit()
 
 	__specifyGBufferEncoding();
 
-	loadScene("Simple Cornell Box");
+	//loadScene("Simple Cornell Box");
 	//loadScene("Simple Cornell Box (Mirror)");
+	loadScene("Simple Cornell Box (No Little Boxes)");
+
 	//loadScene("Sponza (Glossy Area Lights)");
 	//loadScene("Sponza (Statue Glossy)");
 
@@ -202,9 +204,9 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
 
-	auto Bounds = BoundingBoxRange * 0.2f;//NOTE: range from 0.1 to 0.5
+	auto Bounds = BoundingBoxRange * 0.5f;//NOTE: range from 0.1 to 0.5
 
-	LightFieldSurface.ProbeCounts = Vector3int32(2,2,2);
+	LightFieldSurface.ProbeCounts = Vector3int32(1,1,1);
 	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
 	LightFieldSurface.ProbeStartPosition = BoundingBox.low() + Bounds;
 	if (LightFieldSurface.ProbeCounts.x == 1) { LightFieldSurface.ProbeSteps.x = BoundingBoxRange.x * 0.5; LightFieldSurface.ProbeStartPosition.x = BoundingBox.low().x + BoundingBoxRange.x * 0.5; } 
@@ -290,8 +292,8 @@ void App::__renderLightFieldProbe2Cubemap(uint32 vProbeIndex, int vResolution, S
 		onGraphics3D(renderDevice, Surface);
 
 		Texture::copy(m_osWindowHDRFramebuffer->texture(0), voLightFieldCubemap.RadianceCubemap, 0, 0, 1,
-					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldCubemap.RadianceCubemap->vector2Bounds()) / 2.0f),
-					  CubeFace::POS_X, CubeFace(Face) , nullptr, false);
+			Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldCubemap.RadianceCubemap->vector2Bounds()) / 2.0f),
+			CubeFace::POS_X, CubeFace(Face), nullptr, false);
 
 		Texture::copy(m_gbuffer->texture(GBuffer::Field::CS_POSITION), voLightFieldCubemap.DistanceCubemap, 0, 0, 1,
 					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldCubemap.DistanceCubemap->vector2Bounds()) / 2.0f),
