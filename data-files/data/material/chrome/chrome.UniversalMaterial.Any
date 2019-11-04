@@ -1,4 +1,0 @@
-UniversalMaterial::Specification {
-	lambertian = Color3(0);
-	glossy = Color4(0.7, 0.7, 0.7, glossyExponent(6000));
-}

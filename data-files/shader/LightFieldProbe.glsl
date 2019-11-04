@@ -202,7 +202,7 @@ TraceResult highResolutionTraceOneRaySegment
 			float distAlongRay = dot(probeSpaceHitPoint - probeSpaceRay.origin, probeSpaceRay.direction);
 
 			// Read the normal for use in detecting backfaces
-			vec3 normal = octDecode(texelFetch(lightFieldSurface.normalProbeGrid.sampler, ivec3(lightFieldSurface.distanceProbeGrid.size.xy * texCoord, probeIndex), 0).xy * lightFieldSurface.normalProbeGrid.readMultiplyFirst.xy + lightFieldSurface.normalProbeGrid.readAddSecond.xy);
+			vec3 normal = texelFetch(lightFieldSurface.normalProbeGrid.sampler, ivec3(lightFieldSurface.distanceProbeGrid.size.xy * texCoord, probeIndex), 0).xyz;
 
 			// Only extrude towards and away from the view ray, not perpendicular to it
 			// Don't allow extrusion TOWARDS the viewer, only away
@@ -223,7 +223,7 @@ TraceResult highResolutionTraceOneRaySegment
 			//surfaceThickness = max(0, 2 * distanceFromProbeToSurface * tan(alpha) * tan(beta));
 			
 
-			if ((minDistFromProbeToRay < distanceFromProbeToSurface + surfaceThickness) && (dot(normal, probeSpaceRay.direction) < 0)) {
+			if ((minDistFromProbeToRay < distanceFromProbeToSurface + surfaceThickness) && dot(probeSpaceRay.direction, normal) < 0) {
 				// Two-sided hit
 				// Use the probe's measure of the point instead of the ray distance, since
 				// the probe is more accurate (floating point precision vs. ray march iteration/oct resolution)
@@ -254,85 +254,6 @@ TraceResult highResolutionTraceOneRaySegment
 
 	return TRACE_RESULT_MISS;
 }
-
-//
-//TraceResult highResolutionTraceOneRaySegment
-//(in LightFieldSurface lightFieldSurface,
-//	in Ray      probeSpaceRay,
-//	in Point2   startTexCoord,
-//	in Point2   endTexCoord,
-//	in ProbeIndex probeIndex,
-//	inout float tMin,
-//	inout float tMax,
-//	inout vec2  hitProbeTexCoord) {
-//
-//	Vector2 texCoordDelta = endTexCoord - startTexCoord;
-//	float texCoordDistance = length(texCoordDelta);
-//	Vector2 texCoordDirection = texCoordDelta * (1.0 / texCoordDistance);
-//
-//	float texCoordStep = lightFieldSurface.distanceProbeGrid.invSize.x * (texCoordDistance / maxComponent(abs(texCoordDelta)));
-//
-//	Vector3 directionFromProbeBefore = octDecode(startTexCoord * 2.0 - 1.0);
-//	float distanceFromProbeToRayBefore = max(0.0, distanceToIntersection(probeSpaceRay, directionFromProbeBefore));
-//
-//	for (float d = 0.0f; d <= texCoordDistance; d += texCoordStep) {
-//		Point2 texCoord = (texCoordDirection * min(d + texCoordStep * 0.5, texCoordDistance)) + startTexCoord;
-//
-//		// Fetch the probe data
-//		float distanceFromProbeToSurface = texelFetch(lightFieldSurface.distanceProbeGrid.sampler,
-//			ivec3(lightFieldSurface.distanceProbeGrid.size.xy * texCoord, probeIndex), 0).r;
-//
-//		// Find the corresponding point in probe space. This defines a line through the 
-//		// probe origin
-//		Vector3 directionFromProbe = octDecode(texCoord * 2.0 - 1.0);
-//
-//		Point2 texCoordAfter = (texCoordDirection * min(d + texCoordStep, texCoordDistance)) + startTexCoord;
-//		Vector3 directionFromProbeAfter = octDecode(texCoordAfter * 2.0 - 1.0);
-//		float distanceFromProbeToRayAfter = max(0.0, distanceToIntersection(probeSpaceRay, directionFromProbeAfter));
-//
-//		float maxDistFromProbeToRay = max(distanceFromProbeToRayBefore, distanceFromProbeToRayAfter);
-//		float minDistFromProbeToRay = min(distanceFromProbeToRayBefore, distanceFromProbeToRayAfter);
-//
-//		Point3 probeSpaceHitPoint = distanceFromProbeToSurface * directionFromProbe;
-//		float distAlongRay = dot(probeSpaceHitPoint - probeSpaceRay.origin, probeSpaceRay.direction);
-//
-//		vec3 normal = octDecode(texelFetch(lightFieldSurface.normalProbeGrid.sampler, ivec3(lightFieldSurface.distanceProbeGrid.size.xy * texCoord, probeIndex), 0).xy * lightFieldSurface.normalProbeGrid.readMultiplyFirst.xy + lightFieldSurface.normalProbeGrid.readAddSecond.xy);
-//
-//		float surfaceThickness = minThickness + (maxThickness - minThickness) * max(dot(probeSpaceRay.direction, directionFromProbe), 0.0) * (2 - abs(dot(probeSpaceRay.direction, normal))) * clamp(distAlongRay * 0.1, 0.05, 1.0);
-//
-//		float alpha = pi *0.5 / 1024.0 / 2.0;
-//		float beta = acos(dot(normal, -directionFromProbe));
-//		surfaceThickness = max(0, 2 * distanceFromProbeToSurface * tan(alpha) * tan(beta));
-//
-//		if ((maxDistFromProbeToRay > distanceFromProbeToSurface + surfaceThickness) && (minDistFromProbeToRay < distanceFromProbeToSurface))
-//		{
-//			tMax = distAlongRay;
-//			hitProbeTexCoord = texCoord;
-//			return TRACE_RESULT_HIT;
-//		}
-//
-//		if ((maxDistFromProbeToRay > distanceFromProbeToSurface && maxDistFromProbeToRay < distanceFromProbeToSurface + surfaceThickness) && 
-//			(minDistFromProbeToRay > distanceFromProbeToSurface && minDistFromProbeToRay < distanceFromProbeToSurface + surfaceThickness))
-//		{
-//			tMax = distAlongRay;
-//			hitProbeTexCoord = texCoord;
-//			return TRACE_RESULT_HIT;
-//		}
-//
-//		if (!((maxDistFromProbeToRay < distanceFromProbeToSurface) && (minDistFromProbeToRay < distanceFromProbeToSurface)))
-//		{
-//			Point3 probeSpaceHitPointBefore = distanceFromProbeToRayBefore * directionFromProbeBefore;
-//			float distAlongRayBefore = dot(probeSpaceHitPointBefore - probeSpaceRay.origin, probeSpaceRay.direction);
-//			tMin = max(tMin, min(distAlongRay, distAlongRayBefore));
-//
-//			return TRACE_RESULT_UNKNOWN;
-//		}
-//
-//        distanceFromProbeToRayBefore = distanceFromProbeToRayAfter;
-//	} // ray march
-//
-//	return TRACE_RESULT_MISS;
-//}
 
 /** Returns true on a conservative hit, false on a guaranteed miss.
 	On a hit, advances lowResTexCoord to the next low res texel *after*
@@ -589,7 +510,7 @@ TraceResult traceOneProbeOct(in LightFieldSurface lightFieldSurface, in ProbeInd
 
    \param fillHoles If true, this function MUST return a hit even if it is forced to use a coarse approximation
  */
-bool trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float tMax, out Point2 hitProbeTexCoord, out ProbeIndex hitProbeIndex, const bool fillHoles) {
+int trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float tMax, out Point2 hitProbeTexCoord, out ProbeIndex hitProbeIndex, const bool fillHoles) {
 
 	hitProbeIndex = -1;
 
@@ -598,8 +519,11 @@ bool trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float t
 	int i = nearestProbeIndices(lightFieldSurface, worldSpaceRay.origin);
 	int probesLeft = 8;
 	float tMin = 0.0f;
+
+	TraceResult result = TRACE_RESULT_UNKNOWN;
+
 	while (probesLeft > 0) {
-		TraceResult result = traceOneProbeOct(lightFieldSurface, relativeProbeIndex(lightFieldSurface, baseIndex, i),
+		result = traceOneProbeOct(lightFieldSurface, relativeProbeIndex(lightFieldSurface, baseIndex, i),
 			worldSpaceRay, tMin, tMax, hitProbeTexCoord);
 		if (result == TRACE_RESULT_UNKNOWN) {
 			i = nextCycleIndex(i);
@@ -624,11 +548,11 @@ bool trace(LightFieldSurface lightFieldSurface, Ray worldSpaceRay, inout float t
 		if (probeDistance < 10000) {
 			Point3 hitLocation = probeLocation(lightFieldSurface, hitProbeIndex) + worldSpaceRay.direction * probeDistance;
 			tMax = length(worldSpaceRay.origin - hitLocation);
-			return true;
+			return TRACE_RESULT_HIT;
 		}
 	}
 
-	return (hitProbeIndex != -1);
+	return result; //(hitProbeIndex != -1);
 }
 
 // Stochastically samples one glossy ray
@@ -643,11 +567,15 @@ Radiance3 computeGlossyRay(LightFieldSurface lightFieldSurface, Point3 wsPositio
 	Point2  hitProbeTexCoord;
 	int     probeIndex;
 
-	if (!trace(lightFieldSurface, worldSpaceRay, hitDistance, hitProbeTexCoord, probeIndex, true)) {
+	int result = trace(lightFieldSurface, worldSpaceRay, hitDistance, hitProbeTexCoord, probeIndex, true);
+	if (result == TRACE_RESULT_UNKNOWN) {
 		// Missed the entire scene; fall back to the environment map
 		//return computeGlossyEnvironmentMapLighting(wi, true, glossyExponent, false);
 		//return vec3(hitDistance,0,0);
 		return Radiance3(0,0,1);
+	}
+	else if (result == TRACE_RESULT_MISS) {
+		return Radiance3(1, 0, 0);
 	}
 	else {
 		// Sample the light probe radiance texture

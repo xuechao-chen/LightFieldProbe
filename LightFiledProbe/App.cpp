@@ -23,7 +23,7 @@ void App::onInit()
 	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(m_LightFieldSurface));
 	m_pGIRenderer->setDeferredShading(true);
 	m_renderer = m_pGIRenderer;
-
+	
 	__makeGUI();
 	//m_debugController->setTurnRate(1);
 	//m_debugController->setMoveRate(1);
@@ -158,7 +158,7 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 void App::__generateLowResOctmap(std::shared_ptr<G3D::Framebuffer>& vLightFieldFramebuffer, SLightFieldCubemap& vLightFieldCubemap, shared_ptr<G3D::Texture>& vSphereSamplerTexture)
 {
 	auto CubemapSampler = Sampler::cubeMap();
-	CubemapSampler.interpolateMode = InterpolateMode::BILINEAR_NO_MIPMAP;
+	CubemapSampler.interpolateMode = InterpolateMode::NEAREST_NO_MIPMAP;
 
 	renderDevice->push2D(vLightFieldFramebuffer); {
 		renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
@@ -177,7 +177,7 @@ void App::__generateLowResOctmap(std::shared_ptr<G3D::Framebuffer>& vLightFieldF
 void App::__generateHighResOctmap(std::shared_ptr<G3D::Framebuffer>& vLightFieldFramebuffer, SLightFieldCubemap& vLightFieldCubemap)
 {
 	auto CubemapSampler = Sampler::cubeMap();
-	CubemapSampler.interpolateMode = InterpolateMode::BILINEAR_NO_MIPMAP;
+	CubemapSampler.interpolateMode = InterpolateMode::NEAREST_NO_MIPMAP;
 
 	renderDevice->push2D(vLightFieldFramebuffer); {
 		renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
@@ -202,9 +202,9 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
 
-	auto Bounds = BoundingBoxRange * 0.2f;//NOTE: range from 0.1 to 0.5
+	auto Bounds = BoundingBoxRange * 0.1f;//NOTE: range from 0.1 to 0.5
 
-	LightFieldSurface.ProbeCounts = Vector3int32(1, 1, 1);
+	LightFieldSurface.ProbeCounts = Vector3int32(1,1,1);
 	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
 	LightFieldSurface.ProbeStartPosition = BoundingBox.low() + Bounds;
 	if (LightFieldSurface.ProbeCounts.x == 1) { LightFieldSurface.ProbeSteps.x = BoundingBoxRange.x * 0.5; LightFieldSurface.ProbeStartPosition.x = BoundingBox.low().x + BoundingBoxRange.x * 0.5; } 
@@ -274,7 +274,8 @@ void App::__renderLightFieldProbe2Cubemap(uint32 vProbeIndex, int vResolution, S
 	CubemapCamera->depthOfFieldSettings().setEnabled(false);
 	CubemapCamera->motionBlurSettings().setEnabled(false);
 	CubemapCamera->setFieldOfView(2.0f * ::atan(1.0f + 2.0f*(float(m_settings.hdrFramebuffer.depthGuardBandThickness.x) / float(vResolution))), FOVDirection::HORIZONTAL);
-
+	CubemapCamera->setNearPlaneZ(-0.001f);
+	CubemapCamera->setFarPlaneZ(-1000.0f);
 	setActiveCamera(CubemapCamera);
 
 	auto Position = m_ProbePositionSet[vProbeIndex];

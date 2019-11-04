@@ -7,12 +7,12 @@ CProbeGIRenderer::CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface)
 	auto Height = GApp::current()->settings().window.height;
 
 	m_pLightingFramebuffer = Framebuffer::create("LightingFramebuffer");
-	m_pLightingFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Diffuse", Width, Height, ImageFormat::R11G11B10F()));
-	m_pLightingFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("Glossy", Width, Height, ImageFormat::R11G11B10F()));
+	m_pLightingFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Diffuse", Width, Height, ImageFormat::RGB32F()));
+	m_pLightingFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("Glossy", Width, Height, ImageFormat::RGB32F()));
 	
 	m_pDenoiser = CDenoiser::create();
 	
-	m_pFilteredGlossyTexture = Texture::createEmpty("FilterredGlossyTexture", Width, Height, ImageFormat::R11G11B10F());
+	m_pFilteredGlossyTexture = Texture::createEmpty("FilterredGlossyTexture", Width, Height, ImageFormat::RGB32F());
 }
 
 void CProbeGIRenderer::renderDeferredShading
@@ -54,14 +54,14 @@ void CProbeGIRenderer::renderDeferredShading
 		LAUNCH_SHADER("shader/Lighting.pix", args);
 
 	} rd->pop2D();
-
-	m_pDenoiser->apply(rd, m_pLightingFramebuffer->texture(1), m_pFilteredGlossyTexture, gbuffer);
+	
+	//m_pDenoiser->apply(rd, m_pLightingFramebuffer->texture(1), m_pFilteredGlossyTexture, gbuffer);
 
 	rd->push2D(); {
 		rd->setBlendFunc(RenderDevice::BLEND_ONE, DstBlendFunc);
 		Args args;
 		args.setUniform("IndirectDiffuseTexture", m_pLightingFramebuffer->texture(0), Sampler::buffer());
-		args.setUniform("IndirectGlossyTexture", m_pFilteredGlossyTexture, Sampler::buffer());
+		args.setUniform("IndirectGlossyTexture",  m_pLightingFramebuffer->texture(1), Sampler::buffer());
 		args.setRect(rd->viewport());
 		LAUNCH_SHADER("shader/Merge.pix", args);
 

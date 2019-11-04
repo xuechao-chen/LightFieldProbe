@@ -12,7 +12,7 @@ const float maxThickness = 0.50; // meters
 // Points exactly on the boundary in octahedral space (x = 0 and y = 0 planes) map to two different
 // locations in octahedral space. We shorten the segments slightly to give unambigous locations that lead
 // to intervals that lie within an octant.
-const float rayBumpEpsilon = 0.001; // meters
+const float rayBumpEpsilon = 0.01; // meters
 
 // If we go all the way around a cell and don't move farther than this (in m)
 // then we quit the trace

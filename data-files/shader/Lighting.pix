@@ -73,20 +73,24 @@ void main()
 
 	Vector3 w_o;
 	UniversalMaterialSample surfel;
-	readUniversalMaterialSampleFromGBuffer(P, false, true, w_o, surfel);
+	bool isSkybox = !readUniversalMaterialSampleFromGBuffer(P, false, true, w_o, surfel);
+
+	if (isSkybox) return;
+
 	vec3 IndirectGlossyLighting = vec3(0);
 	vec3 IndirectDiffuseLighting = vec3(0);
-
+	
 #if ENABLE_INDIRECT_DIFFUSE
 	IndirectDiffuseLighting  = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
 #endif
 
-#if ENABLE_INDIRECT_GLOSSY
+#if ENABLE_INDIRECT_GLOSSY	
 	uint seed_s = uint(seed*gl_FragCoord.x*(sin(gl_FragCoord.y) + 2));
 	rand_next(seed_s);
-	IndirectGlossyLighting = ggxIndirectGlossy(lightFieldSurface, seed_s, surfel.position, surfel.shadingNormal, w_o, surfel.smoothness, surfel.fresnelReflectionAtNormalIncidence, numofSamples);
+	//IndirectGlossyLighting = ggxIndirectGlossy(lightFieldSurface, seed_s, surfel.position, surfel.shadingNormal, w_o, surfel.smoothness, surfel.fresnelReflectionAtNormalIncidence, numofSamples);
+	IndirectGlossyLighting = computeGlossyRay(lightFieldSurface, surfel.position, w_o, surfel.shadingNormal);
 #endif
 
 	IndirectDiffuseColor = 0.6 * IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
-	IndirectGlossyColor   = saturate(0.4*IndirectGlossyLighting);
+	IndirectGlossyColor  = 0.4 * IndirectGlossyLighting;
 }
