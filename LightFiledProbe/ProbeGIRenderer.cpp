@@ -55,7 +55,7 @@ void CProbeGIRenderer::renderDeferredShading
 
 	} rd->pop2D();
 	
-	//m_pDenoiser->apply(rd, m_pLightingFramebuffer->texture(1), m_pFilteredGlossyTexture, gbuffer);
+	m_pDenoiser->apply(rd, m_pLightingFramebuffer->texture(1), gbuffer);
 
 	rd->push2D(); {
 		rd->setBlendFunc(RenderDevice::BLEND_ONE, DstBlendFunc);

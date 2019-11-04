@@ -202,9 +202,9 @@ SLightFieldSurface App::__initLightFieldSurface()
 
 	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
 
-	auto Bounds = BoundingBoxRange * 0.1f;//NOTE: range from 0.1 to 0.5
+	auto Bounds = BoundingBoxRange * 0.2f;//NOTE: range from 0.1 to 0.5
 
-	LightFieldSurface.ProbeCounts = Vector3int32(1,1,1);
+	LightFieldSurface.ProbeCounts = Vector3int32(2,2,2);
 	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
 	LightFieldSurface.ProbeStartPosition = BoundingBox.low() + Bounds;
 	if (LightFieldSurface.ProbeCounts.x == 1) { LightFieldSurface.ProbeSteps.x = BoundingBoxRange.x * 0.5; LightFieldSurface.ProbeStartPosition.x = BoundingBox.low().x + BoundingBoxRange.x * 0.5; } 

@@ -36,22 +36,21 @@ public:
 	}
 
 	void apply(RenderDevice* vRenderDevice,
-		const shared_ptr<Texture>& vSource,
-		const shared_ptr<Texture>& voDestination,
+		const shared_ptr<Texture>& vioSource,
 		const shared_ptr<GBuffer>& vGBuffer)
 	{
 		if (isNull(m_pAccumulateTexture))
 		{
-			m_pAccumulateTexture = Texture::createEmpty("AccumulateTexture", vSource->width(), vSource->height(), vSource->encoding());
+			m_pAccumulateTexture = Texture::createEmpty("AccumulateTexture", vioSource->width(), vioSource->height(), vioSource->encoding());
 		}
 
-		if (m_pAccumulateTexture->width() != vSource->width() || m_pAccumulateTexture->height() != vSource->height())
-			m_pAccumulateTexture->resize(vSource->width(), vSource->height());
+		if (m_pAccumulateTexture->width() != vioSource->width() || m_pAccumulateTexture->height() != vioSource->height())
+			m_pAccumulateTexture->resize(vioSource->width(), vioSource->height());
 
-		m_pAccumulateTexture = m_TemporalFilter.apply(vRenderDevice, GApp::current()->activeCamera(), vSource, vGBuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), vGBuffer->texture(GBuffer::Field::SS_POSITION_CHANGE), Vector2(0, 0), 3, m_TemporalFilterSettings);
+		m_pAccumulateTexture = m_TemporalFilter.apply(vRenderDevice, GApp::current()->activeCamera(), vioSource, vGBuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), vGBuffer->texture(GBuffer::Field::SS_POSITION_CHANGE), Vector2(0, 0), 3, m_TemporalFilterSettings);
 
-		voDestination->clear();
-		m_pIntermediateFramebuffer->set(Framebuffer::COLOR0, voDestination);
+		vioSource->clear();
+		m_pIntermediateFramebuffer->set(Framebuffer::COLOR0, vioSource);
 
 		m_pBilateralFilter->apply(vRenderDevice, m_pAccumulateTexture, m_pIntermediateFramebuffer, vGBuffer, m_BilateralFilterSettings);
 	}
