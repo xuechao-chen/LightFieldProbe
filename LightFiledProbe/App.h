@@ -22,6 +22,8 @@ public:
 	~App() { m_pConfigWindow.reset(); }
 	
 	virtual void onInit() override;
+	virtual bool onEvent(const GEvent& event) override;
+
 	void precompute();
 	void __specifyGBufferEncoding();
 	void onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces) override;

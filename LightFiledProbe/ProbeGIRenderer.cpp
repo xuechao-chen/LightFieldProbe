@@ -25,7 +25,12 @@ void CProbeGIRenderer::renderDeferredShading
 		DefaultRenderer::renderDeferredShading(rd, sortedVisibleSurfaceArray, gbuffer, environment);
 		DstBlendFunc = RenderDevice::BLEND_ONE;
 	}
-
+	if (!m_IsPrecomputed)
+	{
+		if (m_Settings.DisplayProbe) __refreshProbes(rd);
+		return;
+	}
+	
 	rd->push2D(m_pLightingFramebuffer); {
 		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
 		
@@ -72,10 +77,10 @@ void CProbeGIRenderer::renderDeferredShading
 
 void CProbeGIRenderer::__refreshProbes(RenderDevice* vRenderDevice, float vProbeRadius)
 {
-	m_pProbeStatus->updateStatus();
-	Vector3 ProbeCounts = m_pProbeStatus->ProbeCounts;
-	Vector3 ProbeStartPos = m_pProbeStatus->ProbeStartPos;
-	Vector3 ProbeSteps = m_pProbeStatus->ProbeSteps;
+	SProbeStatus ProbeStatus = m_pProbeStatus->getNewProbeStatus();
+	auto ProbeCounts = ProbeStatus.ProbeCounts;
+	auto ProbeSteps = ProbeStatus.ProbeSteps;
+	auto ProbeStartPos = ProbeStatus.ProbeStartPos;
 	
 	if (vProbeRadius <= 0) vProbeRadius = ProbeSteps.min() * 0.05f;
 	

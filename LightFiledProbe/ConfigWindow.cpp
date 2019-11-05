@@ -33,21 +33,21 @@ void CConfigWindow::__makeGUI()
 	
 	GuiPane* pPaddingPane = pProbePane->addPane("Padding");
 	pPaddingPane->beginRow(); {
-		auto pPositiveXSlider = pPaddingPane->addNumberBox(" X", &m_pProbeStatus->PositivePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pPositiveXSlider = pPaddingPane->addNumberBox(" X", &m_pProbeStatus->PositivePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
 		pPositiveXSlider->setCaptionWidth(10.0f); //pPositiveXSlider->setWidth(100.0f);
-		auto pNegativeXSlider = pPaddingPane->addNumberBox("-X", &m_pProbeStatus->NegativePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pNegativeXSlider = pPaddingPane->addNumberBox("-X", &m_pProbeStatus->NegativePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
 		pNegativeXSlider->setCaptionWidth(10.0f); //pNegativeXSlider->setWidth(100.0f);
 	} pPaddingPane->endRow();
 	pPaddingPane->beginRow(); {
-		auto pPositiveYSlider = pPaddingPane->addNumberBox(" Y", &m_pProbeStatus->PositivePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pPositiveYSlider = pPaddingPane->addNumberBox(" Y", &m_pProbeStatus->PositivePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
 		pPositiveYSlider->setCaptionWidth(10.0f); //pPositiveYSlider->setWidth(100.0f);
-		auto pNegativeYSlider = pPaddingPane->addNumberBox("-Y", &m_pProbeStatus->NegativePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pNegativeYSlider = pPaddingPane->addNumberBox("-Y", &m_pProbeStatus->NegativePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
 		pNegativeYSlider->setCaptionWidth(10.0f); //pNegativeYSlider->setWidth(100.0f);
 	} pPaddingPane->endRow();
 	pPaddingPane->beginRow(); {
-		auto pPositiveZSlider = pPaddingPane->addNumberBox(" Z", &m_pProbeStatus->PositivePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pPositiveZSlider = pPaddingPane->addNumberBox(" Z", &m_pProbeStatus->PositivePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
 		pPositiveZSlider->setCaptionWidth(10.0f); //pPositiveZSlider->setWidth(100.0f);
-		auto pNegativeZSlider = pPaddingPane->addNumberBox("-Z", &m_pProbeStatus->NegativePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pNegativeZSlider = pPaddingPane->addNumberBox("-Z", &m_pProbeStatus->NegativePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
 		pNegativeZSlider->setCaptionWidth(10.0f); //pNegativeZSlider->setWidth(100.0f);
 	} pPaddingPane->endRow();
 	pPaddingPane->pack();
@@ -71,20 +71,21 @@ void CConfigWindow::__makeGUI()
 
 void CConfigWindow::__onPrecompute()
 {
-	m_pProbeStatus->ProbeCounts = m_pProbeStatus->NewProbeCounts;
 	m_pProbeStatus->updateStatus();
 	m_pApp->precompute();
 }
 
-bool CConfigWindow::onEvent(const GEvent& event)
-{
-	if (GuiWindow::onEvent(event)) {
-		// Base class handled the event
-		return true;
-	}
-
-	if (enabled()) {
-		const bool hotKeyPressed = (event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == m_hotKey) && (event.key.keysym.mod == m_hotKeyMod);
-		if (hotKeyPressed) m_visible = !m_visible;
-	}
-}
+//bool CConfigWindow::onEvent(const GEvent& event)
+//{
+//	//if (enabled()) {
+//	//	const bool hotKeyPressed = (event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == m_hotKey) && (event.key.keysym.mod == m_hotKeyMod);
+//	//	if (hotKeyPressed) m_visible = !m_visible;
+//	//}
+//
+//	if (event.type == GEventType::KEY_DOWN && event.key.keysym.sym == GKey::TAB)
+//	{
+//		m_visible = !m_visible;
+//	}
+//	
+//	return GuiWindow::onEvent(event);
+//}

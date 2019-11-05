@@ -15,6 +15,7 @@ struct SProbeStatus
 
 	void updateStatus()
 	{
+		ProbeCounts = NewProbeCounts;
 		Vector3 BoundingBoxRange = BoundingBoxHeight - BoundingBoxLow;
 		ProbeStartPos = BoundingBoxLow + BoundingBoxRange * NegativePadding;
 		Vector3 ProbeEndPos = BoundingBoxHeight - BoundingBoxRange * PositivePadding;
@@ -23,6 +24,14 @@ struct SProbeStatus
 		if (ProbeCounts.x == 1) { ProbeSteps.x = BoundingBoxRange.x * 0.5; ProbeStartPos.x = (ProbeStartPos.x + ProbeEndPos.x) * 0.5; }
 		if (ProbeCounts.y == 1) { ProbeSteps.y = BoundingBoxRange.y * 0.5; ProbeStartPos.y = (ProbeStartPos.y + ProbeEndPos.y) * 0.5; }
 		if (ProbeCounts.z == 1) { ProbeSteps.z = BoundingBoxRange.z * 0.5; ProbeStartPos.z = (ProbeStartPos.z + ProbeEndPos.z) * 0.5; }
+	}
+
+	SProbeStatus getNewProbeStatus()
+	{
+		SProbeStatus NewProbeStatus = *this;
+		NewProbeStatus.ProbeCounts = NewProbeStatus.NewProbeCounts;
+		NewProbeStatus.updateStatus();
+		return NewProbeStatus;
 	}
 };
 

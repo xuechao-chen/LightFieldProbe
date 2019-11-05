@@ -16,6 +16,8 @@ class CProbeGIRenderer : public DefaultRenderer
 	friend class App;
 	friend class CConfigWindow;
 
+	bool m_IsPrecomputed = false;
+	
 	SRendererSettings       m_Settings;
 	shared_ptr<SLightFieldSurface> m_pLightFieldSurface;
 	shared_ptr<SProbeStatus> m_pProbeStatus;

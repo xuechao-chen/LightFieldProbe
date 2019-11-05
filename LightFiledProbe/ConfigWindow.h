@@ -8,7 +8,7 @@ public:
 	
 	CConfigWindow(App* vApp, const shared_ptr<CProbeGIRenderer>& vGIRenderer, const shared_ptr<SProbeStatus>& vProbeStatus);
 
-	bool onEvent(const GEvent& event) override;
+	//bool onEvent(const GEvent& event) override;
 	
 private:
 	void __makeGUI();

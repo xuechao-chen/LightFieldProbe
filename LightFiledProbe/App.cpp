@@ -18,7 +18,8 @@ void App::onInit()
 
 	m_pProbeStatus = __initProbeStatus();
 	m_DefaultRenderer = m_renderer;
-	precompute();
+	m_pLightFieldSurface = __initLightFieldSurface();
+	//precompute();
 
 	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(m_pLightFieldSurface, m_pProbeStatus));
 	m_pGIRenderer->setDeferredShading(true);
@@ -275,7 +276,7 @@ void App::__renderLightFieldProbe2Cubemap(uint32 vProbeIndex, int vResolution, S
 	const int OldFramebufferHeight = m_osWindowHDRFramebuffer->height();
 	const Vector2int16  OldColorGuard = m_settings.hdrFramebuffer.colorGuardBandThickness;
 	const Vector2int16  OldDepthGuard = m_settings.hdrFramebuffer.depthGuardBandThickness;
-	const shared_ptr<Camera>& OldCamera = activeCamera();
+	const shared_ptr<Camera> OldCamera = activeCamera();
 
 	m_settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(128, 128);
 	m_settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(256, 256);
@@ -337,6 +338,16 @@ void App::__enableEmissiveLight(bool vEnable)
 	}
 }
 
+bool App::onEvent(const GEvent& event)
+{
+	if (event.type == GEventType::KEY_DOWN && event.key.keysym.sym == GKey::TAB)
+	{
+		m_pConfigWindow->setVisible(!m_pConfigWindow->visible());
+	}
+	
+	return GApp::onEvent((event));
+}
+
 void App::precompute()
 {
 	m_renderer = m_DefaultRenderer;
@@ -347,6 +358,7 @@ void App::precompute()
 		__precomputeLightFieldSurface(m_pLightFieldSurface);
 	} __enableEmissiveLight(true);
 	m_renderer = m_pGIRenderer;
+	m_pGIRenderer->m_IsPrecomputed = true;
 }
 
 G3D_START_AT_MAIN();
