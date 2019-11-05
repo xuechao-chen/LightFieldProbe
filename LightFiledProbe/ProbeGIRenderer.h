@@ -14,15 +14,17 @@ struct SRendererSettings
 class CProbeGIRenderer : public DefaultRenderer
 {
 	friend class App;
+	friend class CConfigWindow;
 
 	SRendererSettings       m_Settings;
-	SLightFieldSurface      m_LightFieldSurface;
+	shared_ptr<SLightFieldSurface> m_pLightFieldSurface;
+	shared_ptr<SProbeStatus> m_pProbeStatus;
 	shared_ptr<Texture>     m_pFilteredGlossyTexture;
 	shared_ptr<CDenoiser>   m_pDenoiser;
 	shared_ptr<Framebuffer> m_pLightingFramebuffer;
 
 protected:
-	CProbeGIRenderer(const SLightFieldSurface& vLightFieldSurface);
+	CProbeGIRenderer(const shared_ptr<SLightFieldSurface>& vLightFieldSurface, const shared_ptr<SProbeStatus>& vProbeStatus);
 
 	virtual void renderDeferredShading
 		(RenderDevice*                      rd,
@@ -31,12 +33,12 @@ protected:
 		const LightingEnvironment&          environment) override;
 
 public:
-	static shared_ptr<Renderer> create(const SLightFieldSurface& vLightFieldSurface)
+	static shared_ptr<Renderer> create(const shared_ptr<SLightFieldSurface>& vLightFieldSurface, const shared_ptr<SProbeStatus>& vProbeStatus)
 	{
-		return createShared<CProbeGIRenderer>(vLightFieldSurface);
+		return createShared<CProbeGIRenderer>(vLightFieldSurface, vProbeStatus);
 	}
 
 private:
-	void __displayProbes(RenderDevice* vRenderDevice, float vProbeRadius = -1);
+	void __refreshProbes(RenderDevice* vRenderDevice, float vProbeRadius = -1);
 };
 
