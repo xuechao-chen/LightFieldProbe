@@ -1,5 +1,6 @@
 #pragma once
 #include "App.h"
+#include "ConfigWindow.h"
 
 void App::onInit()
 {
@@ -15,14 +16,11 @@ void App::onInit()
 	//loadScene("Sponza (Glossy Area Lights)");
 	//loadScene("Sponza (Statue Glossy)");
 
-	m_LightFieldSurface = __initLightFieldSurface();
-	m_ProbePositionSet  = __placeProbe(m_LightFieldSurface);
+	m_pProbeStatus = __initProbeStatus();
+	m_DefaultRenderer = m_renderer;
+	precompute();
 
-	__enableEmissiveLight(false); {
-		__precomputeLightFieldSurface(m_LightFieldSurface);
-	} __enableEmissiveLight(true);
-
-	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(m_LightFieldSurface));
+	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(m_pLightFieldSurface, m_pProbeStatus));
 	m_pGIRenderer->setDeferredShading(true);
 	m_renderer = m_pGIRenderer;
 	
@@ -78,7 +76,6 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 		activeCamera()->jitterMotion());
 }
 
-
 shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
 {
 	std::vector<Vector4> UniformSampleDirectionsOnSphere;
@@ -106,22 +103,18 @@ shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
 
 void App::__makeGUI()
 {
-	debugWindow->setVisible(true);
+	m_pConfigWindow = CConfigWindow::create(this, m_pGIRenderer, m_pProbeStatus);
+	addWidget(m_pConfigWindow);
+	m_pConfigWindow->pane()->pack();
+	m_pConfigWindow->pack();
+	m_pConfigWindow->setVisible(true);
+	m_pConfigWindow->pane()->setVisible(true);
+	
 	showRenderingStats = false;
-
-	debugPane->beginRow(); {
-		debugPane->addCheckBox("Direct", &m_pGIRenderer->m_Settings.Direct)->moveBy(10, 0);
-		debugPane->addCheckBox("Indirect Diffuse", &m_pGIRenderer->m_Settings.IndirectDiffuse)->moveBy(20, 0);
-		debugPane->addCheckBox("Indirect Glossy", &m_pGIRenderer->m_Settings.IndirectGlossy)->moveBy(30, 0);
-		debugPane->addCheckBox("Display Probe", &m_pGIRenderer->m_Settings.DisplayProbe)->moveBy(40, 0);
-	} debugPane->endRow();
-
-	debugWindow->pack();
-	debugWindow->setRect(Rect2D::xywh(0, 0, (float)window()->width(), debugWindow->rect().height()));
-	developerWindow->cameraControlWindow->moveTo(Vector2(0, 450));
-	developerWindow->cameraControlWindow->setVisible(false);
+	debugWindow->setVisible(false);
 	developerWindow->setVisible(false);
-	developerWindow->sceneEditorWindow->moveTo(Point2int16(0, 50));
+	developerWindow->cameraControlWindow->setVisible(false);
+	developerWindow->sceneEditorWindow->setVisible(false);
 }
 
 void App::__specifyGBufferEncoding()
@@ -135,8 +128,10 @@ void App::__specifyGBufferEncoding()
 	m_gbufferSpecification.encoding[GBuffer::Field::SS_POSITION_CHANGE] = ImageFormat::RGB32F();
 }
 
-void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface)
+void App::__precomputeLightFieldSurface(const shared_ptr<SLightFieldSurface>& vioLightFieldSurface)
 {
+
+	
 	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler();
 	SLightFieldCubemap LightFieldCubemap(1024);
 	shared_ptr<Framebuffer> LightFieldFramebuffer = Framebuffer::create("LightFieldFB");
@@ -145,14 +140,14 @@ void App::__precomputeLightFieldSurface(SLightFieldSurface& vioLightFieldSurface
 	{
 		__renderLightFieldProbe2Cubemap(i, 1024, LightFieldCubemap);
 
-		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.RadianceProbeGrid, CubeFace::POS_X, 0, i);
-		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface.DistanceProbeGrid, CubeFace::POS_X, 0, i);
-		LightFieldFramebuffer->set(Framebuffer::COLOR2, vioLightFieldSurface.NormalProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface->RadianceProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface->DistanceProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR2, vioLightFieldSurface->NormalProbeGrid, CubeFace::POS_X, 0, i);
 		__generateHighResOctmap(LightFieldFramebuffer, LightFieldCubemap);
 
-		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface.IrradianceProbeGrid, CubeFace::POS_X, 0, i);
-		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface.MeanDistProbeGrid, CubeFace::POS_X, 0, i);
-		LightFieldFramebuffer->set(Framebuffer::COLOR2, vioLightFieldSurface.LowResolutionDistanceProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR0, vioLightFieldSurface->IrradianceProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR1, vioLightFieldSurface->MeanDistProbeGrid, CubeFace::POS_X, 0, i);
+		LightFieldFramebuffer->set(Framebuffer::COLOR2, vioLightFieldSurface->LowResolutionDistanceProbeGrid, CubeFace::POS_X, 0, i);
 		__generateLowResOctmap(LightFieldFramebuffer, LightFieldCubemap, SphereSamplerTexture);
 	}
 }
@@ -195,43 +190,60 @@ void App::__generateHighResOctmap(std::shared_ptr<G3D::Framebuffer>& vLightField
 	} renderDevice->pop2D();
 }
 
-SLightFieldSurface App::__initLightFieldSurface()
+shared_ptr<SLightFieldSurface> App::__initLightFieldSurface()
 {
-	SLightFieldSurface LightFieldSurface;
+	_ASSERTE(m_pProbeStatus);
+	shared_ptr<SLightFieldSurface> pLightFieldSurface;
+	if (m_pLightFieldSurface)
+	{
+		pLightFieldSurface = m_pLightFieldSurface;
+		m_pLightFieldSurface->RadianceProbeGrid->clear();
+		m_pLightFieldSurface->DistanceProbeGrid->clear();
+		m_pLightFieldSurface->NormalProbeGrid->clear();
+		m_pLightFieldSurface->IrradianceProbeGrid->clear();
+		m_pLightFieldSurface->MeanDistProbeGrid->clear();
+		m_pLightFieldSurface->LowResolutionDistanceProbeGrid->clear();
+	}
+	else
+	{
+		pLightFieldSurface = shared_ptr<SLightFieldSurface>(new SLightFieldSurface);
+	}
 
-	AABox BoundingBox;
-	Surface::getBoxBounds(m_posed3D, BoundingBox);
+	int ProbeNum = m_pProbeStatus->ProbeCounts.x * m_pProbeStatus->ProbeCounts.y * m_pProbeStatus->ProbeCounts.z;
+	pLightFieldSurface->RadianceProbeGrid   = Texture::createEmpty("RaidanceProbeGrid", 1024, 1024, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	pLightFieldSurface->DistanceProbeGrid   = Texture::createEmpty("DistanceProbeGrid", 1024, 1024, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	pLightFieldSurface->NormalProbeGrid     = Texture::createEmpty("NormalProbeGrid", 1024, 1024, ImageFormat::RGB16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	pLightFieldSurface->IrradianceProbeGrid = Texture::createEmpty("IrraidanceProbeGrid", 128, 128, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	pLightFieldSurface->MeanDistProbeGrid   = Texture::createEmpty("MeanDistProbeGrid", 128, 128, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	pLightFieldSurface->LowResolutionDistanceProbeGrid = Texture::createEmpty("LowResolutionDistanceProbeGrid", 128, 128, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 
-	auto BoundingBoxRange = BoundingBox.high() - BoundingBox.low();
-
-	auto Bounds = BoundingBoxRange * 0.5f;//NOTE: range from 0.1 to 0.5
-
-	LightFieldSurface.ProbeCounts = Vector3int32(1,1,1);
-	LightFieldSurface.ProbeSteps = (BoundingBoxRange - Bounds * 2) / (LightFieldSurface.ProbeCounts - Vector3int32(1, 1, 1));
-	LightFieldSurface.ProbeStartPosition = BoundingBox.low() + Bounds;
-	if (LightFieldSurface.ProbeCounts.x == 1) { LightFieldSurface.ProbeSteps.x = BoundingBoxRange.x * 0.5; LightFieldSurface.ProbeStartPosition.x = BoundingBox.low().x + BoundingBoxRange.x * 0.5; } 
-	if (LightFieldSurface.ProbeCounts.y == 1) { LightFieldSurface.ProbeSteps.y = BoundingBoxRange.y * 0.5; LightFieldSurface.ProbeStartPosition.y = BoundingBox.low().y + BoundingBoxRange.y * 0.5; } 
-	if (LightFieldSurface.ProbeCounts.z == 1) { LightFieldSurface.ProbeSteps.z = BoundingBoxRange.z * 0.5; LightFieldSurface.ProbeStartPosition.z = BoundingBox.low().z + BoundingBoxRange.z * 0.5; } 
-
-	auto ProbeNum = LightFieldSurface.ProbeCounts.x * LightFieldSurface.ProbeCounts.y * LightFieldSurface.ProbeCounts.z;
-
-	LightFieldSurface.RadianceProbeGrid   = Texture::createEmpty("RaidanceProbeGrid", 1024, 1024, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	LightFieldSurface.DistanceProbeGrid   = Texture::createEmpty("DistanceProbeGrid", 1024, 1024, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	LightFieldSurface.NormalProbeGrid     = Texture::createEmpty("NormalProbeGrid", 1024, 1024, ImageFormat::RGB16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	LightFieldSurface.IrradianceProbeGrid = Texture::createEmpty("IrraidanceProbeGrid", 128, 128, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	LightFieldSurface.MeanDistProbeGrid   = Texture::createEmpty("MeanDistProbeGrid", 128, 128, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	LightFieldSurface.LowResolutionDistanceProbeGrid = Texture::createEmpty("LowResolutionDistanceProbeGrid", 128, 128, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-
-	return LightFieldSurface;
+	return pLightFieldSurface;
 }
 
-std::vector<Vector3> App::__placeProbe(const SLightFieldSurface& vLightFieldSurface)
+shared_ptr<SProbeStatus> App::__initProbeStatus()
+{
+	shared_ptr<SProbeStatus> pProbeStatus = shared_ptr<SProbeStatus>(new SProbeStatus);
+	AABox BoundingBox;
+	Surface::getBoxBounds(m_posed3D, BoundingBox);
+	
+	pProbeStatus->BoundingBoxHeight = BoundingBox.high();
+	pProbeStatus->BoundingBoxLow = BoundingBox.low();
+	pProbeStatus->NegativePadding = Vector3(0.1f, 0.1f, 0.1f);
+	pProbeStatus->PositivePadding = Vector3(0.1f, 0.1f, 0.1f);
+	pProbeStatus->ProbeCounts = Vector3int32(2, 2, 2);
+	pProbeStatus->NewProbeCounts = pProbeStatus->ProbeCounts;
+	pProbeStatus->updateStatus();
+	
+	return pProbeStatus;
+}
+
+std::vector<Vector3> App::__placeProbe()
 {
 	std::vector<Vector3> ProbePositionSet;
 
-	auto ProbeCounts   = vLightFieldSurface.ProbeCounts;
-	auto ProbeSteps    = vLightFieldSurface.ProbeSteps;
-	auto ProbeStartPos = vLightFieldSurface.ProbeStartPosition;
+	auto ProbeCounts   = m_pProbeStatus->ProbeCounts;
+	auto ProbeSteps    = m_pProbeStatus->ProbeSteps;
+	auto ProbeStartPos = m_pProbeStatus->ProbeStartPos;
 
 	for (int z = 0; z < ProbeCounts.z; ++z)
 	{
@@ -292,8 +304,8 @@ void App::__renderLightFieldProbe2Cubemap(uint32 vProbeIndex, int vResolution, S
 		onGraphics3D(renderDevice, Surface);
 
 		Texture::copy(m_osWindowHDRFramebuffer->texture(0), voLightFieldCubemap.RadianceCubemap, 0, 0, 1,
-			Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldCubemap.RadianceCubemap->vector2Bounds()) / 2.0f),
-			CubeFace::POS_X, CubeFace(Face), nullptr, false);
+					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldCubemap.RadianceCubemap->vector2Bounds()) / 2.0f),
+					  CubeFace::POS_X, CubeFace(Face) , nullptr, false);
 
 		Texture::copy(m_gbuffer->texture(GBuffer::Field::CS_POSITION), voLightFieldCubemap.DistanceCubemap, 0, 0, 1,
 					  Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voLightFieldCubemap.DistanceCubemap->vector2Bounds()) / 2.0f),
@@ -323,6 +335,18 @@ void App::__enableEmissiveLight(bool vEnable)
 				EmissiveLight->setVisible(vEnable);
 		}
 	}
+}
+
+void App::precompute()
+{
+	m_renderer = m_DefaultRenderer;
+	m_pLightFieldSurface = __initLightFieldSurface();
+	m_ProbePositionSet = __placeProbe();
+
+	__enableEmissiveLight(false); {
+		__precomputeLightFieldSurface(m_pLightFieldSurface);
+	} __enableEmissiveLight(true);
+	m_renderer = m_pGIRenderer;
 }
 
 G3D_START_AT_MAIN();
