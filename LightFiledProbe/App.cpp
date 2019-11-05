@@ -9,12 +9,11 @@ void App::onInit()
 
 	__specifyGBufferEncoding();
 
-	loadScene("Simple Cornell Box");
+	//loadScene("Simple Cornell Box");
 	//loadScene("Simple Cornell Box (Mirror)");
 	//loadScene("Simple Cornell Box (No Little Boxes)");
-
 	//loadScene("Sponza (Glossy Area Lights)");
-	//loadScene("Sponza (Statue Glossy)");
+	loadScene("Sponza (Statue Glossy)");
 
 	m_pProbeStatus = __initProbeStatus();
 	m_DefaultRenderer = m_renderer;
@@ -130,8 +129,6 @@ void App::__specifyGBufferEncoding()
 
 void App::__precomputeLightFieldSurface(const shared_ptr<SLightFieldSurface>& vioLightFieldSurface)
 {
-
-	
 	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler();
 	SLightFieldCubemap LightFieldCubemap(1024);
 	shared_ptr<Framebuffer> LightFieldFramebuffer = Framebuffer::create("LightFieldFB");
@@ -206,7 +203,7 @@ shared_ptr<SLightFieldSurface> App::__initLightFieldSurface()
 	}
 	else
 	{
-		pLightFieldSurface = shared_ptr<SLightFieldSurface>(new SLightFieldSurface);
+		pLightFieldSurface = std::make_shared<SLightFieldSurface>();
 	}
 
 	int ProbeNum = m_pProbeStatus->ProbeCounts.x * m_pProbeStatus->ProbeCounts.y * m_pProbeStatus->ProbeCounts.z;
@@ -222,7 +219,7 @@ shared_ptr<SLightFieldSurface> App::__initLightFieldSurface()
 
 shared_ptr<SProbeStatus> App::__initProbeStatus()
 {
-	shared_ptr<SProbeStatus> pProbeStatus = shared_ptr<SProbeStatus>(new SProbeStatus);
+	shared_ptr<SProbeStatus> pProbeStatus = std::make_shared<SProbeStatus>();
 	AABox BoundingBox;
 	Surface::getBoxBounds(m_posed3D, BoundingBox);
 	
@@ -355,7 +352,8 @@ int main(int argc, const char* argv[]) {
 	GApp::Settings settings(argc, argv);
 
 	settings.window.caption = "Light Field Probe GI";
-	settings.window.width = 1024; settings.window.height = 1024;
+	settings.window.width = 1024;
+	settings.window.height = 1024;
 	settings.window.fullScreen = false;
 	settings.window.resizable = false;
 	settings.window.framed = !settings.window.fullScreen;
@@ -368,6 +366,6 @@ int main(int argc, const char* argv[]) {
 	settings.screenCapture.outputDirectory = FileSystem::currentDirectory();
 	settings.screenCapture.filenamePrefix = "_";
 	settings.renderer.deferredShading = true;
-
+	
 	return App(settings).run();
 }

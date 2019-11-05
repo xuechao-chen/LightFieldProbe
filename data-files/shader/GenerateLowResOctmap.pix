@@ -24,42 +24,31 @@ vec3 pointOnUnitSphere(int i, int n)
 
 void main()
 {
-	vec3  Radiance = vec3(0.0);
-	vec3  SumRadiance = vec3(0.0, 0.0, 0.0);
-	float RadianceWeight = 0.0;
-	float SumRadianceWeight = 0.0;
-
-	float Distance = 0.0;
-	float SquareDistance = 0.0;
-	float SumDistance = 0.0;
+	float SumDistance       = 0.0;
 	float SumSquareDistance = 0.0;
-	float DistanceWeight = 0.0;
-	float SumDistanceWeight = 0.0;
-
-	vec3 Direction = octDecode(gl_FragCoord.xy / OctmapResolution * 2.0 - 1.0);
+	vec3 SumRadiance = vec3(0.0, 0.0, 0.0);
+	vec3 Direction   = octDecode(gl_FragCoord.xy / OctmapResolution * 2.0 - 1.0);
 
 	for (int i = 0; i < NumSamples; i++)
 	{
 		vec3 Offset = pointOnUnitSphere(i, NumSamples);
 		vec3 SampleDirection = normalize(Direction + Offset);
+		float CosineWeight      = max(dot(Direction, SampleDirection), 0.0);
+		float PowerCosineWeight = pow(CosineWeight, 2.0);
 
 		//Radiance
-		Radiance = texture(RadianceCubemap, SampleDirection).xyz;
-		RadianceWeight = max(dot(Direction, SampleDirection), 0.0);
-		SumRadiance += Radiance * RadianceWeight;
-		SumRadianceWeight += RadianceWeight;
+		vec3 Radiance = texture(RadianceCubemap, SampleDirection).xyz;
+		SumRadiance += Radiance * CosineWeight;
 
 		//Distance
-		Distance = length(texture(DistanceCubemap, SampleDirection, 0).xyz);
-		SquareDistance = pow(Distance, 2.0);
-		DistanceWeight = pow(max(dot(Direction, SampleDirection), 0.0), 2);
-		SumDistance += Distance * DistanceWeight;
-		SumSquareDistance += SquareDistance * DistanceWeight;
-		SumDistanceWeight += DistanceWeight;
+		float Distance = length(texture(DistanceCubemap, SampleDirection, 0).xyz);
+		float SquareDistance = pow(Distance, 2.0);
+		SumDistance       += Distance * PowerCosineWeight;
+		SumSquareDistance += SquareDistance * PowerCosineWeight;
 	}
 
-	octIrradiance = SumRadiance / SumRadianceWeight;
-	octMeanDistance.x = SumDistance / SumDistanceWeight;
-	octMeanDistance.y = SumSquareDistance / SumDistanceWeight;
+	octIrradiance     = SumRadiance / NumSamples;
+	octMeanDistance.x = SumDistance / NumSamples;
+	octMeanDistance.y = SumSquareDistance / NumSamples;
 	octLowResDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
 }

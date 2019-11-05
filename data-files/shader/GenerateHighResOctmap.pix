@@ -16,5 +16,5 @@ void main()
 
 	OctRadiance = texture(RadianceCubemap, Direction, 0).xyz;
 	OctDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
-	OctNormal = texture(NormalCubemap, Direction, 0).xyz;
+	OctNormal   = texture(NormalCubemap, Direction, 0).xyz;
 }

@@ -78,13 +78,10 @@ void CConfigWindow::__onPrecompute()
 
 bool CConfigWindow::onEvent(const GEvent& event)
 {
-	if (GuiWindow::onEvent(event)) {
-		// Base class handled the event
-		return true;
-	}
-
 	if (enabled()) {
 		const bool hotKeyPressed = (event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == m_hotKey) && (event.key.keysym.mod == m_hotKeyMod);
 		if (hotKeyPressed) m_visible = !m_visible;
 	}
+
+	return GuiWindow::onEvent(event);
 }
