@@ -11,6 +11,8 @@ CConfigWindow::CConfigWindow(App* vApp, const shared_ptr<CProbeGIRenderer>& vGIR
 	m_pGIRenderer(vGIRenderer),
 	m_pProbeStatus(vProbeStatus)
 {
+	m_hotKey = GKey::TAB;
+	m_hotKeyMod = GKeyMod::NONE;
 	__makeGUI();
 }
 
@@ -23,31 +25,48 @@ void CConfigWindow::__makeGUI()
 	pLightingPane->addCheckBox("Direct", &m_pGIRenderer->m_Settings.Direct);
 	pLightingPane->addCheckBox("Indirect Diffuse", &m_pGIRenderer->m_Settings.IndirectDiffuse);
 	pLightingPane->addCheckBox("Indirect Glossy", &m_pGIRenderer->m_Settings.IndirectGlossy);
-	
-	pProbePane->addCheckBox("Display Probe", &m_pGIRenderer->m_Settings.DisplayProbe);
 
+	pProbePane->beginRow(); {
+		pProbePane->addCheckBox("Display Probe", &m_pGIRenderer->m_Settings.DisplayProbe);
+		pProbePane->addButton("PreCompute", [this] {__onPrecompute(); });
+	}pProbePane->endRow();
+	
 	GuiPane* pPaddingPane = pProbePane->addPane("Padding");
 	pPaddingPane->beginRow(); {
-		pPaddingPane->addNumberBox(" X", &m_pProbeStatus->PositivePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
-		pPaddingPane->addNumberBox("-X", &m_pProbeStatus->NegativePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pPositiveXSlider = pPaddingPane->addNumberBox(" X", &m_pProbeStatus->PositivePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		pPositiveXSlider->setCaptionWidth(10.0f); //pPositiveXSlider->setWidth(100.0f);
+		auto pNegativeXSlider = pPaddingPane->addNumberBox("-X", &m_pProbeStatus->NegativePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		pNegativeXSlider->setCaptionWidth(10.0f); //pNegativeXSlider->setWidth(100.0f);
 	} pPaddingPane->endRow();
 	pPaddingPane->beginRow(); {
-		pPaddingPane->addNumberBox(" Y", &m_pProbeStatus->PositivePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
-		pPaddingPane->addNumberBox("-Y", &m_pProbeStatus->NegativePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pPositiveYSlider = pPaddingPane->addNumberBox(" Y", &m_pProbeStatus->PositivePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		pPositiveYSlider->setCaptionWidth(10.0f); //pPositiveYSlider->setWidth(100.0f);
+		auto pNegativeYSlider = pPaddingPane->addNumberBox("-Y", &m_pProbeStatus->NegativePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		pNegativeYSlider->setCaptionWidth(10.0f); //pNegativeYSlider->setWidth(100.0f);
 	} pPaddingPane->endRow();
 	pPaddingPane->beginRow(); {
-		pPaddingPane->addNumberBox(" Z", &m_pProbeStatus->PositivePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
-		pPaddingPane->addNumberBox("-Z", &m_pProbeStatus->NegativePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		auto pPositiveZSlider = pPaddingPane->addNumberBox(" Z", &m_pProbeStatus->PositivePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		pPositiveZSlider->setCaptionWidth(10.0f); //pPositiveZSlider->setWidth(100.0f);
+		auto pNegativeZSlider = pPaddingPane->addNumberBox("-Z", &m_pProbeStatus->NegativePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f);
+		pNegativeZSlider->setCaptionWidth(10.0f); //pNegativeZSlider->setWidth(100.0f);
 	} pPaddingPane->endRow();
-
+	pPaddingPane->pack();
+	
 	GuiPane* pNumPane = pProbePane->addPane("Count");
 	pNumPane->beginRow(); {
-		pNumPane->addNumberBox("X", &m_pProbeStatus->NewProbeCounts.x, "", GuiTheme::NO_SLIDER);
-		pNumPane->addNumberBox("Y", &m_pProbeStatus->NewProbeCounts.y, "", GuiTheme::NO_SLIDER);
-		pNumPane->addNumberBox("Z", &m_pProbeStatus->NewProbeCounts.z, "", GuiTheme::NO_SLIDER);
+		auto pXNumberBox = pNumPane->addNumberBox("X", &m_pProbeStatus->NewProbeCounts.x, "", GuiTheme::NO_SLIDER);
+		pXNumberBox->setCaptionWidth(10.0f); pXNumberBox->setWidth(100.0f);
+		auto pYNumberBox = pNumPane->addNumberBox("Y", &m_pProbeStatus->NewProbeCounts.y, "", GuiTheme::NO_SLIDER);
+		pYNumberBox->setCaptionWidth(10.0f); pYNumberBox->setWidth(100.0f);
+		auto pZNumberBox = pNumPane->addNumberBox("Z", &m_pProbeStatus->NewProbeCounts.z, "", GuiTheme::NO_SLIDER);
+		pZNumberBox->setCaptionWidth(10.0f); pZNumberBox->setWidth(100.0f);
 	} pNumPane->endRow();
-	
-	pProbePane->addButton("PreCompute", [this] {__onPrecompute(); });
+	pNumPane->pack();
+
+	pLightingPane->pack();
+	pProbePane->pack();
+
+	pConfigTabPane->pack();
 }
 
 void CConfigWindow::__onPrecompute()
@@ -55,4 +74,17 @@ void CConfigWindow::__onPrecompute()
 	m_pProbeStatus->ProbeCounts = m_pProbeStatus->NewProbeCounts;
 	m_pProbeStatus->updateStatus();
 	m_pApp->precompute();
+}
+
+bool CConfigWindow::onEvent(const GEvent& event)
+{
+	if (GuiWindow::onEvent(event)) {
+		// Base class handled the event
+		return true;
+	}
+
+	if (enabled()) {
+		const bool hotKeyPressed = (event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == m_hotKey) && (event.key.keysym.mod == m_hotKeyMod);
+		if (hotKeyPressed) m_visible = !m_visible;
+	}
 }

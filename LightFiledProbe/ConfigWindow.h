@@ -9,12 +9,15 @@ public:
 protected:
 	CConfigWindow(App* vApp, const shared_ptr<CProbeGIRenderer>& vGIRenderer, const shared_ptr<SProbeStatus>& vProbeStatus);
 
+	bool onEvent(const GEvent& event) override;
+	
 private:
 	void __makeGUI();
 	void __onPrecompute();
 
 	App *m_pApp = nullptr;
-	// TODO: Hot key 
+	GKey                         m_hotKey;
+	GKeyMod                      m_hotKeyMod;
 	
 	shared_ptr<SProbeStatus>     m_pProbeStatus;
 	shared_ptr<CProbeGIRenderer> m_pGIRenderer;
