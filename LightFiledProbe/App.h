@@ -23,12 +23,11 @@ public:
 	
 	virtual void onInit() override;
 	void precompute();
-	void __specifyGBufferEncoding();
 	void onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces) override;
-	void onPreComputeGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces);
 	
 private:
 	void __makeGUI();
+	void __specifyGBufferEncoding();
 	void __enableEmissiveLight(bool vEnable);
 	void __precomputeLightFieldSurface(const shared_ptr<SLightFieldSurface>& vioLightFieldSurface);
 	void __generateLowResOctmap(std::shared_ptr<Framebuffer>& vLightFieldFramebuffer, SLightFieldCubemap& vLightFieldCubemap, shared_ptr<Texture>& vSphereSamplerTexture);
