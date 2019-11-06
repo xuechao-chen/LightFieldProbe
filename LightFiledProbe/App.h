@@ -26,7 +26,8 @@ public:
 
 	void precompute();
 	void onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces) override;
-	
+	virtual void onAfterLoadScene(const Any& any, const String& sceneName) override;
+
 private:
 	void __makeGUI();
 	void __specifyGBufferEncoding();

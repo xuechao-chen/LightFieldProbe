@@ -19,7 +19,6 @@ void App::onInit()
 	m_pProbeStatus = __initProbeStatus();
 	m_pDefaultRenderer = m_renderer;
 	m_pLightFieldSurface = __initLightFieldSurface();
-	//precompute();
 
 	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create(m_pLightFieldSurface, m_pProbeStatus));
 	m_pGIRenderer->setDeferredShading(true);
@@ -214,9 +213,15 @@ shared_ptr<SLightFieldSurface> App::__initLightFieldSurface()
 
 shared_ptr<SProbeStatus> App::__initProbeStatus()
 {
-	shared_ptr<SProbeStatus> pProbeStatus = std::make_shared<SProbeStatus>();
+	Array<shared_ptr<Surface>> Surface;
+	{
+		Array<shared_ptr<Surface2D>> IgnoreSurface;
+		onPose(Surface, IgnoreSurface);
+	}
+
+	shared_ptr<SProbeStatus> pProbeStatus = m_pProbeStatus ? m_pProbeStatus : std::make_shared<SProbeStatus>();
 	AABox BoundingBox;
-	Surface::getBoxBounds(m_posed3D, BoundingBox);
+	Surface::getBoxBounds(Surface, BoundingBox);
 	
 	pProbeStatus->BoundingBoxHeight = BoundingBox.high();
 	pProbeStatus->BoundingBoxLow = BoundingBox.low();
@@ -337,6 +342,11 @@ bool App::onEvent(const GEvent& event)
 	}
 	
 	return GApp::onEvent((event));
+}
+
+void App::onAfterLoadScene(const Any& any, const String& sceneName)
+{
+	m_pProbeStatus = __initProbeStatus();
 }
 
 void App::precompute()
