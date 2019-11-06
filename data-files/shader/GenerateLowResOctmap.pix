@@ -29,23 +29,42 @@ void main()
 	vec3 SumRadiance = vec3(0.0, 0.0, 0.0);
 	vec3 Direction   = octDecode(gl_FragCoord.xy / OctmapResolution * 2.0 - 1.0);
 
-	for (int i = 0; i < NumSamples; i++)
+	for (int i = 0; i < NUM_SPHERE_SAMPLERS; i++)
 	{
-		vec3 Offset = pointOnUnitSphere(i, NumSamples);
-		vec3 SampleDirection = normalize(Direction + Offset);
-		float CosineWeight      = max(dot(Direction, SampleDirection), 0.0);
-		float PowerCosineWeight = pow(CosineWeight, 2.0);
+		vec3 SampleDirection = texelFetch(SphereSampler, ivec2(i / 64, i % 64), 0).xyz;
+		if (dot(SampleDirection, Direction) > 0)
+		{
+			float CosineWeight      = max(dot(Direction, SampleDirection), 0.0);
+			float PowerCosineWeight = pow(CosineWeight, 2.0);
 
-		//Radiance
-		vec3 Radiance = texture(RadianceCubemap, SampleDirection).xyz;
-		SumRadiance += Radiance * CosineWeight;
+			vec3 Radiance = texture(RadianceCubemap, SampleDirection).xyz;
+			SumRadiance += Radiance * CosineWeight;
 
-		//Distance
-		float Distance = length(texture(DistanceCubemap, SampleDirection, 0).xyz);
-		float SquareDistance = pow(Distance, 2.0);
-		SumDistance       += Distance * PowerCosineWeight;
-		SumSquareDistance += SquareDistance * PowerCosineWeight;
+			//Distance
+			float Distance = length(texture(DistanceCubemap, SampleDirection, 0).xyz);
+			float SquareDistance = pow(Distance, 2.0);
+			SumDistance += Distance * PowerCosineWeight;
+			SumSquareDistance += SquareDistance * PowerCosineWeight * PowerCosineWeight;
+		}
 	}
+
+	//for (int i = 0; i < NumSamples; i++)
+	//{
+	//	vec3 Offset = pointOnUnitSphere(i, NumSamples);
+	//	vec3 SampleDirection = normalize(Direction + Offset);
+	//	float CosineWeight      = max(dot(Direction, SampleDirection), 0.0);
+	//	float PowerCosineWeight = pow(CosineWeight, 2.0);
+
+	//	//Radiance
+	//	vec3 Radiance = texture(RadianceCubemap, SampleDirection).xyz;
+	//	SumRadiance += Radiance * CosineWeight;
+
+	//	//Distance
+	//	float Distance = length(texture(DistanceCubemap, SampleDirection, 0).xyz);
+	//	float SquareDistance = pow(Distance, 2.0);
+	//	SumDistance       += Distance * PowerCosineWeight;
+	//	SumSquareDistance += SquareDistance * PowerCosineWeight * PowerCosineWeight;
+	//}
 
 	octIrradiance     = SumRadiance / NumSamples;
 	octMeanDistance.x = SumDistance / NumSamples;

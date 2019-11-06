@@ -9,11 +9,11 @@ void App::onInit()
 
 	__specifyGBufferEncoding();
 
-	//loadScene("Simple Cornell Box");
+	loadScene("Simple Cornell Box");
 	//loadScene("Simple Cornell Box (Mirror)");
 	//loadScene("Simple Cornell Box (No Little Boxes)");
 	//loadScene("Sponza (Glossy Area Lights)");
-	loadScene("Sponza (Statue Glossy)");
+	//loadScene("Sponza (Statue Glossy)");
 
 	m_pProbeStatus = __initProbeStatus();
 	m_DefaultRenderer = m_renderer;
@@ -78,7 +78,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 
 shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
 {
-	std::vector<Vector4> UniformSampleDirectionsOnSphere;
+	std::vector<Vector3> UniformSampleDirectionsOnSphere;
 	UniformSampleDirectionsOnSphere.resize(square(vDegreeSize));
 
 	float PerDegree = 360.0f / vDegreeSize;
@@ -90,15 +90,14 @@ shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
 		{
 			RadianSeta = toRadians(k*PerDegree*0.5f);
 			RadianFai = toRadians(i*PerDegree);
-			UniformSampleDirectionsOnSphere[i*vDegreeSize + k] = Vector4(
+			UniformSampleDirectionsOnSphere[i*vDegreeSize + k] = Vector3(
 				sin(RadianSeta)*cos(RadianFai),
 				sin(RadianSeta)*sin(RadianFai),
-				cos(RadianSeta),
-				0.0);
+				cos(RadianSeta));
 		}
 	}
 
-	return Texture::fromMemory("SphereSampler", UniformSampleDirectionsOnSphere.data(), ImageFormat::RGBA32F(), vDegreeSize, vDegreeSize, 1, 1, ImageFormat::RGBA16F(), Texture::DIM_2D, false);
+	return Texture::fromMemory("SphereSampler", UniformSampleDirectionsOnSphere.data(), ImageFormat::RGB32F(), vDegreeSize, vDegreeSize, 1, 1, ImageFormat::RGB32F(), Texture::DIM_2D, false);
 }
 
 void App::__makeGUI()
@@ -228,7 +227,7 @@ shared_ptr<SProbeStatus> App::__initProbeStatus()
 	pProbeStatus->BoundingBoxLow = BoundingBox.low();
 	pProbeStatus->NegativePadding = Vector3(0.1f, 0.1f, 0.1f);
 	pProbeStatus->PositivePadding = Vector3(0.1f, 0.1f, 0.1f);
-	pProbeStatus->ProbeCounts = Vector3int32(2, 2, 2);
+	pProbeStatus->ProbeCounts = Vector3int32(2,2,2);
 	pProbeStatus->NewProbeCounts = pProbeStatus->ProbeCounts;
 	pProbeStatus->updateStatus();
 	
