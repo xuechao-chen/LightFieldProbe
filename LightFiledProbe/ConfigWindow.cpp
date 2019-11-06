@@ -6,7 +6,7 @@ shared_ptr<CConfigWindow> CConfigWindow::create(App* vApp, const shared_ptr<CPro
 }
 
 CConfigWindow::CConfigWindow(App* vApp, const shared_ptr<CProbeGIRenderer>& vGIRenderer, const shared_ptr<SProbeStatus>& vProbeStatus) :
-	GuiWindow("GI Config", vApp->debugWindow->theme(), Rect2D::xywh(0.0f, 100.0f, 100.0f, 150.0f), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE),
+	GuiWindow("GI Config", vApp->debugWindow->theme(), Rect2D::xywh(0, 0, 100.0f, 150.0f), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE),
 	m_pApp(vApp),
 	m_pGIRenderer(vGIRenderer),
 	m_pProbeStatus(vProbeStatus)

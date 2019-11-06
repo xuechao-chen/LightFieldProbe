@@ -107,7 +107,8 @@ void App::__makeGUI()
 	debugWindow->setVisible(false);
 	developerWindow->setVisible(false);
 	developerWindow->cameraControlWindow->setVisible(false);
-	developerWindow->sceneEditorWindow->setVisible(false);
+	developerWindow->sceneEditorWindow->moveTo(Vector2(0, 350.0f));
+	developerWindow->sceneEditorWindow->setVisible(true);
 }
 
 void App::__specifyGBufferEncoding()
