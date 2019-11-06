@@ -32,8 +32,8 @@ void CConfigWindow::__makeGUI()
 	}pProbePane->endRow();
 	
 	GuiPane* pPaddingPane = pProbePane->addPane("Padding");
-	float MinPadding = 0.1f;
-	float MaxPadding = 0.9f;
+	float MinPadding = -0.1f;
+	float MaxPadding = 1.1f;
 	float PaddingStep = 0.01f;
 	pPaddingPane->beginRow(); {
 		auto pPositiveXSlider = pPaddingPane->addNumberBox(" X", &m_pProbeStatus->PositivePadding.x, "", GuiTheme::LOG_SLIDER, MinPadding, MaxPadding, PaddingStep);

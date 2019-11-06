@@ -145,10 +145,13 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="ConfigWindow.cpp" />
+    <ClCompile Include="Hammersley.cpp" />
+    <ClCompile Include="Prime.cpp" />
     <ClCompile Include="ProbeGIRenderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Sequence.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data-files\scene\Simple_Cornell_Box.Scene.Any" />
@@ -170,7 +173,10 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="ConfigWindow.h" />
     <ClInclude Include="Denoiser.h" />
+    <ClInclude Include="Hammersley.h" />
+    <ClInclude Include="Prime.h" />
     <ClInclude Include="ProbeGIRenderer.h" />
+    <ClInclude Include="Sequence.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

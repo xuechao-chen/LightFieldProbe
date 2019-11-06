@@ -1,7 +1,5 @@
 #include <compatibility.glsl>
 
-
-
 uniform sampler2D IndirectDiffuseTexture;
 uniform sampler2D IndirectGlossyTexture;
 

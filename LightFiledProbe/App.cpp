@@ -1,6 +1,7 @@
 #pragma once
 #include "App.h"
 #include "ConfigWindow.h"
+#include "Hammersley.h"
 
 void App::onInit()
 {
@@ -9,10 +10,10 @@ void App::onInit()
 
 	__specifyGBufferEncoding();
 
-	loadScene("Simple Cornell Box");
+	//loadScene("Simple Cornell Box");
 	//loadScene("Simple Cornell Box (Mirror)");
 	//loadScene("Simple Cornell Box (No Little Boxes)");
-	//loadScene("Sponza (Glossy Area Lights)");
+	loadScene("Sponza (Glossy Area Lights)");
 	//loadScene("Sponza (Statue Glossy)");
 
 	m_pProbeStatus = __initProbeStatus();
@@ -81,20 +82,14 @@ shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
 	std::vector<Vector3> UniformSampleDirectionsOnSphere;
 	UniformSampleDirectionsOnSphere.resize(square(vDegreeSize));
 
-	float PerDegree = 360.0f / vDegreeSize;
-	float RadianSeta = 0.0f, RadianFai = 0.0f;
+	Hammersley HammersleySeq(2, square(vDegreeSize));
+	HammersleySeq.samplingOnSphere();
 
-	for (int i = 0; i < vDegreeSize; i++)
+	for (int i = 0; i < UniformSampleDirectionsOnSphere.size(); ++i)
 	{
-		for (int k = 0; k < vDegreeSize; k++)
-		{
-			RadianSeta = toRadians(k*PerDegree*0.5f);
-			RadianFai = toRadians(i*PerDegree);
-			UniformSampleDirectionsOnSphere[i*vDegreeSize + k] = Vector3(
-				sin(RadianSeta)*cos(RadianFai),
-				sin(RadianSeta)*sin(RadianFai),
-				cos(RadianSeta));
-		}
+		UniformSampleDirectionsOnSphere[i].x = HammersleySeq.sphere_points[i][0];
+		UniformSampleDirectionsOnSphere[i].y = HammersleySeq.sphere_points[i][1];
+		UniformSampleDirectionsOnSphere[i].z = HammersleySeq.sphere_points[i][2];
 	}
 
 	return Texture::fromMemory("SphereSampler", UniformSampleDirectionsOnSphere.data(), ImageFormat::RGB32F(), vDegreeSize, vDegreeSize, 1, 1, ImageFormat::RGB32F(), Texture::DIM_2D, false);
