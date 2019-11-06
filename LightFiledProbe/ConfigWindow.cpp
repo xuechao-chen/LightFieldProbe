@@ -32,27 +32,44 @@ void CConfigWindow::__makeGUI()
 	}pProbePane->endRow();
 	
 	GuiPane* pPaddingPane = pProbePane->addPane("Padding");
+	float MinPadding = 0.1f;
+	float MaxPadding = 0.9f;
+	float PaddingStep = 0.01f;
 	pPaddingPane->beginRow(); {
-		auto pPositiveXSlider = pPaddingPane->addNumberBox(" X", &m_pProbeStatus->PositivePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
-		pPositiveXSlider->setCaptionWidth(10.0f); //pPositiveXSlider->setWidth(100.0f);
-		auto pNegativeXSlider = pPaddingPane->addNumberBox("-X", &m_pProbeStatus->NegativePadding.x, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
-		pNegativeXSlider->setCaptionWidth(10.0f); //pNegativeXSlider->setWidth(100.0f);
+		auto pPositiveXSlider = pPaddingPane->addNumberBox(" X", &m_pProbeStatus->PositivePadding.x, "", GuiTheme::LOG_SLIDER, MinPadding, MaxPadding, PaddingStep);
+		pPositiveXSlider->setCaptionWidth(10.0f);
+		auto pNegativeXSlider = pPaddingPane->addNumberBox("-X", &m_pProbeStatus->NegativePadding.x, "", GuiTheme::LOG_SLIDER, MinPadding, MaxPadding, PaddingStep);
+		pNegativeXSlider->setCaptionWidth(10.0f);
 	} pPaddingPane->endRow();
 	pPaddingPane->beginRow(); {
-		auto pPositiveYSlider = pPaddingPane->addNumberBox(" Y", &m_pProbeStatus->PositivePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
-		pPositiveYSlider->setCaptionWidth(10.0f); //pPositiveYSlider->setWidth(100.0f);
-		auto pNegativeYSlider = pPaddingPane->addNumberBox("-Y", &m_pProbeStatus->NegativePadding.y, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
-		pNegativeYSlider->setCaptionWidth(10.0f); //pNegativeYSlider->setWidth(100.0f);
+		auto pPositiveYSlider = pPaddingPane->addNumberBox(" Y", &m_pProbeStatus->PositivePadding.y, "", GuiTheme::LOG_SLIDER, MinPadding, MaxPadding, PaddingStep);
+		pPositiveYSlider->setCaptionWidth(10.0f);
+		auto pNegativeYSlider = pPaddingPane->addNumberBox("-Y", &m_pProbeStatus->NegativePadding.y, "", GuiTheme::LOG_SLIDER, MinPadding, MaxPadding, PaddingStep);
+		pNegativeYSlider->setCaptionWidth(10.0f);
 	} pPaddingPane->endRow();
 	pPaddingPane->beginRow(); {
-		auto pPositiveZSlider = pPaddingPane->addNumberBox(" Z", &m_pProbeStatus->PositivePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
-		pPositiveZSlider->setCaptionWidth(10.0f); //pPositiveZSlider->setWidth(100.0f);
-		auto pNegativeZSlider = pPaddingPane->addNumberBox("-Z", &m_pProbeStatus->NegativePadding.z, "", GuiTheme::LOG_SLIDER, 0.1f, 0.5f, 0.01f);
-		pNegativeZSlider->setCaptionWidth(10.0f); //pNegativeZSlider->setWidth(100.0f);
+		auto pPositiveZSlider = pPaddingPane->addNumberBox(" Z", &m_pProbeStatus->PositivePadding.z, "", GuiTheme::LOG_SLIDER, MinPadding, MaxPadding, PaddingStep);
+		pPositiveZSlider->setCaptionWidth(10.0f);
+		auto pNegativeZSlider = pPaddingPane->addNumberBox("-Z", &m_pProbeStatus->NegativePadding.z, "", GuiTheme::LOG_SLIDER, MinPadding, MaxPadding, PaddingStep);
+		pNegativeZSlider->setCaptionWidth(10.0f);
 	} pPaddingPane->endRow();
 	pPaddingPane->pack();
 	
 	GuiPane* pNumPane = pProbePane->addPane("Count");
+	auto AddRowButton = [&](const GuiText& vText, int32_t& vBindingValue)
+	{
+		pNumPane->beginRow(); {
+			pNumPane->addLabel(vText)->setWidth(10.0f);
+			pNumPane->addButton(" 1", [&] { vBindingValue = 1; });
+			pNumPane->addButton(" 2", [&] { vBindingValue = 2; });
+			pNumPane->addButton(" 4", [&] { vBindingValue = 4; });
+			pNumPane->addButton(" 8", [&] { vBindingValue = 8; });
+		} pNumPane->endRow();
+	};
+	AddRowButton("X", m_pProbeStatus->NewProbeCounts.x);
+	AddRowButton("Y", m_pProbeStatus->NewProbeCounts.y);
+	AddRowButton("Z", m_pProbeStatus->NewProbeCounts.z);
+	
 	pNumPane->beginRow(); {
 		auto pXNumberBox = pNumPane->addNumberBox("X", &m_pProbeStatus->NewProbeCounts.x, "", GuiTheme::NO_SLIDER);
 		pXNumberBox->setCaptionWidth(10.0f); pXNumberBox->setWidth(100.0f);

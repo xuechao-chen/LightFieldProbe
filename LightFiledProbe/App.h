@@ -11,7 +11,7 @@ class App : public GApp
 	shared_ptr<CConfigWindow> m_pConfigWindow;
 	
 	shared_ptr<CProbeGIRenderer> m_pGIRenderer;
-	shared_ptr<Renderer> m_DefaultRenderer;
+	shared_ptr<Renderer> m_pDefaultRenderer;
 
 	shared_ptr<SProbeStatus> m_pProbeStatus;
 	shared_ptr<SLightFieldSurface> m_pLightFieldSurface;

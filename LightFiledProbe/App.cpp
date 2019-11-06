@@ -16,7 +16,7 @@ void App::onInit()
 	//loadScene("Sponza (Statue Glossy)");
 
 	m_pProbeStatus = __initProbeStatus();
-	m_DefaultRenderer = m_renderer;
+	m_pDefaultRenderer = m_renderer;
 	m_pLightFieldSurface = __initLightFieldSurface();
 	//precompute();
 
@@ -346,7 +346,7 @@ bool App::onEvent(const GEvent& event)
 
 void App::precompute()
 {
-	m_renderer = m_DefaultRenderer;
+	m_renderer = m_pDefaultRenderer;
 	m_pLightFieldSurface = __initLightFieldSurface();
 	m_ProbePositionSet = __placeProbe();
 
