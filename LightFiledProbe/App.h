@@ -39,6 +39,6 @@ private:
 
 	shared_ptr<SLightFieldSurface>   __initLightFieldSurface();
 	shared_ptr<SProbeStatus> __initProbeStatus();
-	shared_ptr<Texture>  __createSphereSampler(int vDegreeSize = 64);
+	shared_ptr<Texture>  __createSphereSampler(uint vWidth = 64, uint vHeight = 64);
 	std::vector<Vector3> __placeProbe();
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include "App.h"
 #include "ConfigWindow.h"
-#include "Hammersley.h"
+#include "HammersleySampler.h"
 
 void App::onInit()
 {
@@ -76,22 +76,14 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 		activeCamera()->jitterMotion());
 }
 
-shared_ptr<Texture> App::__createSphereSampler(int vDegreeSize /*= 64*/)
+shared_ptr<Texture> App::__createSphereSampler(uint vWidth, uint vHeight)
 {
+	CHammersleySampler SphereSampler;
 	std::vector<Vector3> UniformSampleDirectionsOnSphere;
-	UniformSampleDirectionsOnSphere.resize(square(vDegreeSize));
 
-	Hammersley HammersleySeq(2, square(vDegreeSize));
-	HammersleySeq.samplingOnSphere();
+	UniformSampleDirectionsOnSphere = SphereSampler.sampleSphereUniformly(vWidth*vHeight);
 
-	for (int i = 0; i < UniformSampleDirectionsOnSphere.size(); ++i)
-	{
-		UniformSampleDirectionsOnSphere[i].x = HammersleySeq.sphere_points[i][0];
-		UniformSampleDirectionsOnSphere[i].y = HammersleySeq.sphere_points[i][1];
-		UniformSampleDirectionsOnSphere[i].z = HammersleySeq.sphere_points[i][2];
-	}
-
-	return Texture::fromMemory("SphereSampler", UniformSampleDirectionsOnSphere.data(), ImageFormat::RGB32F(), vDegreeSize, vDegreeSize, 1, 1, ImageFormat::RGB32F(), Texture::DIM_2D, false);
+	return Texture::fromMemory("SphereSampler", UniformSampleDirectionsOnSphere.data(), ImageFormat::RGB32F(), vWidth, vHeight, 1, 1, ImageFormat::RGB32F(), Texture::DIM_2D, false);
 }
 
 void App::__makeGUI()
@@ -124,7 +116,7 @@ void App::__specifyGBufferEncoding()
 
 void App::__precomputeLightFieldSurface(const shared_ptr<SLightFieldSurface>& vioLightFieldSurface)
 {
-	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler(128);
+	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler(128,128);
 	SLightFieldCubemap LightFieldCubemap(1024);
 	shared_ptr<Framebuffer> LightFieldFramebuffer = Framebuffer::create("LightFieldFB");
 

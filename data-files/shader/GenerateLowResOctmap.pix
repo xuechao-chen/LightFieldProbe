@@ -10,18 +10,16 @@ out vec3  octIrradiance;
 out vec2  octMeanDistance;
 out float octLowResDistance;
 
-const int SAMPLE_DEGREE = 128;
-const int NUM_SPHERE_SAMPLERS = SAMPLE_DEGREE * SAMPLE_DEGREE;
-const int NUM_HEMISPHERE_SAMPLERS = NUM_SPHERE_SAMPLERS / 2;
+ivec2 SphereSamplerSize = textureSize(SphereSampler, 0);
 
-vec3 pointOnUnitSphere(int i, int n)
-{
-	int k = NUM_SPHERE_SAMPLERS / n;
-	int index = i * k;
-	int2 SampleTexCoord = int2(i/ SAMPLE_DEGREE,i%SAMPLE_DEGREE);
-	vec3 point = texelFetch(SphereSampler, ivec2(i/ SAMPLE_DEGREE,i%SAMPLE_DEGREE),0).xyz;
-	return point;
-}
+//vec3 pointOnUnitSphere(int i, int n)
+//{
+//	int k = SphereSamplerSize.x * SphereSamplerSize.y / n;
+//	int index = i * k;
+//	int2 SampleTexCoord = int2(i/ SphereSamplerSize.x, i%SphereSamplerSize.y);
+//	vec3 point = texelFetch(SphereSampler, ivec2(i/SphereSamplerSize.x, i%SphereSamplerSize.y),0).xyz;
+//	return point;
+//}
 
 void main()
 {
@@ -30,14 +28,17 @@ void main()
 	vec3 SumRadiance = vec3(0.0, 0.0, 0.0);
 	vec3 Direction   = octDecode(gl_FragCoord.xy / OctmapResolution * 2.0 - 1.0);
 
-	for (int i = 0; i < NUM_SPHERE_SAMPLERS; i++)
+	int SampleNum = SphereSamplerSize.x * SphereSamplerSize.y;
+
+	for (int i = 0; i < SampleNum; i++)
 	{
-		vec3 SampleDirection = texelFetch(SphereSampler, ivec2(i / SAMPLE_DEGREE, i % SAMPLE_DEGREE), 0).xyz;
+		vec3 SampleDirection = texelFetch(SphereSampler, ivec2(i / SphereSamplerSize.x, i % SphereSamplerSize.y), 0).xyz;
 		if (dot(SampleDirection, Direction) > 0)
 		{
 			float CosineWeight      = max(dot(Direction, SampleDirection), 0.0);
 			float PowerCosineWeight = pow(CosineWeight, 2.0);
 
+			//Radiance
 			vec3 Radiance = texture(RadianceCubemap, SampleDirection).xyz;
 			SumRadiance += Radiance * CosineWeight;
 
@@ -67,8 +68,8 @@ void main()
 	//	SumSquareDistance += SquareDistance * PowerCosineWeight * PowerCosineWeight;
 	//}
 
-	octIrradiance     = SumRadiance / NUM_HEMISPHERE_SAMPLERS;
-	octMeanDistance.x = SumDistance / NUM_HEMISPHERE_SAMPLERS;
-	octMeanDistance.y = SumSquareDistance / NUM_HEMISPHERE_SAMPLERS;
+	octIrradiance     = SumRadiance / (SampleNum * 0.5);
+	octMeanDistance.x = SumDistance / (SampleNum * 0.5);
+	octMeanDistance.y = SumSquareDistance / (SampleNum * 0.5);
 	octLowResDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
 }
