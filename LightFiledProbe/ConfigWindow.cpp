@@ -1,4 +1,5 @@
 #include "ConfigWindow.h"
+#include <fstream>
 
 shared_ptr<CConfigWindow> CConfigWindow::create(App* vApp, const shared_ptr<CProbeGIRenderer>& vGIRenderer, const shared_ptr<SProbeStatus>& vProbeStatus)
 {
@@ -72,14 +73,21 @@ void CConfigWindow::__makeGUI()
 	
 	pNumPane->beginRow(); {
 		auto pXNumberBox = pNumPane->addNumberBox("X", &m_pProbeStatus->NewProbeCounts.x, "", GuiTheme::NO_SLIDER);
-		pXNumberBox->setCaptionWidth(10.0f); pXNumberBox->setWidth(100.0f);
+		pXNumberBox->setCaptionWidth(10.0f); pXNumberBox->setWidth(150.0f);
 		auto pYNumberBox = pNumPane->addNumberBox("Y", &m_pProbeStatus->NewProbeCounts.y, "", GuiTheme::NO_SLIDER);
-		pYNumberBox->setCaptionWidth(10.0f); pYNumberBox->setWidth(100.0f);
+		pYNumberBox->setCaptionWidth(10.0f); pYNumberBox->setWidth(150.0f);
 		auto pZNumberBox = pNumPane->addNumberBox("Z", &m_pProbeStatus->NewProbeCounts.z, "", GuiTheme::NO_SLIDER);
-		pZNumberBox->setCaptionWidth(10.0f); pZNumberBox->setWidth(100.0f);
-	} pNumPane->endRow();
+		pZNumberBox->setCaptionWidth(10.0f); pZNumberBox->setWidth(150.0f);
+	} pNumPane->endRow();	
 	pNumPane->pack();
 
+	GuiPane* pFilePane = pProbePane->addPane("File");
+	pFilePane->beginRow(); {
+		pFilePane->addButton("Load From Default", [this]() { __loadFromFile(); });
+		pFilePane->addButton("Store to Default ", [this]() { __save2File(); });
+	} pFilePane->endRow();
+	pFilePane->pack();
+	
 	pLightingPane->pack();
 	pProbePane->pack();
 
@@ -90,6 +98,18 @@ void CConfigWindow::__onPrecompute()
 {
 	m_pProbeStatus->updateStatus();
 	m_pApp->precompute();
+}
+
+void CConfigWindow::__save2File(const std::string& vFilePath)
+{
+	std::ofstream OutputFile(vFilePath);
+	OutputFile << (*m_pProbeStatus);
+}
+
+void CConfigWindow::__loadFromFile(const std::string& vFilePath)
+{
+	std::ifstream InputFile(vFilePath);
+	InputFile >> (*m_pProbeStatus);
 }
 
 //bool CConfigWindow::onEvent(const GEvent& event)
