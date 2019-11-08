@@ -70,7 +70,7 @@
         
         emitterBack = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
-            bulbPower = Power3(400 ); 
+            bulbPower = Power3(1000 ); 
             canChange = false; 
             castsShadows = false; 
             extent = Vector2(4, 4 ); 
@@ -96,7 +96,7 @@
         
         emitterFront = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
-            bulbPower = Power3(400 ); 
+            bulbPower = Power3(1000 ); 
             canChange = false; 
             castsShadows = false; 
             extent = Vector2(4, 4 ); 
@@ -313,13 +313,15 @@
             zStorage = "HALF"; 
         }; 
         
-        environmentMap = Texture::Specification { 
+        /*environmentMap = Texture::Specification { 
             encoding = Texture::Encoding { 
                 readMultiplyFirst = 0.2; 
             }; 
             
             filename = "cubemap/uffizi/uffizi*.jpg"; 
-        }; 
+        }; */
+
+	environmentMap = 0.0;
         
     }; 
     

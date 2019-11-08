@@ -49,12 +49,12 @@ void App::onInit()
 	m_gbufferSpecification.encoding[GBuffer::Field::CS_POSITION] = ImageFormat::RGB32F();
 	m_gbufferSpecification.encoding[GBuffer::Field::WS_NORMAL] = ImageFormat::RGB32F();
 
-	//loadScene("Simple Cornell Box (No Little Boxes)");
+	//loadScene("Simple Cornell Box");
 	loadScene("Sponza (Glossy Area Lights)");
 
-	m_pRadianceCubemap = Texture::createEmpty("RadianceCubemap", 2048, 2048, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
-	m_pDistanceCubemap = Texture::createEmpty("DistanceCubemap", 2048, 2048, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
-	m_pNormalCubemap = Texture::createEmpty("NormalCubemap", 2048, 2048, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
+	m_pRadianceCubemap = Texture::createEmpty("RadianceCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
+	m_pDistanceCubemap = Texture::createEmpty("DistanceCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
+	m_pNormalCubemap = Texture::createEmpty("NormalCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
 
 	AABox BoundingBox;
 	Surface::getBoxBounds(m_posed3D, BoundingBox);

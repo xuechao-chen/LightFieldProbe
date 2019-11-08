@@ -1,4 +1,4 @@
-# The mirror Cornell Box in OBJ format.
+# The original Cornell Box in OBJ format.
 # Note that the real box is not a perfect cube, so
 # the faces are imperfect in this data set.
 #
@@ -7,7 +7,6 @@
 #
 # http://graphics.cs.williams.edu/data
 # http://www.graphics.cornell.edu/online/box/data.html
-# http://www.graphics.cornell.edu/online/box/compare.html
 #
 
 newmtl leftWall
@@ -46,11 +45,21 @@ newmtl ceiling
   illum 2
   Ka 0.725 0.71 0.68 # White
   Kd 0.725 0.71 0.68
-  Ks 0 0 0
-  Ke 0 0 0
+  Ks 0     0    0
+  Ke 0     0    0
   
 
 newmtl backWall
+  Ns 10.0000
+  Ni 1.0000
+  illum 2
+  Ka 0.725 0.71 0.68 # White
+  Kd 0.725 0.71 0.68
+  Ks 0 0 0
+  Ke 0 0 0
+
+
+newmtl frontWall
   Ns 10.0000
   Ni 1.0000
   illum 2
@@ -69,13 +78,15 @@ newmtl shortBox
   Ks 0 0 0
   Ke 0 0 0
   
-#the mirror mtl
-newmtl tallBox 
- Ka 0.01 0.01 0.01
-   Kd 0.01 0.01 0.01
-   Ks 0.950 0.95 0.95
-   Ns 1000
-   illum 5
+
+newmtl tallBox
+  Ns 10.0000
+  Ni 1.0000
+  illum 2
+  Ka 0.725 0.71 0.68 # White
+  Kd 0.725 0.71 0.68
+  Ks 0 0 0
+  Ke 0 0 0
 
 newmtl light
   Ns 10.0000
@@ -85,3 +96,10 @@ newmtl light
   Kd 0.78 0.78 0.78
   Ks 0 0 0
   Ke 17 12 4
+
+newmtl mirror 
+ Ka 0.01 0.01 0.01
+   Kd 0.01 0.01 0.01
+   Ks 0.950 0.95 0.95
+   Ns 98
+   illum 2

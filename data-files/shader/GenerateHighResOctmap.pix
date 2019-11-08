@@ -8,7 +8,7 @@ uniform int OctmapResolution;
 
 out vec3  OctRadiance;
 out float OctDistance;
-out vec3  OctNormal;
+out vec2  OctNormal;
 
 void main()
 {
@@ -16,5 +16,5 @@ void main()
 
 	OctRadiance = texture(RadianceCubemap, Direction, 0).xyz;
 	OctDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
-	OctNormal   = texture(NormalCubemap, Direction, 0).xyz;
+	OctNormal   = octEncode(texture(NormalCubemap, Direction, 0).xyz);
 }

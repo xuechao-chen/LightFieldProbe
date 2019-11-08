@@ -401,7 +401,7 @@ TraceResult traceOneRaySegment
 	Point2 segmentEndTexCoord = endOctCoord * 0.5 + 0.5;
 
 	//NOTE: ignore low resolution ray trace
-	//return highResolutionTraceOneRaySegment(lightFieldSurface, probeSpaceRay, texCoord, segmentEndTexCoord, probeIndex, tMin, tMax, hitProbeTexCoord);
+	return highResolutionTraceOneRaySegment(lightFieldSurface, probeSpaceRay, texCoord, segmentEndTexCoord, probeIndex, tMin, tMax, hitProbeTexCoord);
 
 	while (true) {
 		Point2 endTexCoord;

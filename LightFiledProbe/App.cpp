@@ -10,10 +10,10 @@ void App::onInit()
 
 	__specifyGBufferEncoding();
 
-	//loadScene("Simple Cornell Box");
+	loadScene("Simple Cornell Box");
 	//loadScene("Simple Cornell Box (Mirror)");
 	//loadScene("Simple Cornell Box (No Little Boxes)");
-	loadScene("Sponza (Glossy Area Lights)");
+	//loadScene("Sponza (Glossy Area Lights)");
 	//loadScene("Sponza (Statue Glossy)");
 
 	m_pProbeStatus = __initProbeStatus();
@@ -124,7 +124,7 @@ void App::__specifyGBufferEncoding()
 
 void App::__precomputeLightFieldSurface(const shared_ptr<SLightFieldSurface>& vioLightFieldSurface)
 {
-	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler();
+	shared_ptr<Texture> SphereSamplerTexture = __createSphereSampler(128);
 	SLightFieldCubemap LightFieldCubemap(1024);
 	shared_ptr<Framebuffer> LightFieldFramebuffer = Framebuffer::create("LightFieldFB");
 
@@ -155,7 +155,6 @@ void App::__generateLowResOctmap(std::shared_ptr<G3D::Framebuffer>& vLightFieldF
 		args.setRect(Rect2D(Point2(0, 0), Point2(128, 128)));
 		args.setUniform("RadianceCubemap", vLightFieldCubemap.RadianceCubemap, CubemapSampler);
 		args.setUniform("DistanceCubemap", vLightFieldCubemap.DistanceCubemap, CubemapSampler);
-		args.setUniform("NumSamples", 2048);
 		args.setUniform("OctmapResolution", 128);
 		args.setUniform("SphereSampler", vSphereSamplerTexture, Sampler::buffer());
 
@@ -204,7 +203,7 @@ shared_ptr<SLightFieldSurface> App::__initLightFieldSurface()
 	int ProbeNum = m_pProbeStatus->ProbeCounts.x * m_pProbeStatus->ProbeCounts.y * m_pProbeStatus->ProbeCounts.z;
 	pLightFieldSurface->RadianceProbeGrid   = Texture::createEmpty("RaidanceProbeGrid", 1024, 1024, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	pLightFieldSurface->DistanceProbeGrid   = Texture::createEmpty("DistanceProbeGrid", 1024, 1024, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	pLightFieldSurface->NormalProbeGrid     = Texture::createEmpty("NormalProbeGrid", 1024, 1024, ImageFormat::RGB16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	pLightFieldSurface->NormalProbeGrid     = Texture::createEmpty("NormalProbeGrid", 1024, 1024, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	pLightFieldSurface->IrradianceProbeGrid = Texture::createEmpty("IrraidanceProbeGrid", 128, 128, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	pLightFieldSurface->MeanDistProbeGrid   = Texture::createEmpty("MeanDistProbeGrid", 128, 128, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 	pLightFieldSurface->LowResolutionDistanceProbeGrid = Texture::createEmpty("LowResolutionDistanceProbeGrid", 128, 128, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);

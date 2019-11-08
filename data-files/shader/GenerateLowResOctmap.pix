@@ -4,21 +4,22 @@ uniform sampler2D   SphereSampler;
 uniform samplerCube RadianceCubemap;
 uniform samplerCube DistanceCubemap;
 
-uniform int NumSamples;
 uniform int OctmapResolution;
 
 out vec3  octIrradiance;
 out vec2  octMeanDistance;
 out float octLowResDistance;
 
-const int NUM_SPHERE_SAMPLERS = 4096;
+const int SAMPLE_DEGREE = 128;
+const int NUM_SPHERE_SAMPLERS = SAMPLE_DEGREE * SAMPLE_DEGREE;
+const int NUM_HEMISPHERE_SAMPLERS = NUM_SPHERE_SAMPLERS / 2;
 
 vec3 pointOnUnitSphere(int i, int n)
 {
 	int k = NUM_SPHERE_SAMPLERS / n;
 	int index = i * k;
-	int2 SampleTexCoord = int2(i/64,i%64);
-	vec3 point = texelFetch(SphereSampler, ivec2(i/64,i%64),0).xyz;
+	int2 SampleTexCoord = int2(i/ SAMPLE_DEGREE,i%SAMPLE_DEGREE);
+	vec3 point = texelFetch(SphereSampler, ivec2(i/ SAMPLE_DEGREE,i%SAMPLE_DEGREE),0).xyz;
 	return point;
 }
 
@@ -31,7 +32,7 @@ void main()
 
 	for (int i = 0; i < NUM_SPHERE_SAMPLERS; i++)
 	{
-		vec3 SampleDirection = texelFetch(SphereSampler, ivec2(i / 64, i % 64), 0).xyz;
+		vec3 SampleDirection = texelFetch(SphereSampler, ivec2(i / SAMPLE_DEGREE, i % SAMPLE_DEGREE), 0).xyz;
 		if (dot(SampleDirection, Direction) > 0)
 		{
 			float CosineWeight      = max(dot(Direction, SampleDirection), 0.0);
@@ -66,8 +67,8 @@ void main()
 	//	SumSquareDistance += SquareDistance * PowerCosineWeight * PowerCosineWeight;
 	//}
 
-	octIrradiance     = SumRadiance / NumSamples;
-	octMeanDistance.x = SumDistance / NumSamples;
-	octMeanDistance.y = SumSquareDistance / NumSamples;
+	octIrradiance     = SumRadiance / NUM_HEMISPHERE_SAMPLERS;
+	octMeanDistance.x = SumDistance / NUM_HEMISPHERE_SAMPLERS;
+	octMeanDistance.y = SumSquareDistance / NUM_HEMISPHERE_SAMPLERS;
 	octLowResDistance = length(texture(DistanceCubemap, Direction, 0).xyz);
 }
