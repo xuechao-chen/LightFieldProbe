@@ -10,10 +10,10 @@ void App::onInit()
 
 	__specifyGBufferEncoding();
 
-	//loadScene("Simple Cornell Box");
+	loadScene("Simple Cornell Box");
 	//loadScene("Simple Cornell Box (Mirror)");
 	//loadScene("Simple Cornell Box (No Little Boxes)");
-	loadScene("Sponza (Glossy Area Lights)");
+	//loadScene("Sponza (Glossy Area Lights)");
 	//loadScene("Sponza (Statue Glossy)");
 
 	m_pProbeStatus = __initProbeStatus();

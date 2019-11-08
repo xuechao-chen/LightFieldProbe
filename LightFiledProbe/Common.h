@@ -1,5 +1,7 @@
 #pragma once
 #include <G3D/G3D.h>
+#include <iostream>
+#include <sstream>
 
 struct SProbeStatus
 {
@@ -34,6 +36,46 @@ struct SProbeStatus
 		return NewProbeStatus;
 	}
 };
+
+inline std::ostream& operator<<(std::ostream& vOutput, const SProbeStatus& vStatus)
+{
+	auto outputFormattedVec3 = [&](const Vector3& vVec3)
+	{
+		vOutput << vVec3.x << " " << vVec3.y << " " << vVec3.z << std::endl;
+	};
+	outputFormattedVec3(vStatus.ProbeCounts);
+	outputFormattedVec3(vStatus.NewProbeCounts);
+	outputFormattedVec3(vStatus.ProbeStartPos);
+	outputFormattedVec3(vStatus.ProbeSteps);
+	outputFormattedVec3(vStatus.PositivePadding);
+	outputFormattedVec3(vStatus.NegativePadding);
+	outputFormattedVec3(vStatus.BoundingBoxLow);
+	outputFormattedVec3(vStatus.BoundingBoxHeight);
+
+	return vOutput;
+}
+
+inline std::istream& operator>>(std::istream& vInput, SProbeStatus& voStatus)
+{
+	auto inputFormattedVec3 = [&](Vector3& vVec3)
+	{
+		vInput >> vVec3.x >> vVec3.y >> vVec3.z;
+	};
+	auto inputFormattedVec3I = [&](Vector3int32& vVec3)
+	{
+		vInput >> vVec3.x >> vVec3.y >> vVec3.z;
+	};
+	inputFormattedVec3I(voStatus.ProbeCounts);
+	inputFormattedVec3I(voStatus.NewProbeCounts);
+	inputFormattedVec3(voStatus.ProbeStartPos);
+	inputFormattedVec3(voStatus.ProbeSteps);
+	inputFormattedVec3(voStatus.PositivePadding);
+	inputFormattedVec3(voStatus.NegativePadding);
+	inputFormattedVec3(voStatus.BoundingBoxLow);
+	inputFormattedVec3(voStatus.BoundingBoxHeight);
+
+	return vInput;
+}
 
 struct SLightFieldSurface
 {
