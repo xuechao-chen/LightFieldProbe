@@ -13,7 +13,7 @@ class CDenoiser :public ReferenceCountedObject
 	shared_ptr<BilateralFilter> m_pBilateralFilter;
 	BilateralFilterSettings m_BilateralFilterSettings;
 
-public:
+protected:
 	CDenoiser()
 	{
 		m_pBilateralFilter = BilateralFilter::create();
@@ -30,6 +30,7 @@ public:
 		m_pIntermediateFramebuffer = Framebuffer::create("IntermediateFramebuffer");
 	}
 
+public:
 	static shared_ptr<CDenoiser> create()
 	{
 		return createShared<CDenoiser>();

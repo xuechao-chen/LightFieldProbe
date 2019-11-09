@@ -1,7 +1,7 @@
 #include "ProbeGIRenderer.h"
 #include "Denoiser.h"
 
-CProbeGIRenderer::CProbeGIRenderer(const shared_ptr<SLightFieldSurface>& vLightFieldSurface, const shared_ptr<SProbeStatus>& vProbeStatus) : m_pLightFieldSurface(vLightFieldSurface), m_pProbeStatus(vProbeStatus)
+CProbeGIRenderer::CProbeGIRenderer()
 {
 	auto Width  = GApp::current()->settings().window.width;
 	auto Height = GApp::current()->settings().window.height;
@@ -25,11 +25,6 @@ void CProbeGIRenderer::renderDeferredShading
 		DefaultRenderer::renderDeferredShading(rd, sortedVisibleSurfaceArray, gbuffer, environment);
 		DstBlendFunc = RenderDevice::BLEND_ONE;
 	}
-	if (!m_IsPrecomputed)
-	{
-		if (m_Settings.DisplayProbe) __refreshProbes(rd);
-		return;
-	}
 	
 	rd->push2D(m_pLightingFramebuffer); {
 		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
@@ -39,9 +34,9 @@ void CProbeGIRenderer::renderDeferredShading
 
 		args.setUniform("seed", rand());
 		args.setUniform("numofSamples", 1);
-		args.setUniform("lightFieldSurface.probeStep",		    m_pProbeStatus->ProbeSteps);
-		args.setUniform("lightFieldSurface.probeCounts",        m_pProbeStatus->ProbeCounts);
-		args.setUniform("lightFieldSurface.probeStartPosition", m_pProbeStatus->ProbeStartPos);
+		args.setUniform("lightFieldSurface.probeStep", m_pLightFieldSurfaceMetaData->ProbeSteps);
+		args.setUniform("lightFieldSurface.probeCounts", m_pLightFieldSurfaceMetaData->ProbeCounts);
+		args.setUniform("lightFieldSurface.probeStartPosition", m_pLightFieldSurfaceMetaData->ProbeStartPos);
 
 		args.setMacro("ENABLE_INDIRECT_DIFFUSE", m_Settings.IndirectDiffuse);
 		args.setMacro("ENABLE_INDIRECT_GLOSSY", m_Settings.IndirectGlossy);
@@ -71,29 +66,4 @@ void CProbeGIRenderer::renderDeferredShading
 		LAUNCH_SHADER("shader/Merge.pix", args);
 
 	} rd->pop2D();
-
-	if (m_Settings.DisplayProbe) __refreshProbes(rd);
-}
-
-void CProbeGIRenderer::__refreshProbes(RenderDevice* vRenderDevice, float vProbeRadius)
-{
-	SProbeStatus ProbeStatus = m_pProbeStatus->getNewProbeStatus();
-	auto ProbeCounts = ProbeStatus.ProbeCounts;
-	auto ProbeSteps = ProbeStatus.ProbeSteps;
-	auto ProbeStartPos = ProbeStatus.ProbeStartPos;
-	
-	if (vProbeRadius <= 0) vProbeRadius = ProbeSteps.min() * 0.05f;
-	
-	for (int z = 0; z < ProbeCounts.z; ++z)
-	{
-		for (int y = 0; y < ProbeCounts.y; ++y)
-		{
-			for (int x = 0; x < ProbeCounts.x; ++x)
-			{
-				Color4 ProbeColor = Color4(x * 1.0f / ProbeCounts.x, y * 1.0f / ProbeCounts.y, z * 1.0f / ProbeCounts.z, 1.0f);
-				auto ProbePos = ProbeStartPos + Vector3(x, y, z) * ProbeSteps;
-				Draw::sphere(Sphere(ProbePos, vProbeRadius), vRenderDevice, ProbeColor, ProbeColor);
-			}
-		}
-	}
 }

@@ -20,12 +20,12 @@ class CProbeGIRenderer : public DefaultRenderer
 	
 	SRendererSettings       m_Settings;
 	shared_ptr<SLightFieldSurface> m_pLightFieldSurface;
-	shared_ptr<SProbeStatus> m_pProbeStatus;
+	shared_ptr<SLightFieldSurfaceMetaData> m_pLightFieldSurfaceMetaData;
 	shared_ptr<CDenoiser>   m_pDenoiser;
 	shared_ptr<Framebuffer> m_pLightingFramebuffer;
 
 protected:
-	CProbeGIRenderer(const shared_ptr<SLightFieldSurface>& vLightFieldSurface, const shared_ptr<SProbeStatus>& vProbeStatus);
+	CProbeGIRenderer();
 
 	virtual void renderDeferredShading
 		(RenderDevice*                      rd,
@@ -34,12 +34,15 @@ protected:
 		const LightingEnvironment&          environment) override;
 
 public:
-	static shared_ptr<Renderer> create(const shared_ptr<SLightFieldSurface>& vLightFieldSurface, const shared_ptr<SProbeStatus>& vProbeStatus)
+	static shared_ptr<Renderer> create()
 	{
-		return createShared<CProbeGIRenderer>(vLightFieldSurface, vProbeStatus);
+		return createShared<CProbeGIRenderer>();
 	}
 
-private:
-	void __refreshProbes(RenderDevice* vRenderDevice, float vProbeRadius = -1);
+	void updateLightFieldSurface(const shared_ptr<SLightFieldSurface>& vLightFieldSurface, const shared_ptr<SLightFieldSurfaceMetaData>& vMetaData)
+	{
+		m_pLightFieldSurface = vLightFieldSurface;
+		m_pLightFieldSurfaceMetaData = vMetaData;
+	}
 };
 

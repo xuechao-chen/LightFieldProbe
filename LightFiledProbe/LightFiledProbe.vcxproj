@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="ConfigWindow.cpp" />
+    <ClCompile Include="LightFieldSurfaceGenerator.cpp" />
     <ClCompile Include="ProbeGIRenderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -171,6 +172,7 @@
     <ClInclude Include="ConfigWindow.h" />
     <ClInclude Include="Denoiser.h" />
     <ClInclude Include="HammersleySampler.h" />
+    <ClInclude Include="LightFieldSurfaceGenerator.h" />
     <ClInclude Include="ProbeGIRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

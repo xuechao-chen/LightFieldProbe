@@ -26,6 +26,9 @@
     <ClCompile Include="ConfigWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LightFieldSurfaceGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data-files\shader\LightFieldProbe.glsl">
@@ -85,6 +88,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HammersleySampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightFieldSurfaceGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
