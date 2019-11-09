@@ -2,8 +2,6 @@
 #include "App.h"
 #include <string>
 
-static const std::string DefaultFilePath = "Config.txt";
-
 class CConfigWindow : public GuiWindow
 {	
 public:
@@ -17,8 +15,13 @@ protected:
 private:
 	void __makeGUI();
 	void __onPrecompute();
-	void __save2File(const std::string& vFilePath = DefaultFilePath);
-	void __loadFromFile(const std::string& vFilePath = DefaultFilePath);
+	void __operateProbeFile(bool vIsOutput, bool vIsDefaultMode);
+	void __operateCameraFile(bool vIsOutput, bool vIsDefaultMode);
+	CFrame fetchCameraFrame() const { return m_pApp->m_activeCamera->frame(); }
+	void setCameraFrame(const CFrame& f) { m_pApp->m_cameraManipulator->setFrame(f); }
+
+	void __save2File(const std::string& vFilePath);
+	void __loadFromFile(const std::string& vFilePath);
 
 	App *m_pApp = nullptr;
 	GKey                         m_hotKey;
@@ -27,5 +30,7 @@ private:
 	shared_ptr<SProbeStatus>     m_pProbeStatus;
 	shared_ptr<CProbeGIRenderer> m_pGIRenderer;
 
-	const std::string m_FilePath = "Config.txt";
+	static const String m_FileSuffix;
+	static const String m_ProbeSuffix;
+	static const String m_CameraSuffix;
 };
