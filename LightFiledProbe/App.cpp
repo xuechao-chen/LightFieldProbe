@@ -45,7 +45,7 @@ void App::__makeGUI()
 	debugWindow->setVisible(false);
 	developerWindow->setVisible(false);
 	developerWindow->cameraControlWindow->setVisible(false);
-	developerWindow->sceneEditorWindow->moveTo(Vector2(0, 350.0f));
+	developerWindow->sceneEditorWindow->moveTo(Vector2(0, 360.0f));
 	developerWindow->sceneEditorWindow->setVisible(true);
 }
 
@@ -89,11 +89,11 @@ void App::__enableEmissiveLight(bool vEnable)
 	}
 }
 
-
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& allSurfaces)
 {
 	GApp::onGraphics3D(rd, allSurfaces);
-	__refreshProbes();
+
+	if (m_pGIRenderer->m_Settings.DisplayProbe) __refreshProbes();
 }
 
 shared_ptr<SLightFieldSurfaceMetaData> App::__initLightFieldSurfaceMetaData()
@@ -111,6 +111,7 @@ bool App::onEvent(const GEvent& event)
 	if (event.type == GEventType::KEY_DOWN && event.key.keysym.sym == GKey::TAB)
 	{
 		m_pConfigWindow->setVisible(!m_pConfigWindow->visible());
+		developerWindow->sceneEditorWindow->setVisible(m_pConfigWindow->visible());
 	}
 	
 	return GApp::onEvent((event));

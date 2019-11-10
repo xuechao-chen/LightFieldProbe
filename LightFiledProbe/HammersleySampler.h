@@ -5,7 +5,7 @@
 class CHammersleySampler
 {
 public:
-	std::vector<Vector3> sampleSphereUniformly(int vSampleNum, bool vHemisphere = false)
+	std::vector<Vector3> sampleSphereUniformly(uint vSampleNum, bool vHemisphere = false)
 	{
 		std::vector<Vector3> SampleDirections;
 		for (uint i = 0; i < vSampleNum; ++i)

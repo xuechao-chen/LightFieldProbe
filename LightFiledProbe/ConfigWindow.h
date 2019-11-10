@@ -1,26 +1,23 @@
 #pragma once
 #include "App.h"
-#include <string>
 
 class CConfigWindow : public GuiWindow
 {	
-	App *m_pApp = nullptr;
-	GKey                         m_hotKey;
-	GKeyMod                      m_hotKeyMod;
-
-	SProbeStatus     m_ProbeStatus;
-	shared_ptr<CProbeGIRenderer> m_pGIRenderer;
-
 	static const String m_FileSuffix;
 	static const String m_ProbeSuffix;
 	static const String m_CameraSuffix;
 
-public:
-	CConfigWindow(App* vApp);
-	const SProbeStatus& getProbeStatus() const { return m_ProbeStatus; }
-	void setProbeStatus(const SProbeStatus& vStatus) { m_ProbeStatus = vStatus; }
+	App* m_pApp = nullptr;
+	SProbeStatus m_ProbeStatus;
 
-	static shared_ptr<CConfigWindow> create(App* vApp) { return std::make_shared<CConfigWindow>(vApp); }
+public:
+	const SProbeStatus& getProbeStatus() const { return m_ProbeStatus; }
+	void  setProbeStatus(const SProbeStatus& vStatus) { m_ProbeStatus = vStatus; }
+
+	static shared_ptr<CConfigWindow> create(App* vApp) { return createShared<CConfigWindow>(vApp); }
+
+protected:
+	CConfigWindow(App* vApp);
 
 private:
 	void __operateProbeFile(bool vIsOutput, bool vIsDefaultMode);

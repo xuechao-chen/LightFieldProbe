@@ -14,8 +14,6 @@ CConfigWindow::CConfigWindow(App* vApp) :
 	m_ProbeStatus.NegativePadding = Vector3(0.1f, 0.1f, 0.1f);
 	m_ProbeStatus.PositivePadding = Vector3(0.1f, 0.1f, 0.1f);
 
-	m_hotKey = GKey::TAB;
-	m_hotKeyMod = GKeyMod::NONE;
 	__makeGUI();
 }
 

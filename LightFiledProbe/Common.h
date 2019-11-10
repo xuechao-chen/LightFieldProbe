@@ -71,9 +71,9 @@ struct SProbeStatus
 		Vector3 ProbeEndPos = BoundingBoxHigh - BoundingBoxRange * PositivePadding;
 		ProbeSteps = (ProbeEndPos - ProbeStartPos) / (ProbeCounts - Vector3int32(1, 1, 1));
 
-		if (ProbeCounts.x == 1) { ProbeSteps.x = BoundingBoxRange.x * 0.5; ProbeStartPos.x = (ProbeStartPos.x + ProbeEndPos.x) * 0.5; }
-		if (ProbeCounts.y == 1) { ProbeSteps.y = BoundingBoxRange.y * 0.5; ProbeStartPos.y = (ProbeStartPos.y + ProbeEndPos.y) * 0.5; }
-		if (ProbeCounts.z == 1) { ProbeSteps.z = BoundingBoxRange.z * 0.5; ProbeStartPos.z = (ProbeStartPos.z + ProbeEndPos.z) * 0.5; }
+		if (ProbeCounts.x == 1) { ProbeSteps.x = BoundingBoxRange.x * 0.5f; ProbeStartPos.x = (ProbeStartPos.x + ProbeEndPos.x) * 0.5f; }
+		if (ProbeCounts.y == 1) { ProbeSteps.y = BoundingBoxRange.y * 0.5f; ProbeStartPos.y = (ProbeStartPos.y + ProbeEndPos.y) * 0.5f; }
+		if (ProbeCounts.z == 1) { ProbeSteps.z = BoundingBoxRange.z * 0.5f; ProbeStartPos.z = (ProbeStartPos.z + ProbeEndPos.z) * 0.5f; }
 	}
 };
 
