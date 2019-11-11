@@ -1,0 +1,33 @@
+#version 440
+#include <g3dmath.glsl>
+#include <Light/Light.glsl>
+#include <GBuffer/GBuffer.glsl>
+
+// Declare a GBuffer with no prefix
+uniform_GBuffer(gbuffer_);
+#include <deferredHelpers.glsl>
+
+#include "../Common/LightFieldProbe.glsl"
+
+out vec3 IndirectDiffuseColor;
+
+uniform LightFieldSurface lightFieldSurface;
+
+void main()
+{
+	int2 P = int2(gl_FragCoord.xy);
+
+	Vector3 w_o;
+	UniversalMaterialSample surfel;
+	bool isSkybox = !readUniversalMaterialSampleFromGBuffer(P, false, true, w_o, surfel);
+
+	if (isSkybox) return;
+
+	vec3 IndirectDiffuseLighting = vec3(0);
+
+#if ENABLE_INDIRECT_DIFFUSE
+	IndirectDiffuseLighting = computePrefilteredIrradiance(lightFieldSurface, surfel.position, surfel.shadingNormal);
+#endif
+
+	IndirectDiffuseColor = 0.6 * IndirectDiffuseLighting * surfel.lambertianReflectivity / pi;
+}

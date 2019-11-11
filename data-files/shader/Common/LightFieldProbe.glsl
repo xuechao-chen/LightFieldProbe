@@ -1,7 +1,7 @@
 #ifndef LightFieldProbe_glsl
 #define LightFieldProbe_glsl
 
-#include "Common.glsl"
+#include "../Common/Common.glsl"
 
 #include <LightingEnvironment/LightingEnvironment_environmentMapUniforms.glsl>
 

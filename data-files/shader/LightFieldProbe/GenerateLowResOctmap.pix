@@ -1,4 +1,4 @@
-#include "Octahedral.glsl"
+#include "../Common/Octahedral.glsl"
 
 uniform sampler2D   SphereSampler;
 uniform samplerCube RadianceCubemap;

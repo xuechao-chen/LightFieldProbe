@@ -32,5 +32,4 @@ vec3 octDecode(vec2 o) {
     return normalize(v);
 }
 
-
 #endif

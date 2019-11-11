@@ -22,22 +22,51 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 	}
 
 	shared_ptr<Texture> pSphereSamplerTexture = __createSphereSampler(vMetaData->SphereSamplerSize);
-	SLightFieldCubemap LightFieldCubemap(vMetaData->CubemapResolution);
+	SLightFieldCubemap LightFieldCubemap(vMetaData->ProbeCubemapResolution);
 	shared_ptr<Framebuffer> pLightFieldFramebuffer = Framebuffer::create("LightFieldFramebuffer");
+
+	m_pLambertianCubeFromLight = Texture::createEmpty("LambertianCubeFromLight", vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution, ImageFormat::RGB8(), Texture::DIM_CUBE_MAP, false);
+	m_pWsPositionCubeFromLight = Texture::createEmpty("WsPositionCubeFromLight", vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, false);
+	m_pWsNormalCubeFromLight = Texture::createEmpty("WsNormalCubeFromLight", vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, false);
+	
+	for (int Face = 0; Face < 6; ++Face)
+	{
+		__renderCubeFace(Surface, Vector3(0, 1.92, 0), CubeFace(Face));
+
+		Texture::copy(m_pGBuffer->texture(GBuffer::Field::LAMBERTIAN), m_pLambertianCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
+		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_POSITION), m_pWsPositionCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
+		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_NORMAL), m_pWsNormalCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
+	}
 
 	for (int i = 0; i < vMetaData->ProbeNum(); ++i)
 	{
 		__renderLightFieldProbe2Cubemap(Surface, vMetaData->ProbeIndexToPosition(i), LightFieldCubemap);
 
-		pLightFieldFramebuffer->set(Framebuffer::COLOR0, LightFieldSurface->RadianceProbeGrid, CubeFace::POS_X, 0, i);
-		pLightFieldFramebuffer->set(Framebuffer::COLOR1, LightFieldSurface->DistanceProbeGrid, CubeFace::POS_X, 0, i);
-		pLightFieldFramebuffer->set(Framebuffer::COLOR2, LightFieldSurface->NormalProbeGrid, CubeFace::POS_X, 0, i);
-		__generateHighResOctmap(vMetaData->OctHighResolution, pLightFieldFramebuffer, LightFieldCubemap);
-
 		pLightFieldFramebuffer->set(Framebuffer::COLOR0, LightFieldSurface->IrradianceProbeGrid, CubeFace::POS_X, 0, i);
 		pLightFieldFramebuffer->set(Framebuffer::COLOR1, LightFieldSurface->MeanDistProbeGrid, CubeFace::POS_X, 0, i);
-		pLightFieldFramebuffer->set(Framebuffer::COLOR2, LightFieldSurface->LowResolutionDistanceProbeGrid, CubeFace::POS_X, 0, i);
-		__generateLowResOctmap(vMetaData->OctLowResolution, pLightFieldFramebuffer, LightFieldCubemap, pSphereSamplerTexture);
+
+		auto CubemapSampler = Sampler::cubeMap();
+		CubemapSampler.interpolateMode = InterpolateMode::NEAREST_NO_MIPMAP;
+
+		m_pApp->renderDevice->push2D(pLightFieldFramebuffer); {
+			m_pApp->renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+			Args args;
+			args.setRect(Rect2D(Point2(0, 0), Point2(vMetaData->OctResolution, vMetaData->OctResolution)));
+			args.setUniform("WsPositionFromProbe", LightFieldCubemap.PositionCubemap, CubemapSampler);
+
+			args.setUniform("LambertianFromLight", m_pLambertianCubeFromLight, CubemapSampler);
+			args.setUniform("WsPositionFromLight", m_pWsPositionCubeFromLight, CubemapSampler);
+			args.setUniform("WsNormalFromLight",   m_pWsNormalCubeFromLight,   CubemapSampler);
+
+			args.setUniform("WsProbePosition", vMetaData->ProbeIndexToPosition(i));
+			args.setUniform("WsLightPosition", Vector3(0, 1.92, 0));
+			args.setUniform("LightColor", Vector3(35, 35, 35));
+
+			args.setUniform("OctmapResolution", vMetaData->OctResolution);
+			args.setUniform("SphereSampler", pSphereSamplerTexture, Sampler::buffer());
+
+			LAUNCH_SHADER("DeferredLightFieldProbe/GenerateOctmap.pix", args);
+		} m_pApp->renderDevice->pop2D();
 	}
 
 	return LightFieldSurface;
@@ -61,8 +90,10 @@ shared_ptr<GBuffer> CLightFieldSurfaceGenerator::__initGBuffer(Vector2int32 vSiz
 	GBuffer::Specification GBufferSpecification;
 	GBufferSpecification.encoding[GBuffer::Field::CS_POSITION] = ImageFormat::RGB32F();
 	GBufferSpecification.encoding[GBuffer::Field::WS_NORMAL] = ImageFormat::RGB32F();
+	GBufferSpecification.encoding[GBuffer::Field::WS_POSITION] = ImageFormat::RGB32F();
 	GBufferSpecification.encoding[GBuffer::Field::CS_NORMAL] = Texture::Encoding(ImageFormat::RGB10A2(), FrameName::CAMERA, 2.0f, -1.0f);
 	GBufferSpecification.encoding[GBuffer::Field::DEPTH_AND_STENCIL] = ImageFormat::DEPTH32F();
+	GBufferSpecification.encoding[GBuffer::Field::LAMBERTIAN] = ImageFormat::RGB8();
 
 	auto r = GBuffer::create(GBufferSpecification, "Precompute GBuffer");
 	r->resize(vSize);
@@ -93,14 +124,9 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::__initLightFieldSurf
 	shared_ptr<SLightFieldSurface> pLightFieldSurface = std::make_shared<SLightFieldSurface>();
 	
 	int ProbeNum = vMetaData->ProbeNum();
-	int OctHighResolution = vMetaData->OctHighResolution;
-	int OctLowResolution = vMetaData->OctLowResolution;
-	pLightFieldSurface->RadianceProbeGrid = Texture::createEmpty("RaidanceProbeGrid", OctHighResolution, OctHighResolution, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	pLightFieldSurface->DistanceProbeGrid = Texture::createEmpty("DistanceProbeGrid", OctHighResolution, OctHighResolution, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	pLightFieldSurface->NormalProbeGrid = Texture::createEmpty("NormalProbeGrid", OctHighResolution, OctHighResolution, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	pLightFieldSurface->IrradianceProbeGrid = Texture::createEmpty("IrraidanceProbeGrid", OctLowResolution, OctLowResolution, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	pLightFieldSurface->MeanDistProbeGrid = Texture::createEmpty("MeanDistProbeGrid", OctLowResolution, OctLowResolution, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
-	pLightFieldSurface->LowResolutionDistanceProbeGrid = Texture::createEmpty("LowResolutionDistanceProbeGrid", OctLowResolution, OctLowResolution, ImageFormat::R16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	int OctResolution = vMetaData->OctResolution;
+	pLightFieldSurface->IrradianceProbeGrid = Texture::createEmpty("IrraidanceProbeGrid", OctResolution, OctResolution, ImageFormat::R11G11B10F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
+	pLightFieldSurface->MeanDistProbeGrid = Texture::createEmpty("MeanDistProbeGrid", OctResolution, OctResolution, ImageFormat::RG16F(), Texture::DIM_2D_ARRAY, false, ProbeNum);
 
 	return pLightFieldSurface;
 }
@@ -136,45 +162,6 @@ void CLightFieldSurfaceGenerator::__renderLightFieldProbe2Cubemap(Array<shared_p
 	{
 		__renderCubeFace(allSurfaces, vRenderPosition, CubeFace(Face));
 
-		Texture::copy(m_pFramebuffer->texture(0), voLightFieldCubemap.RadianceCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
-		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_NORMAL), voLightFieldCubemap.NormalCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
-		Texture::copy(m_pGBuffer->texture(GBuffer::Field::CS_POSITION), voLightFieldCubemap.DistanceCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
+		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_POSITION), voLightFieldCubemap.PositionCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 	}
-}
-
-void CLightFieldSurfaceGenerator::__generateLowResOctmap(int vResolution, std::shared_ptr<Framebuffer>& vLightFieldFramebuffer, SLightFieldCubemap& vLightFieldCubemap, shared_ptr<Texture>& vSphereSamplerTexture)
-{
-	auto CubemapSampler = Sampler::cubeMap();
-	CubemapSampler.interpolateMode = InterpolateMode::NEAREST_NO_MIPMAP;
-
-	m_pApp->renderDevice->push2D(vLightFieldFramebuffer); {
-		m_pApp->renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-		Args args;
-		args.setRect(Rect2D(Point2(0, 0), Point2(vResolution, vResolution)));
-		args.setUniform("RadianceCubemap", vLightFieldCubemap.RadianceCubemap, CubemapSampler);
-		args.setUniform("DistanceCubemap", vLightFieldCubemap.DistanceCubemap, CubemapSampler);
-		args.setUniform("OctmapResolution", vResolution);
-		args.setUniform("SphereSampler", vSphereSamplerTexture, Sampler::buffer());
-
-		LAUNCH_SHADER("LightFieldProbe/GenerateLowResOctmap.pix", args);
-	} m_pApp->renderDevice->pop2D();
-}
-
-void CLightFieldSurfaceGenerator::__generateHighResOctmap(int vResolution, std::shared_ptr<Framebuffer>& vLightFieldFramebuffer, SLightFieldCubemap& vLightFieldCubemap)
-{
-	auto CubemapSampler = Sampler::cubeMap();
-	CubemapSampler.interpolateMode = InterpolateMode::NEAREST_NO_MIPMAP;
-	
-	m_pApp->renderDevice->push2D(vLightFieldFramebuffer); {
-		m_pApp->renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-
-		Args args;
-		args.setRect(Rect2D(Point2(0, 0), Point2(vResolution, vResolution)));
-		args.setUniform("RadianceCubemap", vLightFieldCubemap.RadianceCubemap, CubemapSampler);
-		args.setUniform("DistanceCubemap", vLightFieldCubemap.DistanceCubemap, CubemapSampler);
-		args.setUniform("NormalCubemap", vLightFieldCubemap.NormalCubemap, CubemapSampler);
-		args.setUniform("OctmapResolution", vResolution);
-
-		LAUNCH_SHADER("LightFieldProbe/GenerateHighResOctmap.pix", args);
-	} m_pApp->renderDevice->pop2D();
 }

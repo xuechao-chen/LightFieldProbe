@@ -31,29 +31,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\data-files\shader\LightFieldProbe.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\Octahedral.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\Playground.pix">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\Lighting.pix">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="..\data-files\scene\Simple_Cornell_Box.Scene.Any">
       <Filter>Scene Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\Common.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\BRDFImportanceSampling.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\data-files\shader\Merge.pix">
-      <Filter>Shader Files</Filter>
     </None>
     <None Include="..\data-files\scene\Simple_Cornell_Box_(Mirror).Scene.Any">
       <Filter>Scene Files</Filter>
@@ -64,10 +43,28 @@
     <None Include="..\data-files\scene\Sponza_(Glossy_Area_Lights).Scene.Any">
       <Filter>Scene Files</Filter>
     </None>
-    <None Include="..\data-files\shader\GenerateHighResOctmap.pix">
+    <None Include="..\data-files\shader\common\BRDFImportanceSampling.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\GenerateLowResOctmap.pix">
+    <None Include="..\data-files\shader\common\Common.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\common\LightFieldProbe.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\common\Octahedral.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\LightFieldProbe\GenerateHighResOctmap.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\LightFieldProbe\GenerateLowResOctmap.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\LightFieldProbe\Lighting.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\LightFieldProbe\Merge.pix">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

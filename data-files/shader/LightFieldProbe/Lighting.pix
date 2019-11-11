@@ -7,8 +7,8 @@
 uniform_GBuffer(gbuffer_);
 #include <deferredHelpers.glsl>
 
-#include "LightFieldProbe.glsl"
-#include "BRDFImportanceSampling.glsl"
+#include "../Common/LightFieldProbe.glsl"
+#include "../Common/BRDFImportanceSampling.glsl"
 
 out vec3 IndirectDiffuseColor;
 out vec3 IndirectGlossyColor;

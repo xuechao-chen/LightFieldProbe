@@ -4,7 +4,7 @@
 // Compatibility and helper code from G3D
 #include <g3dmath.glsl>
 #include <Texture/Texture.glsl>
-#include "Octahedral.glsl"
+#include "../Common/Octahedral.glsl"
 
 const float minThickness = 0.03; // meters
 const float maxThickness = 0.50; // meters

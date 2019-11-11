@@ -1,4 +1,5 @@
 #include "App.h"
+#include "../LightFiledProbe/HammersleySampler.h"
 
 G3D_START_AT_MAIN();
 
@@ -47,69 +48,153 @@ void App::onInit()
 	showRenderingStats = false;
 
 	m_gbufferSpecification.encoding[GBuffer::Field::CS_POSITION] = ImageFormat::RGB32F();
+	m_gbufferSpecification.encoding[GBuffer::Field::WS_POSITION] = ImageFormat::RGB32F();
 	m_gbufferSpecification.encoding[GBuffer::Field::WS_NORMAL] = ImageFormat::RGB32F();
 
-	//loadScene("Simple Cornell Box");
-	loadScene("Sponza (Glossy Area Lights)");
+	loadScene("Simple Cornell Box (No Little Boxes)");
+	//loadScene("Sponza (Glossy Area Lights)");
 
 	m_pRadianceCubemap = Texture::createEmpty("RadianceCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
 	m_pDistanceCubemap = Texture::createEmpty("DistanceCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
-	m_pNormalCubemap = Texture::createEmpty("NormalCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
+	m_pNormalCubemap   = Texture::createEmpty("NormalCubemap", 1024, 1024, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
 
 	AABox BoundingBox;
 	Surface::getBoxBounds(m_posed3D, BoundingBox);
 
-	__renderLightFieldProbe(BoundingBox.center(), m_pRadianceCubemap, m_pDistanceCubemap, m_pNormalCubemap);
+	const int LowResolution = 2048;
+	shared_ptr<Texture> LowResRadianceCubemap = Texture::createEmpty("RadianceCubemap", LowResolution, LowResolution, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
+	shared_ptr<Texture> LowResDistanceCubemap = Texture::createEmpty("DistanceCubemap", LowResolution, LowResolution, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
+	shared_ptr<Texture> LowResNormalCubemap = Texture::createEmpty("NormalCubemap", LowResolution, LowResolution, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, true);
 
-	__makeGUI();
+	__renderLightFieldProbe(1024,Point3(0,1,0), m_pRadianceCubemap, m_pDistanceCubemap, m_pNormalCubemap);
+	shared_ptr<Texture> RadianceOctFromLight = generateOctmap(m_pRadianceCubemap, 1024);
 
-	scene()->clear();
-	scene()->lightingEnvironment().environmentMapArray.append(m_pRadianceCubemap);
-	scene()->insert(Skybox::create("Skybox", &*scene(), scene()->lightingEnvironment().environmentMapArray, Array<SimTime>(0), 0.0f, SplineExtrapolationMode::CLAMP, false, false));
+	__renderLightFieldProbe(1024,Point3(0, 1, 0), m_pRadianceCubemap, m_pDistanceCubemap, m_pNormalCubemap);
+	m_pRadianceMapFromProbe = generateOctmap(m_pRadianceCubemap, 1024);
+	
+	__renderLightFieldProbe(LowResolution, Point3(0, 1, 0), LowResRadianceCubemap, LowResDistanceCubemap, LowResNormalCubemap);
+	m_pReconstructRadianceMapFromProbe = reconstructRadianceMap(LowResDistanceCubemap, RadianceOctFromLight);
+
+	m_IsInit = true;
+}
+
+shared_ptr<Texture> App::generateOctmap(shared_ptr<Texture> vCubemapTexture, int vResolution)
+{
+	auto CubemapSampler = Sampler::cubeMap();
+	CubemapSampler.interpolateMode = InterpolateMode::NEAREST_NO_MIPMAP;
+
+	shared_ptr<Framebuffer> TempFramebuffer = Framebuffer::create("Framebuffer");
+	TempFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Octmap", vResolution, vResolution, ImageFormat::RGB32F()));
+
+	renderDevice->push2D(TempFramebuffer); {
+		renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+
+		Args args;
+		args.setRect(Rect2D(Point2(0, 0), Point2(vResolution, vResolution)));
+		args.setUniform("Cubemap", vCubemapTexture, CubemapSampler);
+
+		LAUNCH_SHADER("GenerateOctmap.pix", args);
+	} renderDevice->pop2D();
+
+	return TempFramebuffer->texture(0);
+}
+
+shared_ptr<Texture> App::reconstructRadianceMap(shared_ptr<Texture> vPositionCubemap, shared_ptr<Texture> vRadianceMapFromLight)
+{
+	shared_ptr<Framebuffer> TempFramebuffer = Framebuffer::create("Framebuffer");
+	TempFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("Octmap", 1024, 1024, ImageFormat::RGB32F()));
+
+	auto CubemapSampler = Sampler::cubeMap();
+	CubemapSampler.interpolateMode = InterpolateMode::NEAREST_NO_MIPMAP;
+
+	renderDevice->push2D(TempFramebuffer); {
+		renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+
+		Args args;
+		args.setRect(Rect2D(Point2(0, 0), Point2(1024, 1024)));
+		args.setUniform("PositionCubemap", vPositionCubemap, CubemapSampler);
+		args.setUniform("RadianceMapFromLight", vRadianceMapFromLight, Sampler::buffer());
+
+		LAUNCH_SHADER("ReconstructRadianceMap.pix", args);
+	} renderDevice->pop2D();
+
+	return TempFramebuffer->texture(0);
 }
 
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& allSurfaces)
 {
-	if (!scene())
-	{
-		if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (!rd->swapBuffersAutomatically()))
-		{
-			swapBuffers();
+	if (!m_IsInit) {
+		if (!scene()) {
+			if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (!rd->swapBuffersAutomatically())) {
+				swapBuffers();
+			}
+			rd->clear();
+			rd->pushState(); {
+				rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
+				drawDebugShapes();
+			} rd->popState();
+			return;
 		}
-		rd->clear();
-		rd->pushState(); {
+
+		BEGIN_PROFILER_EVENT("GApp::onGraphics3D");
+		GBuffer::Specification gbufferSpec = m_gbufferSpecification;
+		extendGBufferSpecification(gbufferSpec);
+		m_gbuffer->setSpecification(gbufferSpec);
+
+		const Vector2int32 framebufferSize = m_settings.hdrFramebuffer.hdrFramebufferSizeFromDeviceSize(Vector2int32(m_deviceFramebuffer->vector2Bounds()));
+		m_framebuffer->resize(framebufferSize);
+		m_gbuffer->resize(framebufferSize);
+		m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
+
+		m_renderer->render(rd, activeCamera(), m_framebuffer, scene()->lightingEnvironment().ambientOcclusionSettings.enabled ? m_depthPeelFramebuffer : nullptr,
+			scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
+
+		// Debug visualizations and post-process effects
+		rd->pushState(m_framebuffer); {
+			// Call to make the App show the output of debugDraw(...)
 			rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
 			drawDebugShapes();
+			const shared_ptr<Entity>& selectedEntity = (notNull(developerWindow) && notNull(developerWindow->sceneEditorWindow)) ? developerWindow->sceneEditorWindow->selectedEntity() : nullptr;
+			scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());
+
+			onPostProcessHDR3DEffects(rd);
 		} rd->popState();
+
+		// We're about to render to the actual back buffer, so swap the buffers now.
+		// This call also allows the screenshot and video recording to capture the
+		// previous frame just before it is displayed.
+		if (submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) {
+			swapBuffers();
+		}
+
+		// Clear the entire screen (needed even though we'll render over it, since
+		// AFR uses clear() to detect that the buffer is not re-used.)
+		BEGIN_PROFILER_EVENT("RenderDevice::clear");
+		rd->clear();
+		END_PROFILER_EVENT();
+
+		// Perform gamma correction, bloom, and SSAA, and write to the native window frame buffer
+		m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x,
+			Texture::opaqueBlackIfNull(notNull(m_gbuffer) ? m_gbuffer->texture(GBuffer::Field::SS_POSITION_CHANGE) : nullptr),
+			activeCamera()->jitterMotion());
+		END_PROFILER_EVENT();
 		return;
 	}
 
-	GBuffer::Specification GbufferSpec = m_gbufferSpecification;
-	extendGBufferSpecification(GbufferSpec);
-	m_gbuffer->setSpecification(GbufferSpec);
-	m_gbuffer->resize(m_framebuffer->width(), m_framebuffer->height());
-	m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
-
-	m_renderer->render(rd, activeCamera(), m_framebuffer, scene()->lightingEnvironment().ambientOcclusionSettings.enabled ? m_depthPeelFramebuffer : nullptr, scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
-
-	rd->pushState(m_framebuffer); {
-		rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
-		drawDebugShapes();
-		const shared_ptr<Entity>& selectedEntity = (notNull(developerWindow) && notNull(developerWindow->sceneEditorWindow)) ? developerWindow->sceneEditorWindow->selectedEntity() : nullptr;
-		scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());
-
-		onPostProcessHDR3DEffects(rd);
-	} rd->popState();
-
-	if (submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT)
-	{
-		swapBuffers();
-	}
-
+	rd->swapBuffers();
 	rd->clear();
 
-	m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x,
-		Texture::opaqueBlackIfNull(notNull(m_gbuffer) ? m_gbuffer->texture(GBuffer::Field::SS_POSITION_CHANGE) : nullptr), activeCamera()->jitterMotion());
+	rd->push2D(); {
+		rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+
+		Args args;
+		args.setRect(Rect2D(Point2(0, 0), Point2(1024, 1024)));
+		args.setUniform("IndirectDiffuseTexture", m_pRadianceMapFromProbe, Sampler::buffer());
+		args.setUniform("IndirectGlossyTexture", m_pReconstructRadianceMapFromProbe, Sampler::buffer());
+
+		LAUNCH_SHADER("Merge.pix", args);
+	} rd->pop2D();
+
 }
 
 void App::__makeGUI()
@@ -143,7 +228,7 @@ void App::__makeGUI()
 	debugWindow->pack();
 }
 
-void App::__renderLightFieldProbe(const Point3& vPosition, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap, shared_ptr<Texture> voNormalCubemap)
+void App::__renderLightFieldProbe(int vResolution, const Point3& vPosition, shared_ptr<Texture> voRadianceCubemap, shared_ptr<Texture> voDistanceCubemap, shared_ptr<Texture> voNormalCubemap)
 {
 	Array<shared_ptr<Surface>> Surface;
 	{
@@ -168,6 +253,9 @@ void App::__renderLightFieldProbe(const Point3& vPosition, shared_ptr<Texture> v
 	CubemapCamera->depthOfFieldSettings().setEnabled(false);
 	CubemapCamera->motionBlurSettings().setEnabled(false);
 	CubemapCamera->setFieldOfView(2.0f * ::atan(1.0f + 2.0f*(float(m_settings.hdrFramebuffer.depthGuardBandThickness.x) / float(voRadianceCubemap->width()))), FOVDirection::HORIZONTAL);
+	CubemapCamera->setNearPlaneZ(-0.001);
+	CubemapCamera->setFarPlaneZ(-1000);
+
 
 	setActiveCamera(CubemapCamera);
 
@@ -186,7 +274,7 @@ void App::__renderLightFieldProbe(const Point3& vPosition, shared_ptr<Texture> v
 			Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voRadianceCubemap->vector2Bounds()) / 2.0f),
 			CubeFace::POS_X, CubeFace(Face), nullptr, false);
 
-		Texture::copy(m_gbuffer->texture(GBuffer::Field::CS_POSITION), voDistanceCubemap, 0, 0, 1,
+		Texture::copy(m_gbuffer->texture(GBuffer::Field::WS_POSITION), voDistanceCubemap, 0, 0, 1,
 			Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - voDistanceCubemap->vector2Bounds()) / 2.0f),
 			CubeFace::POS_X, CubeFace(Face), nullptr, false);
 
