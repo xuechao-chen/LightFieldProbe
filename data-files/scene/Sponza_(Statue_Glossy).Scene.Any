@@ -206,8 +206,8 @@
         }; 
         
         skybox = Skybox { 
-            texture = "cubemap/noonclouds/noonclouds_*.png"; 
-			//texture = 0.0;
+            //texture = "cubemap/noonclouds/noonclouds_*.png"; 
+			texture = 0.0;
         }; 
         
         staticAOCamera = Camera { 

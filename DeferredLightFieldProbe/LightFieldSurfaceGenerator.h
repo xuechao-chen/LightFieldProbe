@@ -9,7 +9,6 @@ public:
 	App* m_pApp;
 
 	shared_ptr<Texture> m_pLambertianCubeFromLight;
-	shared_ptr<Texture> m_pWsPositionCubeFromLight;
 	shared_ptr<Texture> m_pWsNormalCubeFromLight;
 
 	shared_ptr<Camera> m_pCamera;

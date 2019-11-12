@@ -10,6 +10,8 @@ SIGGRAPH
 
 Single Input(simplified model) and Multiple Output(position maps from probe->merge into one map)
 
+mesh shading
+
 ## Reconstruct Irradiance/Radiance Map
 
 Based on position maps from probe and gbuffer from light
@@ -39,7 +41,7 @@ gantt
 	   HighRes Irradiance Map Reconstruction :done,   task1, 11-13
 	   LowRes Irradiance Map Reconstruction  :done,   task2, after task1, 1d
 	   Complex Scene Reconstruction          :done,   task3, after task1, 1d
-	   Multiple Light Reconstruction         :        task4, after task3, 1d
+	   Multiple Light Reconstruction         :active  task4, after task3, 1d
        Code Refactor(Different Light/Scene)  :        task5, after task3, 1d
        
        section Performance Optimization
