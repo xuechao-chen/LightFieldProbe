@@ -153,6 +153,11 @@
     <ClCompile Include="ProbeGIRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\data-files\scene\Simple_Cornell_Box.Scene.Any" />
+    <None Include="..\data-files\scene\Simple_Cornell_Box_(Mirror).Scene.Any" />
+    <None Include="..\data-files\scene\Simple_Cornell_Box_(No_Little_Boxes).Scene.Any" />
+    <None Include="..\data-files\scene\Sponza_(Glossy_Area_Lights).Scene.Any" />
+    <None Include="..\data-files\scene\Sponza_(Statue_Glossy).Scene.Any" />
     <None Include="..\data-files\shader\Common\Common.glsl" />
     <None Include="..\data-files\shader\Common\LightFieldProbe.glsl" />
     <None Include="..\data-files\shader\Common\Octahedral.glsl" />

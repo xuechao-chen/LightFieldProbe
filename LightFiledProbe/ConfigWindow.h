@@ -11,7 +11,7 @@ class CConfigWindow : public GuiWindow
 	SProbeStatus m_ProbeStatus;
 
 public:
-	const SProbeStatus& getProbeStatus() const { return m_ProbeStatus; }
+	SProbeStatus& fetchProbeStatus() { return m_ProbeStatus; }
 	void  setProbeStatus(const SProbeStatus& vStatus) { m_ProbeStatus = vStatus; }
 
 	static shared_ptr<CConfigWindow> create(App* vApp) { return createShared<CConfigWindow>(vApp); }

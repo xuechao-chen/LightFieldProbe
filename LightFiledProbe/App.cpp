@@ -51,7 +51,7 @@ void App::__makeGUI()
 
 void App::__refreshProbes(float vProbeRadius)
 {
-	SProbeStatus ProbeStatus = m_pConfigWindow->getProbeStatus();
+	SProbeStatus& ProbeStatus = m_pConfigWindow->fetchProbeStatus();
 	ProbeStatus.updateStatus();
 
 	auto ProbeCounts = ProbeStatus.ProbeCounts;
@@ -125,20 +125,18 @@ void App::onAfterLoadScene(const Any& any, const String& sceneName)
 		onPose(Surface, IgnoreSurface);
 	}
 
-	SProbeStatus ProbeStatus = m_pConfigWindow->getProbeStatus();
+	SProbeStatus& ProbeStatus = m_pConfigWindow->fetchProbeStatus();
 	AABox BoundingBox;
 	Surface::getBoxBounds(Surface, BoundingBox);
 
 	ProbeStatus.BoundingBoxHigh = BoundingBox.high();
 	ProbeStatus.BoundingBoxLow = BoundingBox.low();
 	ProbeStatus.updateStatus();
-
-	m_pConfigWindow->setProbeStatus(ProbeStatus);
 }
 
 void App::precompute()
 {
-	const SProbeStatus& ProbeStatus = m_pConfigWindow->getProbeStatus();
+	const SProbeStatus& ProbeStatus = m_pConfigWindow->fetchProbeStatus();
 
 	m_pLightFieldSurfaceMetaData->ProbeCounts   = ProbeStatus.ProbeCounts;
 	m_pLightFieldSurfaceMetaData->ProbeSteps    = ProbeStatus.ProbeSteps;

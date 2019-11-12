@@ -29,9 +29,12 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 	m_pWsPositionCubeFromLight = Texture::createEmpty("WsPositionCubeFromLight", vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, false);
 	m_pWsNormalCubeFromLight = Texture::createEmpty("WsNormalCubeFromLight", vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, false);
 	
+	//auto LightPosition = Vector3(-19.975, 3, -0.5);
+	auto LightPosition = Vector3(0, 1.92, 0);
+
 	for (int Face = 0; Face < 6; ++Face)
 	{
-		__renderCubeFace(Surface, Vector3(0, 1.92, 0), CubeFace(Face),Vector2int32(vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution));
+		__renderCubeFace(Surface, LightPosition, CubeFace(Face),Vector2int32(vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution));
 
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::LAMBERTIAN), m_pLambertianCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_POSITION), m_pWsPositionCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
@@ -59,7 +62,7 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 			args.setUniform("WsNormalFromLight",   m_pWsNormalCubeFromLight,   CubemapSampler);
 
 			args.setUniform("WsProbePosition", vMetaData->ProbeIndexToPosition(i));
-			args.setUniform("WsLightPosition", Vector3(0, 1.92, 0));
+			args.setUniform("WsLightPosition", LightPosition);
 
 			args.setUniform("OctmapResolution", vMetaData->OctResolution);
 			args.setUniform("SphereSampler", pSphereSamplerTexture, Sampler::buffer());

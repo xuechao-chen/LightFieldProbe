@@ -12,6 +12,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{9efb493c-4654-4911-a640-589a73147a24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene Files">
+      <UniqueIdentifier>{1f8528e6-86d3-4b80-ab85-1ce10e18353e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -65,6 +68,21 @@
     </None>
     <None Include="..\data-files\shader\Common\Playground.pix">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\data-files\scene\Simple_Cornell_Box.Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\data-files\scene\Simple_Cornell_Box_(Mirror).Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\data-files\scene\Simple_Cornell_Box_(No_Little_Boxes).Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\data-files\scene\Sponza_(Glossy_Area_Lights).Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\data-files\scene\Sponza_(Statue_Glossy).Scene.Any">
+      <Filter>Scene Files</Filter>
     </None>
   </ItemGroup>
 </Project>
