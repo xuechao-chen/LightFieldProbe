@@ -91,7 +91,7 @@
                 filterRadius = 11; 
             }; 
             
-            visible = true; 
+            visible = false; 
         }; 
         
         emitterFront = Light { 
@@ -117,7 +117,7 @@
                 filterRadius = 11; 
             }; 
             
-            visible = true; 
+            visible = false; 
         }; 
         
         flyingCamera = Camera { 
@@ -267,13 +267,14 @@
         }; 
         
         skybox = Skybox { 
-            texture = Texture::Specification { 
+            /*texture = Texture::Specification { 
                 encoding = Texture::Encoding { 
                     readMultiplyFirst = 7; 
                 }; 
                 
                 filename = "cubemap/noonclouds/noonclouds_*.png"; 
-            }; 
+            }; */
+			texture = 0.0;
             
         }; 
         

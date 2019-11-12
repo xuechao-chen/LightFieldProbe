@@ -38,7 +38,7 @@ gantt
 	   section Idea Implementation
 	   HighRes Irradiance Map Reconstruction :done,   task1, 11-13
 	   LowRes Irradiance Map Reconstruction  :done,   task2, after task1, 1d
-	   Complex Scene Reconstruction          :active, task3, after task1, 1d
+	   Complex Scene Reconstruction          :done,   task3, after task1, 1d
 	   Multiple Light Reconstruction         :        task4, after task3, 1d
        Code Refactor(Different Light/Scene)  :        task5, after task3, 1d
        
