@@ -31,7 +31,7 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 	
 	for (int Face = 0; Face < 6; ++Face)
 	{
-		__renderCubeFace(Surface, Vector3(0, 1.92, 0), CubeFace(Face));
+		__renderCubeFace(Surface, Vector3(0, 1.92, 0), CubeFace(Face),Vector2int32(vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution));
 
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::LAMBERTIAN), m_pLambertianCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_POSITION), m_pWsPositionCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
@@ -40,7 +40,7 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 
 	for (int i = 0; i < vMetaData->ProbeNum(); ++i)
 	{
-		__renderLightFieldProbe2Cubemap(Surface, vMetaData->ProbeIndexToPosition(i), LightFieldCubemap);
+		__renderLightFieldProbe2Cubemap(Surface, vMetaData->ProbeIndexToPosition(i), LightFieldCubemap, Vector2int32(vMetaData->ProbeCubemapResolution, vMetaData->ProbeCubemapResolution));
 
 		pLightFieldFramebuffer->set(Framebuffer::COLOR0, LightFieldSurface->IrradianceProbeGrid, CubeFace::POS_X, 0, i);
 		pLightFieldFramebuffer->set(Framebuffer::COLOR1, LightFieldSurface->MeanDistProbeGrid, CubeFace::POS_X, 0, i);
@@ -132,9 +132,11 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::__initLightFieldSurf
 	return pLightFieldSurface;
 }
 
-void CLightFieldSurfaceGenerator::__renderCubeFace(Array<shared_ptr<Surface>>& vSurfaces, Vector3 vRenderPosition, CubeFace vFace)
+void CLightFieldSurfaceGenerator::__renderCubeFace(Array<shared_ptr<Surface>>& vSurfaces, Vector3 vRenderPosition, CubeFace vFace, Vector2int32 vCubemapResolution)
 {
 	auto RenderDevice = m_pApp->renderDevice;
+	m_pFramebuffer->resize(vCubemapResolution);
+	m_pGBuffer->resize(vCubemapResolution);
 
 	CFrame Frame = CFrame::fromXYZYPRDegrees(vRenderPosition.x, vRenderPosition.y, vRenderPosition.z);
 	Texture::getCubeMapRotation(vFace, Frame.rotation);
@@ -157,11 +159,11 @@ void CLightFieldSurfaceGenerator::__renderCubeFace(Array<shared_ptr<Surface>>& v
 		m_pCamera->jitterMotion());
 }
 
-void CLightFieldSurfaceGenerator::__renderLightFieldProbe2Cubemap(Array<shared_ptr<Surface>> allSurfaces, Vector3 vRenderPosition, SLightFieldCubemap& voLightFieldCubemap)
+void CLightFieldSurfaceGenerator::__renderLightFieldProbe2Cubemap(Array<shared_ptr<Surface>> allSurfaces, Vector3 vRenderPosition, SLightFieldCubemap& voLightFieldCubemap, Vector2int32 vCubemapResolution)
 {
 	for (int Face = 0; Face < 6; ++Face)
 	{
-		__renderCubeFace(allSurfaces, vRenderPosition, CubeFace(Face));
+		__renderCubeFace(allSurfaces, vRenderPosition, CubeFace(Face), vCubemapResolution);
 
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_POSITION), voLightFieldCubemap.PositionCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 	}

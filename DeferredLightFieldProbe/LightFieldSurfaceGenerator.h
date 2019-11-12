@@ -34,6 +34,6 @@ private:
 	shared_ptr<Texture>		__createSphereSampler(Vector2int32 vSize = Vector2int32(64, 64));
 
 	shared_ptr<SLightFieldSurface> __initLightFieldSurface(shared_ptr<SLightFieldSurfaceMetaData> vMetaData);
-	void __renderCubeFace(Array<shared_ptr<Surface>>& allSurfaces, Vector3 vRenderPosition, CubeFace vFace);
-	void __renderLightFieldProbe2Cubemap(Array<shared_ptr<Surface>> allSurfaces, Vector3 vRenderPosition, SLightFieldCubemap& voLightFieldCubemap);
+	void __renderCubeFace(Array<shared_ptr<Surface>>& allSurfaces, Vector3 vRenderPosition, CubeFace vFace, Vector2int32 vCubemapResolution);
+	void __renderLightFieldProbe2Cubemap(Array<shared_ptr<Surface>> allSurfaces, Vector3 vRenderPosition, SLightFieldCubemap& voLightFieldCubemap, Vector2int32 vCubemapResolution);
 };
