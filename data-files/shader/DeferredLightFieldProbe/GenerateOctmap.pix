@@ -1,4 +1,5 @@
 #include "../Common/Octahedral.glsl"
+#include <LightingEnvironment/LightingEnvironment_LightUniforms.glsl>
 
 uniform samplerCube WsPositionFromProbe;
 
@@ -8,7 +9,6 @@ uniform samplerCube WsNormalFromLight;
 
 uniform vec3 WsProbePosition;
 uniform vec3 WsLightPosition;
-uniform vec3 LightColor;
 
 uniform int OctmapResolution;
 uniform sampler2D SphereSampler;
@@ -18,13 +18,17 @@ out vec2  octMeanDistance;
 
 ivec2 SphereSamplerSize = textureSize(SphereSampler, 0);
 
-Color3 ComputeLighting(Vector3 lambertianReflectivity, Vector3 n, Vector3 w_i, Vector3 w_o, float a) {
+Color3 ComputeLighting(Vector3 lambertianReflectivity, Vector3 n, Vector3 w_o, Vector3 pos) {
 
-	float inPositiveHemisphere = step(0.0, dot(w_i, n)) * step(0.0, dot(w_o, n));
+	UniversalMaterialSample surfel;
+	surfel.shadingNormal = n;
+	surfel.position = pos;
+	surfel.glossyShadingNormal = n;
+	surfel.fresnelReflectionAtNormalIncidence = vec3(0.0,0.0,0.0);
+	surfel.lambertianReflectivity = lambertianReflectivity;
+	surfel.smoothness = 0.01;
 
-	Color3 f_L = lambertianReflectivity * invPi * inPositiveHemisphere;
-
-	return a * LightColor * f_L;
+	return computeDirectLighting(surfel, w_o, 1.0);
 }
 
 void main()
@@ -55,10 +59,8 @@ void main()
 
 				vec3 Lambertian = texture(LambertianFromLight, LightSampleDirection).xyz;
 
-				float atten = 1 / (2 * pow(length(WsPosFromLight - WsLightPosition), 2.0) + 20);
-
 				//Radiance
-				vec3 Radiance = ComputeLighting(Lambertian, NormalFromLight, -LightSampleDirection, -ProbeSampleDirection, atten);
+				vec3 Radiance = ComputeLighting(Lambertian, NormalFromLight, -ProbeSampleDirection, WsPosFromLight);
 				SumRadiance += Radiance * CosineWeight;
 
 				//Distance

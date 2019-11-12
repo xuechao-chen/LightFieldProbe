@@ -21,6 +21,7 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 		m_pApp->onPose(Surface, IgnoreSurface);
 	}
 
+
 	shared_ptr<Texture> pSphereSamplerTexture = __createSphereSampler(vMetaData->SphereSamplerSize);
 	SLightFieldCubemap LightFieldCubemap(vMetaData->ProbeCubemapResolution);
 	shared_ptr<Framebuffer> pLightFieldFramebuffer = Framebuffer::create("LightFieldFramebuffer");
@@ -60,10 +61,11 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 
 			args.setUniform("WsProbePosition", vMetaData->ProbeIndexToPosition(i));
 			args.setUniform("WsLightPosition", Vector3(0, 1.92, 0));
-			args.setUniform("LightColor", Vector3(35, 35, 35));
 
 			args.setUniform("OctmapResolution", vMetaData->OctResolution);
 			args.setUniform("SphereSampler", pSphereSamplerTexture, Sampler::buffer());
+
+			m_pApp->scene()->lightingEnvironment().setShaderArgs(args);
 
 			LAUNCH_SHADER("DeferredLightFieldProbe/GenerateOctmap.pix", args);
 		} m_pApp->renderDevice->pop2D();
