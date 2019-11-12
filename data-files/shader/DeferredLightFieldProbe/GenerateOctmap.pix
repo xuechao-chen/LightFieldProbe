@@ -52,23 +52,21 @@ void main()
 			vec3 NormalFromLight = texture(WsNormalFromLight, LightSampleDirection).xyz;
 			vec3 ProbeSampleDirection = normalize(WsPosFromProbe - WsProbePosition);
 			
+			float CosineWeight = max(dot(Direction, SphereSampleDirection), 0.0);
+			float PowerCosineWeight = pow(CosineWeight, 2.0);
+
 			if ((length(WsPosFromProbe - WsLightPosition) - length(WsPosFromLight - WsLightPosition)) < 0.01 && (dot(NormalFromLight, -ProbeSampleDirection) > 0))
 			{
-				float CosineWeight = max(dot(Direction, SphereSampleDirection), 0.0);
-				float PowerCosineWeight = pow(CosineWeight, 2.0);
-
-				vec3 Lambertian = texture(LambertianFromLight, LightSampleDirection).xyz;
-
 				//Radiance
+				vec3 Lambertian = texture(LambertianFromLight, LightSampleDirection).xyz;
 				vec3 Radiance = ComputeLighting(Lambertian, NormalFromLight, -ProbeSampleDirection, WsPosFromLight);
 				SumRadiance += Radiance * CosineWeight;
-
-				//Distance
-				float Distance = length(WsProbePosition - WsPosFromProbe);
-				float SquareDistance = pow(Distance, 2.0);
-				SumDistance += Distance * PowerCosineWeight;
-				SumSquareDistance += SquareDistance * PowerCosineWeight * PowerCosineWeight;
 			}
+			//Distance
+			float Distance = length(WsProbePosition - WsPosFromProbe);
+			float SquareDistance = pow(Distance, 2.0);
+			SumDistance += Distance * PowerCosineWeight;
+			SumSquareDistance += SquareDistance * PowerCosineWeight * PowerCosineWeight;
 		}
 	}
 

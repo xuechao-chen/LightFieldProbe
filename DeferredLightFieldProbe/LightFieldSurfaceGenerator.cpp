@@ -21,7 +21,6 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 		m_pApp->onPose(Surface, IgnoreSurface);
 	}
 
-
 	shared_ptr<Texture> pSphereSamplerTexture = __createSphereSampler(vMetaData->SphereSamplerSize);
 	SLightFieldCubemap LightFieldCubemap(vMetaData->ProbeCubemapResolution);
 	shared_ptr<Framebuffer> pLightFieldFramebuffer = Framebuffer::create("LightFieldFramebuffer");
