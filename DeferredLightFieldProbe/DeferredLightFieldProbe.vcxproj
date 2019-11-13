@@ -153,6 +153,8 @@
     <ClCompile Include="ProbeGIRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\data-files\scene\Dragon.Scene.Any" />
+    <None Include="..\data-files\scene\Dragon_Low.Scene.Any" />
     <None Include="..\data-files\scene\Simple_Cornell_Box.Scene.Any" />
     <None Include="..\data-files\scene\Simple_Cornell_Box_(Mirror).Scene.Any" />
     <None Include="..\data-files\scene\Simple_Cornell_Box_(No_Little_Boxes).Scene.Any" />

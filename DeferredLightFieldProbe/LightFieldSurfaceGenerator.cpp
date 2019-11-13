@@ -43,6 +43,12 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_NORMAL), m_pWsNormalCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 	}
 
+	m_pApp->useLowResScene();
+	Surface.clear();
+	{
+		Array<shared_ptr<Surface2D>> IgnoreSurface;
+		m_pApp->onPose(Surface, IgnoreSurface);
+	}
 	for (int i = 0; i < vMetaData->ProbeNum(); ++i)
 	{
 		__renderLightFieldProbe2Cubemap(Surface, vMetaData->ProbeIndexToPosition(i), LightFieldCubemap, Vector2int32(vMetaData->ProbeCubemapResolution, vMetaData->ProbeCubemapResolution));
@@ -73,7 +79,7 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 			LAUNCH_SHADER("DeferredLightFieldProbe/GenerateOctmap.pix", args);
 		} m_pApp->renderDevice->pop2D();
 	}
-
+	m_pApp->useHighResScene();
 	return LightFieldSurface;
 }
 
