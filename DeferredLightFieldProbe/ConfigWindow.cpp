@@ -32,6 +32,10 @@ void CConfigWindow::__makeGUI()
 			__makeCameraPane(pCameraPane);
 		} pCameraPane->pack();
 
+		GuiPane* pModelPane = pConfigTabPane->addTab("Model"); {
+			__makeModelPane(pModelPane);
+		} pModelPane->pack();
+		
 	} pConfigTabPane->pack();
 }
 
@@ -109,7 +113,7 @@ void CConfigWindow::__makeProbePane(GuiPane* vProbePane)
 
 void CConfigWindow::__makeCameraPane(GuiPane* vCameraPane)
 {
-	GuiFrameBox* pCameraFrame = vCameraPane->addFrameBox(Pointer<CFrame>(this, &CConfigWindow::fetchCameraFrame, &CConfigWindow::setCameraFrame));
+	GuiFrameBox* pCameraFrame = vCameraPane->addFrameBox(Pointer<CFrame>(this, &CConfigWindow::__fetchCameraFrame, &CConfigWindow::__setCameraFrame));
 	pCameraFrame->setWidth(250.0f);
 	vCameraPane->beginRow(); {
 		vCameraPane->addButton("Load from default", [this]() { __operateCameraFile(false, true); });
@@ -117,6 +121,23 @@ void CConfigWindow::__makeCameraPane(GuiPane* vCameraPane)
 		vCameraPane->addButton("Load from ...", [this]() { __operateCameraFile(false, false); });
 		vCameraPane->addButton("Store to ...", [this]() { __operateCameraFile(true, false); });
 	} vCameraPane->endRow();
+}
+
+void CConfigWindow::__makeModelPane(GuiPane* vModelPane)
+{
+	vModelPane->addLabel("Lod Level");
+	vModelPane->beginRow(); {
+		vModelPane->addButton("1", [this]() { m_LodLevel = 1; });
+		vModelPane->addButton("10", [this]() { m_LodLevel = 10; });
+		vModelPane->addButton("100", [this]() { m_LodLevel = 100; });
+		vModelPane->addButton("1000", [this]() { m_LodLevel = 1000; });
+		vModelPane->addButton("10000", [this]() { m_LodLevel = 10000; });
+	} vModelPane->endRow();
+	vModelPane->addLabel("Preview simplified model");
+	vModelPane->beginRow(); {
+		vModelPane->addButton("Preview", [this]() { m_pApp->useSimplifiedScene(m_LodLevel); });
+		vModelPane->addButton("Restore", [this]() { m_pApp->useSimplifiedScene(1); });
+	} vModelPane->endRow();
 }
 
 void CConfigWindow::__operateProbeFile(bool vIsOutput, bool vIsDefaultMode)

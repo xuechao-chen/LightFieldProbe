@@ -3,10 +3,11 @@
 #include "ConfigWindow.h"
 #include "HammersleySampler.h"
 #include "LightFieldSurfaceGenerator.h"
+#include <string>
 
 void App::onInit()
 {
-	std::vector<String> AllScenes = {
+	std::vector<std::string> AllScenes = {
 		/* 0 */ "Simple Cornell Box",
 		/* 1 */ "Simple Cornell Box (No Little Boxes)",
 		/* 2 */ "Sponza (Glossy Area Lights)",
@@ -15,6 +16,9 @@ void App::onInit()
 		/* 5 */ "Dragon Low"
 	};
 
+	m_LodModelName = { "dragon" };
+	m_LastLodLevel = 1;
+	
 	GApp::onInit();
 	setFrameDuration(1.0f / 60.f);
 	
@@ -26,9 +30,8 @@ void App::onInit()
 
 	m_pHighResScene = Scene::create(m_ambientOcclusion);
 	m_pLowResScene = Scene::create(m_ambientOcclusion);
-	loadScene(AllScenes[4], AllScenes[5]);
-	useHighResScene();
-	//loadScene(AllScenes[5].c_str());
+	loadScene(AllScenes[4].c_str());
+	useSimplifiedScene(1);
 	
 	m_pLightFieldSurfaceMetaData = __initLightFieldSurfaceMetaData();
 	m_pLightFieldSurfaceGenerator = CLightFieldSurfaceGenerator::create(this);
@@ -119,10 +122,29 @@ bool App::onEvent(const GEvent& event)
 	return GApp::onEvent((event));
 }
 
-void App::__updateScene(const shared_ptr<Scene>& vScene)
+void App::useSimplifiedScene(int vSimplifiedLevel)
 {
-	setScene(vScene);
+	if (vSimplifiedLevel == 1) { /* TODO: disable all effects */ }
+	else { /* TODO: enable all effetcs */ }
+	
+	for (const auto& EntityName : m_LodModelName)
+	{
+		std::string CurrentName = EntityName + std::to_string(m_LastLodLevel);
+		auto p = scene()->entity(CurrentName.c_str());
+		shared_ptr<VisibleEntity> pCurrentVisibleEntity = dynamic_pointer_cast<VisibleEntity>(p);
+		pCurrentVisibleEntity->setVisible(false);
+		std::string TargetName = EntityName + std::to_string(vSimplifiedLevel);
+		shared_ptr<VisibleEntity> pTargetVisiableEntity = dynamic_pointer_cast<VisibleEntity>(scene()->entity(TargetName.c_str()));
+		pTargetVisiableEntity->setVisible(true);
+	}
+	
+	m_LastLodLevel = vSimplifiedLevel;
 
+	__updateScene();
+}
+
+void App::__updateScene()
+{
 	// Trigger one frame of rendering, to force shaders to load and compile
 	m_posed3D.fastClear();
 	m_posed2D.fastClear();
@@ -135,53 +157,6 @@ void App::__updateScene(const shared_ptr<Scene>& vScene)
 	// Reset our idea of "now" so that simulation doesn't see a huge lag
 	// due to the scene load time.
 	m_lastTime = m_now = System::time() - 0.0001f;
-}
-
-void App::loadScene(const String& vHighResSceneName, const String& vLowResSceneName)
-{
-	drawMessage("Loading Scene " + vHighResSceneName + " and " + vLowResSceneName);
-
-	m_pHighResScene->clear();
-	m_pLowResScene->clear();
-	
-	const String oldSceneName = m_pHighResScene->name();
-
-	// Load the scene
-	try {
-		m_activeCameraMarker->setTrack(nullptr);
-		const Any& HighResAny = m_pHighResScene->load(vHighResSceneName);
-		const Any& LowResAny = m_pLowResScene->load(vLowResSceneName);
-
-		// If the debug camera was active and the scene is the same as before, retain the old camera.  Otherwise,
-		// switch to the default camera specified by the scene.
-
-		if ((oldSceneName != vHighResSceneName) || (activeCamera()->name() != "(Debug Camera)")) {
-
-			// Because the CameraControlWindow is hard-coded to the
-			// m_debugCamera, we have to copy the camera's values here
-			// instead of assigning a pointer to it.
-			m_debugCamera->copyParametersFrom(m_pHighResScene->defaultCamera());
-			m_debugCamera->setTrack(nullptr);
-			m_debugController->setFrame(m_debugCamera->frame());
-
-			setActiveCamera(m_pHighResScene->defaultCamera());
-		}
-		// Re-insert the active camera marker
-		m_pHighResScene->insert(m_activeCameraMarker);
-		__updateScene(m_pHighResScene);
-		onAfterLoadScene(HighResAny, vHighResSceneName);
-	}
-	catch (const ParseError& e) {
-		const String& msg = e.filename + format(":%d(%d): ", e.line, e.character) + e.message;
-		debugPrintf("%s", msg.c_str());
-		logPrintf("%s", msg.c_str());
-		drawMessage(msg);
-		System::sleep(5);
-		m_pHighResScene->clear();
-		m_pLowResScene->clear();
-		m_pHighResScene->lightingEnvironment().ambientOcclusion = m_ambientOcclusion;
-		m_pLowResScene->lightingEnvironment().ambientOcclusion = m_ambientOcclusion;
-	}
 }
 
 void App::onAfterLoadScene(const Any& any, const String& sceneName)

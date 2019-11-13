@@ -1,6 +1,7 @@
 #include "LightFieldSurfaceGenerator.h"
 #include "App.h"
 #include "HammersleySampler.h"
+#include "ConfigWindow.h"
 
 CLightFieldSurfaceGenerator::CLightFieldSurfaceGenerator(App* vApp) : m_pApp(vApp)
 {
@@ -42,6 +43,7 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 	}
 	LightPosition /= EnabledLightNum;
 
+	m_pApp->useSimplifiedScene(1);
 	for (int Face = 0; Face < 6; ++Face)
 	{
 		__renderCubeFace(Surface, LightPosition, CubeFace(Face),Vector2int32(vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution));
@@ -50,7 +52,7 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_NORMAL), m_pWsNormalCubeFromLight, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 	}
 
-	m_pApp->useLowResScene();
+	m_pApp->useSimplifiedScene(m_pApp->m_pConfigWindow->getLodLevel());
 	Surface.clear();
 	{
 		Array<shared_ptr<Surface2D>> IgnoreSurface;
@@ -86,7 +88,7 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 			LAUNCH_SHADER("DeferredLightFieldProbe/GenerateOctmap.pix", args);
 		} m_pApp->renderDevice->pop2D();
 	}
-	m_pApp->useHighResScene();
+	m_pApp->useSimplifiedScene(1);
 	return LightFieldSurface;
 }
 

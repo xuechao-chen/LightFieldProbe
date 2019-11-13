@@ -154,7 +154,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data-files\scene\Dragon.Scene.Any" />
-    <None Include="..\data-files\scene\Dragon_Low.Scene.Any" />
     <None Include="..\data-files\scene\Simple_Cornell_Box.Scene.Any" />
     <None Include="..\data-files\scene\Simple_Cornell_Box_(Mirror).Scene.Any" />
     <None Include="..\data-files\scene\Simple_Cornell_Box_(No_Little_Boxes).Scene.Any" />
@@ -164,7 +163,6 @@
     <None Include="..\data-files\shader\Common\LightFieldProbe.glsl" />
     <None Include="..\data-files\shader\Common\Octahedral.glsl" />
     <None Include="..\data-files\shader\Common\Playground.pix" />
-    <None Include="..\data-files\shader\DeferredLightFieldProbe\ComputeDirectLighting.glsl" />
     <None Include="..\data-files\shader\DeferredLightFieldProbe\GenerateOctmap.pix" />
     <None Include="..\data-files\shader\DeferredLightFieldProbe\Lighting.pix" />
   </ItemGroup>

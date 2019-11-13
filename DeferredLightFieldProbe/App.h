@@ -17,6 +17,8 @@ class App : public GApp
 
 	shared_ptr<Scene> m_pHighResScene;
 	shared_ptr<Scene> m_pLowResScene;
+	std::vector<std::string> m_LodModelName;
+	int m_LastLodLevel;
 	
 	shared_ptr<SLightFieldSurface> m_pLightFieldSurface;
 	shared_ptr<SLightFieldSurfaceMetaData> m_pLightFieldSurfaceMetaData;
@@ -27,14 +29,11 @@ public:
 	~App() { m_pConfigWindow.reset(); }
 
 	void precompute();
-	void useLowResScene() { __updateScene(m_pLowResScene); }
-	void useHighResScene() { __updateScene(m_pHighResScene); }
+	void useSimplifiedScene(int vSimplifiedLevel);
 	
 protected:
 	virtual void onInit() override;
 	virtual bool onEvent(const GEvent& event) override;
-	virtual void loadScene(const String& sceneName) override { loadScene(sceneName, sceneName + " Low"); }
-	void loadScene(const String& vHighResSceneName, const String& vLowResSceneName);
 	virtual void onAfterLoadScene(const Any& any, const String& sceneName) override;
 	virtual void onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& allSurfaces) override;
 
@@ -42,7 +41,7 @@ private:
 	void __makeGUI();
 	void __refreshProbes(float vProbeRadius = -1.0f);
 	void __enableEmissiveLight(bool vEnable);
-	void __updateScene(const shared_ptr<Scene>& vScene);
+	void __updateScene();
 
 	shared_ptr<SLightFieldSurfaceMetaData> __initLightFieldSurfaceMetaData();
 };

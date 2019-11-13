@@ -13,9 +13,34 @@
 			castsShadows = false;
 		};
 
-		dragon = VisibleEntity{
+		dragon1 = VisibleEntity{
+			visible = false;
 			canChange = false;
-			model = "dragonModel";
+			model = "dragonModel1";
+			frame = CFrame::fromXYZYPRDegrees(0, 0.5, 0, 180, 0, 0);
+		};
+		dragon10 = VisibleEntity{
+			visible = false;
+			canChange = false;
+			model = "dragonModel10";
+			frame = CFrame::fromXYZYPRDegrees(0, 0.5, 0, 180, 0, 0);
+		};
+		dragon100 = VisibleEntity{
+			visible = false;
+			canChange = false;
+			model = "dragonModel100";
+			frame = CFrame::fromXYZYPRDegrees(0, 0.5, 0, 180, 0, 0);
+		};
+		dragon1000 = VisibleEntity{
+			visible = false;
+			canChange = false;
+			model = "dragonModel1000";
+			frame = CFrame::fromXYZYPRDegrees(0, 0.5, 0, 180, 0, 0);
+		};
+		dragon10000 = VisibleEntity{
+			visible = false;
+			canChange = false;
+			model = "dragonModel10000";
 			frame = CFrame::fromXYZYPRDegrees(0, 0.5, 0, 180, 0, 0);
 		};
 
@@ -196,7 +221,11 @@
 	models = {
 		boxModel = "data/model/CornellBox/CornellBox/CornellBox-Original.obj";
 		lightModel = "data/model/CornellBox/CornellBox/AreaLight.obj";
-		dragonModel = "data/model/dragon/dragon.obj";
+		dragonModel1 = "data/model/dragon/dragon.obj";
+		dragonModel10 = "data/model/dragon/dragon-10.obj";
+		dragonModel100 = "data/model/dragon/dragon-100.obj";
+		dragonModel1000 = "data/model/dragon/dragon-1000.obj";
+		dragonModel10000 = "data/model/dragon/dragon-10000.obj";
 	};
 
 	name = "Dragon";
