@@ -1,5 +1,6 @@
 #include "../Common/Octahedral.glsl"
 #include <LightingEnvironment/LightingEnvironment_LightUniforms.glsl>
+#include <Texture/Texture.glsl>
 
 uniform samplerCube WsPositionFromProbe;
 
@@ -17,68 +18,6 @@ out vec2  octMeanDistance;
 
 ivec2 SphereSamplerSize = textureSize(SphereSampler, 0);
 
-Color3 ComputeLighting(Vector3 lambertianReflectivity, Vector3 n, Vector3 w_o, Vector3 pos) {
-
-	UniversalMaterialSample surfel;
-	surfel.shadingNormal = n;
-	surfel.position = pos;
-	surfel.glossyShadingNormal = n;
-	surfel.fresnelReflectionAtNormalIncidence = vec3(0.0,0.0,0.0);
-	surfel.lambertianReflectivity = lambertianReflectivity;
-	surfel.smoothness = 0.01;
-
-	return computeDirectLighting(surfel, w_o, 1.0);
-}
-
-//Color3 addLightContribution(int I, UniversalMaterialSample surfel, Vector3 w_o, float backside)
-//{
-//	Color3 Contribution = Color3(0, 0, 0);
-//	Vector3 w_i;
-//	// Radial falloff and spotlight term. Separate glossy and lambertian values are computed
-//	float attenuation = computeAttenuation(surfel.shadingNormal, light$(I)_position,
-//		light$(I)_attenuation, light$(I)_softnessConstant, surfel.position, light$(I)_direction, light$(I)_up,
-//		light$(I)_right, light$(I)_rectangular, light$(I)_radius, w_i);
-//
-//	if (attenuation > attenuationThreshold) 
-//	{
-//#           ifdef light$(I)_shadowMap_notNull
-//		{
-//			vec3 adjustedWSPos = surfel.position + w_o * (1.5 * light$(I)_shadowMap_bias) + surfel.shadingNormal * (backside * 0.5 * light$(I)_shadowMap_bias);
-//			vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
-//
-//			// Williams Shadow Map case
-//
-//			// "Normal offset shadow mapping" http://www.dissidentlogic.com/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png
-//			// Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
-//			// glancing angles are OK.
-//			float visibility = shadowMapVisibility(light$(I)_direction, light$(I)_position, light$(I)_attenuation, shadowCoord, light$(I)_shadowMap_buffer, light$(I)_shadowMap_invSize.xy, false);
-//
-//			// This line appears to miscompile on Radeon, causing everything to always be in shadow
-//			//            if (visibility * attenuation <= attenuationThreshold) continue;
-//
-//#               ifdef light$(I)_shadowMap_variance_notNull
-//			{
-//				vec4 cFrameZRow = vec4(light$(I)_direction.xyz, -light$(I)_position.z);
-//				float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
-//				lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
-//
-//				// Variance Shadow Map case
-//				visibility = min(visibility, varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_lightBleedReduction));
-//			}
-//#               endif
-//			attenuation *= visibility;
-//		}
-//#           endif
-//
-//		if (attenuation > attenuationThreshold) 
-//		{
-//			// The "attenuation" includes geometric attenuation for angle, i.e., "the cosine" factor
-//			Contribution = attenuation * light$(I)_color * evaluateUniversalMaterialBSDF(surfel, w_i, w_o);
-//		} // if attenuation > threshold
-//	} // if attenuation > threshold
-//
-//	return Contribution;
-//}
 
 //*******************************************************************************************************//
 //NOTE: 这里的思路是从光源处出发渲染场景的Normal和Lambertian信息，这些信息对于间接光照的Radiance采样而言是完备的//
@@ -110,26 +49,55 @@ void main()
 			float PowerCosineWeight = pow(CosineWeight, 2.0);
 
 			//Add contribution of each light
-			//for (int i = 0; i < NUM_LIGHT; i++)
-			//{
-			//	UniversalMaterialSample surfel;
-			//	surfel.shadingNormal = n;
-			//	surfel.position = pos;
-			//	surfel.glossyShadingNormal = n;
-			//	surfel.fresnelReflectionAtNormalIncidence = vec3(0.0, 0.0, 0.0);
-			//	surfel.lambertianReflectivity = lambertianReflectivity;
-			//	surfel.smoothness = 0.01;
+#			for (int I = 0; I < NUM_LIGHTS; ++I)
+			{
+				vec3 LightSampleDirection = normalize(WsPosFromProbe - light$(I)_position.xyz);
 
-			//	vec3 Radiance = addLightContribution(i, surfel, -ProbeSampleDirection, 1.0);
-			//	SumRadiance += Radiance * CosineWeight;
-			//}
+				UniversalMaterialSample surfel;
+				surfel.shadingNormal = texture(WsNormalFromLight, LightSampleDirection).xyz;//TODO:Light_$I
+				surfel.position = WsPosFromProbe;
+				surfel.glossyShadingNormal = surfel.shadingNormal;
+				surfel.fresnelReflectionAtNormalIncidence = vec3(0.0, 0.0, 0.0);
+				surfel.lambertianReflectivity = texture(LambertianFromLight, LightSampleDirection).xyz;//TODO:Light_$I
+				surfel.smoothness = 0.01;
 
-			//Radiance
-			vec3 LightSampleDirection = normalize(WsPosFromProbe - WsLightPosition);
-			vec3 NormalFromLight = texture(WsNormalFromLight, LightSampleDirection).xyz;
-			vec3 Lambertian = texture(LambertianFromLight, LightSampleDirection).xyz;
-			vec3 Radiance = ComputeLighting(Lambertian, NormalFromLight, -ProbeSampleDirection, WsPosFromProbe);
-			SumRadiance += Radiance * CosineWeight;
+				Color3 Radiance = Color3(0, 0, 0);
+				Vector3 w_i;
+				float attenuation = computeAttenuation(surfel.shadingNormal, light$(I)_position,
+					light$(I)_attenuation, light$(I)_softnessConstant, surfel.position, light$(I)_direction, light$(I)_up,
+					light$(I)_right, light$(I)_rectangular, light$(I)_radius, w_i);
+
+				if (attenuation > attenuationThreshold)
+				{
+#           ifdef light$(I)_shadowMap_notNull
+					{
+						vec3 adjustedWSPos = surfel.position + (-ProbeSampleDirection) * (1.5 * light$(I)_shadowMap_bias) + surfel.shadingNormal * (0.5 * light$(I)_shadowMap_bias);
+						vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
+
+						float visibility = shadowMapVisibility(light$(I)_direction, light$(I)_position, light$(I)_attenuation, shadowCoord, light$(I)_shadowMap_buffer, light$(I)_shadowMap_invSize.xy, false);
+
+#               ifdef light$(I)_shadowMap_variance_notNull
+						{
+							vec4 cFrameZRow = vec4(light$(I)_direction.xyz, -light$(I)_position.z);
+							float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
+							lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
+
+							visibility = min(visibility, varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_lightBleedReduction));
+						}
+#               endif
+						attenuation *= visibility;
+					}
+#           endif
+
+					if (attenuation > attenuationThreshold)
+					{
+						Radiance = attenuation * light$(I)_color * evaluateUniversalMaterialBSDF(surfel, w_i, -ProbeSampleDirection);
+					}
+				}
+
+				SumRadiance += Radiance * CosineWeight;
+			}
+#			endfor
 
 			//Distance
 			float Distance = length(WsProbePosition - WsPosFromProbe);
