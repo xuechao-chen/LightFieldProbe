@@ -28,12 +28,19 @@ shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::generateLightFieldSu
 	m_pLambertianCubeFromLight = Texture::createEmpty("LambertianCubeFromLight", vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution, ImageFormat::RGB8(), Texture::DIM_CUBE_MAP, false);
 	m_pWsNormalCubeFromLight = Texture::createEmpty("WsNormalCubeFromLight", vMetaData->LightCubemapResolution, vMetaData->LightCubemapResolution, ImageFormat::RGB32F(), Texture::DIM_CUBE_MAP, false);
 	
-	//auto LightPosition = Vector3(-19.975, 3, -0.5);
-	auto LightPosition = Vector3(0, 1.92, 0);
-
+	//NOTE: 暂时只考虑把场景所有光源合并平均光源位置去生成LightFieldCubemap
+	auto LightPosition = Vector3(0, 0, 0);
+	auto EnabledLightNum = 0;
 	Array<shared_ptr<Light>> LightArray = m_pApp->scene()->lightingEnvironment().lightArray;
-
-	//auto LightPosition = Vector3(-5.5767, 207.755, -37.952);
+	for (auto Light : LightArray)
+	{
+		if (Light->enabled())
+		{
+			LightPosition += Light->position().xyz();
+			EnabledLightNum++;
+		}
+	}
+	LightPosition /= EnabledLightNum;
 
 	for (int Face = 0; Face < 6; ++Face)
 	{
