@@ -38,15 +38,17 @@ gantt
        title I3D 2020 Schedule(Deadline 12-13)
 
 	   section Idea Implementation
-	   HighRes Irradiance Map Reconstruction :done,   task1, 11-13
-	   LowRes Irradiance Map Reconstruction  :done,   task2, after task1, 1d
-	   Complex Scene Reconstruction          :done,   task3, after task1, 1d
-	   Multiple Light Reconstruction         :active  task4, after task3, 1d
-       Code Refactor(Different Light/Scene)  :        task5, after task3, 1d
+	   HighRes Irradiance Map Reconstruction :done,   task1,   11-13
+	   LowRes Irradiance Map Reconstruction  :done,   task2,   after task1, 1d
+	   Complex Scene Reconstruction          :done,   task3,   after task1, 1d
+	   Multiple Light Reconstruction         :done,   task4,   after task3, 1d
+       Code Refactor(Different Light/Scene)  :done,   task5,   after task3, 1d
+       Dynamic Light                         :done,   task5-1, after task5, 1d
+       Code Refactor(Dynamic Light/Draw Call):active, task5-2, after task5, 1d         
        
        section Performance Optimization
-       Model Simplification                  :        task6, after task5, 2d
-       One-pass Rasterization                :        task7, after task5, 5d
+       Model Simplification                  :active, task6, after task5, 2d
+       One-pass Rasterization                :active, task7, after task5, 5d
        Parallel Texel Fetching               :        task8, after task5, 3d
        Drawcall Analysic(Nsight)             :        task9, after task7, 3d
        OpenGL Implementation(Maybe)          :        task10,after task9, 3d
