@@ -124,8 +124,14 @@ bool App::onEvent(const GEvent& event)
 
 void App::useSimplifiedScene(int vSimplifiedLevel)
 {
-	if (vSimplifiedLevel == 1) { /* TODO: disable all effects */ }
-	else { /* TODO: enable all effetcs */ }
+	if (vSimplifiedLevel == 1)
+	{
+		scene()->lightingEnvironment().ambientOcclusionSettings.enabled = true;
+	}
+	else
+	{
+		scene()->lightingEnvironment().ambientOcclusionSettings.enabled = false;
+	}
 	
 	for (const auto& EntityName : m_LodModelName)
 	{
@@ -151,12 +157,6 @@ void App::__updateScene()
 	if (scene()) {
 		onPose(m_posed3D, m_posed2D);
 	}
-
-	onGraphics(renderDevice, m_posed3D, m_posed2D);
-
-	// Reset our idea of "now" so that simulation doesn't see a huge lag
-	// due to the scene load time.
-	m_lastTime = m_now = System::time() - 0.0001f;
 }
 
 void App::onAfterLoadScene(const Any& any, const String& sceneName)
