@@ -16,16 +16,15 @@ void App::onInit()
 	GApp::onInit();
 	setFrameDuration(1.0f / 60.f);
 
-	m_pDefaultRenderer = m_renderer;
 	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create());
 	m_pGIRenderer->setDeferredShading(true);
 
 	m_pConfigWindow = CConfigWindow::create(this);
 
-	loadScene(AllScenes[0].c_str());
-
 	m_pLightFieldSurfaceMetaData = __initLightFieldSurfaceMetaData();
 	m_pLightFieldSurfaceGenerator = CLightFieldSurfaceGenerator::create(this);
+	
+	loadScene(AllScenes[0].c_str());
 	__makeGUI();
 }
 
@@ -89,7 +88,16 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& allSurfaces
 {
 	GApp::onGraphics3D(rd, allSurfaces);
 
-	if (m_pGIRenderer->m_Settings.DisplayProbe) __refreshProbes();
+	auto pLightFieldSurface = m_pLightFieldSurfaceGenerator->updateLightFieldSurface(m_pLightFieldSurfaceMetaData);
+	if (pLightFieldSurface) m_pGIRenderer->updateLightFieldSurface(pLightFieldSurface, m_pLightFieldSurfaceMetaData);
+
+	CFrame cf = scene()->lightingEnvironment().lightArray[0]->frame();
+	if (cf.translation.y < 0) cf.translation.y = 1.92;
+	cf.translation -= Point3(0, 0.01, 0);
+	scene()->lightingEnvironment().lightArray[0]->setFrame(cf);
+
+	//NOTE: BUG here!
+	//if (m_pGIRenderer->m_Settings.DisplayProbe) __refreshProbes();
 }
 
 shared_ptr<SLightFieldSurfaceMetaData> App::__initLightFieldSurfaceMetaData()

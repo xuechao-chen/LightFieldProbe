@@ -144,6 +144,7 @@
     <ClInclude Include="ConfigWindow.h" />
     <ClInclude Include="HammersleySampler.h" />
     <ClInclude Include="LightFieldSurfaceGenerator.h" />
+    <ClInclude Include="OffscreenRenderer.h" />
     <ClInclude Include="ProbeGIRenderer.h" />
   </ItemGroup>
   <ItemGroup>
