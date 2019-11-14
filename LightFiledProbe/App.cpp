@@ -16,7 +16,6 @@ void App::onInit()
 	GApp::onInit();
 	setFrameDuration(1.0f / 60.f);
 
-	m_pDefaultRenderer = m_renderer;
 	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create());
 	m_pGIRenderer->setDeferredShading(true);
 

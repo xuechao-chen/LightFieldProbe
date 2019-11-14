@@ -90,5 +90,8 @@
     <ClInclude Include="LightFieldSurfaceGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OffscreenRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
