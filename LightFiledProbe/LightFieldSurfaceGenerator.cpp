@@ -4,7 +4,8 @@
 
 CLightFieldSurfaceGenerator::CLightFieldSurfaceGenerator(App* vApp) : m_pApp(vApp)
 {
-	m_pFramebuffer = __initFramebuffer();
+	m_pOffscreenRenderer = __initRenderer();
+	m_pOffscrrenFramebuffer = __initFramebuffer();
 	m_pGBuffer = __initGBuffer();
 	m_pCamera = __initCamera();
 }
@@ -70,6 +71,13 @@ shared_ptr<GBuffer> CLightFieldSurfaceGenerator::__initGBuffer(Vector2int32 vSiz
 	return r;
 }
 
+shared_ptr<COffscreenRenderer> CLightFieldSurfaceGenerator::__initRenderer()
+{
+	m_pOffscreenRenderer = dynamic_pointer_cast<COffscreenRenderer>(COffscreenRenderer::create());
+	m_pOffscreenRenderer->setDeferredShading(true);
+	return m_pOffscreenRenderer;
+}
+
 shared_ptr<Framebuffer> CLightFieldSurfaceGenerator::__initFramebuffer(Vector2int32 vSize)
 {
 	auto r = Framebuffer::create("Precompute Framebuffer");
@@ -91,7 +99,7 @@ shared_ptr<Texture> CLightFieldSurfaceGenerator::__createSphereSampler(Vector2in
 shared_ptr<SLightFieldSurface> CLightFieldSurfaceGenerator::__initLightFieldSurface(shared_ptr<SLightFieldSurfaceMetaData> vMetaData)
 {
 	shared_ptr<SLightFieldSurface> pLightFieldSurface = std::make_shared<SLightFieldSurface>();
-	
+
 	int ProbeNum = vMetaData->ProbeNum();
 	int OctHighResolution = vMetaData->OctHighResolution;
 	int OctLowResolution = vMetaData->OctLowResolution;
@@ -118,16 +126,7 @@ void CLightFieldSurfaceGenerator::__renderCubeFace(Array<shared_ptr<Surface>>& v
 
 	m_pGBuffer->prepare(RenderDevice, m_pCamera, 0, -(float)m_pApp->previousSimTimeStep(), Vector2int16(0, 0), Vector2int16(0, 0));
 
-	m_pApp->m_pDefaultRenderer->render(RenderDevice, m_pCamera, m_pFramebuffer, m_pApp->m_depthPeelFramebuffer, m_pApp->scene()->lightingEnvironment(), m_pGBuffer, vSurfaces);
-
-	RenderDevice->pushState(m_pFramebuffer); {
-		m_pApp->m_depthOfField->apply(RenderDevice, m_pFramebuffer->texture(0), m_pFramebuffer->texture(Framebuffer::DEPTH), m_pCamera, Vector2int16(0, 0));
-		m_pApp->m_motionBlur->apply(RenderDevice, m_pFramebuffer->texture(0), m_pGBuffer->texture(GBuffer::Field::SS_POSITION_CHANGE), m_pFramebuffer->texture(Framebuffer::DEPTH), m_pCamera, Vector2int16(0, 0));
-	} RenderDevice->popState();
-
-	m_pApp->m_film->exposeAndRender(RenderDevice, m_pCamera->filmSettings(), m_pFramebuffer->texture(0), 0, 0,
-		Texture::opaqueBlackIfNull(m_pGBuffer ? m_pGBuffer->texture(GBuffer::Field::SS_POSITION_CHANGE) : nullptr),
-		m_pCamera->jitterMotion());
+	m_pOffscreenRenderer->render(RenderDevice, m_pCamera, m_pOffscrrenFramebuffer, m_pApp->m_depthPeelFramebuffer, m_pApp->scene()->lightingEnvironment(), m_pGBuffer, vSurfaces);
 }
 
 void CLightFieldSurfaceGenerator::__renderLightFieldProbe2Cubemap(Array<shared_ptr<Surface>> allSurfaces, Vector3 vRenderPosition, SLightFieldCubemap& voLightFieldCubemap)
@@ -136,7 +135,7 @@ void CLightFieldSurfaceGenerator::__renderLightFieldProbe2Cubemap(Array<shared_p
 	{
 		__renderCubeFace(allSurfaces, vRenderPosition, CubeFace(Face));
 
-		Texture::copy(m_pFramebuffer->texture(0), voLightFieldCubemap.RadianceCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
+		Texture::copy(m_pOffscrrenFramebuffer->texture(0), voLightFieldCubemap.RadianceCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::WS_NORMAL), voLightFieldCubemap.NormalCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 		Texture::copy(m_pGBuffer->texture(GBuffer::Field::CS_POSITION), voLightFieldCubemap.DistanceCubemap, 0, 0, 1, Vector2int16(0, 0), CubeFace::POS_X, CubeFace(Face), nullptr, false);
 	}
@@ -164,7 +163,7 @@ void CLightFieldSurfaceGenerator::__generateHighResOctmap(int vResolution, std::
 {
 	auto CubemapSampler = Sampler::cubeMap();
 	CubemapSampler.interpolateMode = InterpolateMode::NEAREST_NO_MIPMAP;
-	
+
 	m_pApp->renderDevice->push2D(vLightFieldFramebuffer); {
 		m_pApp->renderDevice->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
 
