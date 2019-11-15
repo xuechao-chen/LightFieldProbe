@@ -14,8 +14,6 @@ class App : public GApp
 	
 	shared_ptr<CProbeGIRenderer> m_pGIRenderer;
 
-	shared_ptr<Scene> m_pHighResScene;
-	shared_ptr<Scene> m_pLowResScene;
 	std::vector<std::string> m_LodModelName;
 	int m_LastLodLevel;
 	

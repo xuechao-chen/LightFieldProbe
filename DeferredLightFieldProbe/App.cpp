@@ -25,16 +25,14 @@ void App::onInit()
 	m_pGIRenderer = dynamic_pointer_cast<CProbeGIRenderer>(CProbeGIRenderer::create());
 	m_pGIRenderer->setDeferredShading(true);
 
+	m_pLightFieldSurfaceGenerator = CLightFieldSurfaceGenerator::create(this);
+	m_pLightFieldSurfaceMetaData = __initLightFieldSurfaceMetaData();
+
 	m_pConfigWindow = CConfigWindow::create(this);
 
-	m_pHighResScene = Scene::create(m_ambientOcclusion);
-	m_pLowResScene = Scene::create(m_ambientOcclusion);
 	loadScene(AllScenes[4].c_str());
-	useSimplifiedScene(1);
+	//useSimplifiedScene(4);
 	
-	m_pLightFieldSurfaceMetaData = __initLightFieldSurfaceMetaData();
-	m_pLightFieldSurfaceGenerator = CLightFieldSurfaceGenerator::create(this);
-
 	__makeGUI();
 }
 
@@ -94,6 +92,8 @@ void App::__enableEmissiveLight(bool vEnable)
 	}
 }
 
+float step = 0.01;
+
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& allSurfaces)
 {
 	GApp::onGraphics3D(rd, allSurfaces);
@@ -101,13 +101,22 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& allSurfaces
 	auto pLightFieldSurface = m_pLightFieldSurfaceGenerator->updateLightFieldSurface(m_pLightFieldSurfaceMetaData);
 	if (pLightFieldSurface) m_pGIRenderer->updateLightFieldSurface(pLightFieldSurface, m_pLightFieldSurfaceMetaData);
 
-	//CFrame cf = scene()->lightingEnvironment().lightArray[0]->frame();
-	//if (cf.translation.y < 0) cf.translation.y = 1.92;
-	//cf.translation -= Point3(0, 0.01, 0);
-	//scene()->lightingEnvironment().lightArray[0]->setFrame(cf);
+	CFrame cf = scene()->lightingEnvironment().lightArray[0]->frame();
+	
+	if (cf.translation.x <= -1) {
+		step = 0.01;
+	}
+	if (cf.translation.x >= 1)
+	{
+		step = -0.01;
+	}
+
+	cf.translation += Point3(step, 0, 0);
+	
+	scene()->lightingEnvironment().lightArray[0]->setFrame(cf);
 
 	//NOTE: BUG here!
-	//if (m_pGIRenderer->m_Settings.DisplayProbe) __refreshProbes();
+	if (m_pGIRenderer->m_Settings.DisplayProbe) __refreshProbes();
 }
 
 shared_ptr<SLightFieldSurfaceMetaData> App::__initLightFieldSurfaceMetaData()
@@ -116,7 +125,7 @@ shared_ptr<SLightFieldSurfaceMetaData> App::__initLightFieldSurfaceMetaData()
 	pMetaData->ProbeCubemapResolution = 1024;
 	pMetaData->LightCubemapResolution = 1024;
 	pMetaData->OctResolution  = 128;
-	pMetaData->SphereSamplerSize = Vector2int32(64, 64);
+	pMetaData->SphereSamplerSize = Vector2int32(32, 32);
 	return pMetaData;
 }
 

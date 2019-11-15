@@ -92,7 +92,7 @@
             visible = false; 
         }; 
         
-        dynamicBlueOrbLight = Light { 
+       /* dynamicBlueOrbLight = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
             bulbPower = Power3(0, 400, 800 ); 
             shadowsEnabled = false; 
@@ -101,8 +101,8 @@
             track = combine(Matrix4::identity(), entity("dynamicBlueOrb") ); 
             type = "OMNI"; 
         }; 
-        
-        dynamicSun = Light { 
+        */
+       /* dynamicSun = Light { 
             attenuation = ( 0, 0, 1 ); 
             bulbPower = Power3(2e+07 ); 
             shadowsEnabled = true; 
@@ -137,7 +137,7 @@
             
             type = "SPOT"; 
         }; 
-        
+        */
         pillarStrafeCamera = Camera { 
             depthOfFieldSettings = DepthOfFieldSettings { 
                 enabled = false; 
@@ -207,7 +207,7 @@
         
         skybox = Skybox { 
             //texture = "cubemap/noonclouds/noonclouds_*.png"; 
-			texture = 0.0;
+			texture = 0.01;
         }; 
         
         staticAOCamera = Camera { 
@@ -400,15 +400,16 @@
         
         sun = Light { 
             attenuation = ( 0, 0, 1 ); 
-            bulbPower = Power3(4e+07 ); 
+            bulbPower = Power3(4e+05 ); 
             shadowsEnabled = true; 
             enabled = true; 
-            frame = CFrame::fromXYZYPRDegrees(-5.5767, 207.755, -37.952, -180, -73.5466, 90 ); 
+            //frame = CFrame::fromXYZYPRDegrees(-5.5767, 207.755, -37.952, -180, -73.5466, 90 ); 
+            frame = CFrame::fromXYZYPRDegrees(-10, 30, 0, -180, -73.5466, 90 );
             nearPlaneZLimit = -170; 
             producesDirectIllumination = true; 
             producesIndirectIllumination = true; 
             shadowMapSize = Vector2int16(2048, 2048 ); 
-            spotHalfAngleDegrees = 5; 
+            spotHalfAngleDegrees = 10; 
             rectangular = true; 
             type = "SPOT"; 
         }; 

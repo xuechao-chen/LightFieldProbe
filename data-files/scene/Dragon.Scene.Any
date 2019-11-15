@@ -8,16 +8,23 @@
 		};
 
 		emissiveLight = VisibleEntity{
+			visible = false;
 			canChange = false;
 			model = "lightModel";
 			castsShadows = false;
 		};
 
 		dragon1 = VisibleEntity{
-			visible = false;
+			visible = true;
 			canChange = false;
 			model = "dragonModel1";
-			frame = CFrame::fromXYZYPRDegrees(0, 0.5, 0, 180, 0, 0);
+			frame = CFrame::fromXYZYPRDegrees(-0.3, 0.4, 0, 180, 0, 0);
+		};
+		dragon2 = VisibleEntity{
+			visible = true;
+			canChange = false;
+			model = "dragonModel2";
+			frame = CFrame::fromXYZYPRDegrees(0.3, 0.4, 0, 180, 0, 0);
 		};
 		dragon10 = VisibleEntity{
 			visible = false;
@@ -106,21 +113,21 @@
 
 		light1 = Light {
 			attenuation = (0.0001, 0, 1);
-			bulbPower = Power3(35);
+			bulbPower = Power3(500);
 			canChange = false;
 			enabled = true;
-			extent = Vector2(0.75, 0.75);
+			//extent = Vector2(0.75, 0.75);
 			frame = CFrame::fromXYZYPRDegrees(0, 1.92, 0, 0, -90, 0);
 			producesDirectIllumination = true;
 			producesIndirectIllumination = false;
-			rectangular = true;
+			rectangular = false;
 			shadowMapSize = Vector2int16(1024, 1024);
 			shadowsEnabled = true;
-			spotHalfAngleDegrees = 45;
+			spotHalfAngleDegrees = 15;
 			type = "SPOT";
 		};
 
-		light2 = Light {
+		/*light2 = Light {
 			attenuation = (0.0001, 0, 1);
 			bulbPower = Power3(35);
 			canChange = false;
@@ -182,10 +189,10 @@
 			shadowsEnabled = true;
 			spotHalfAngleDegrees = 45;
 			type = "SPOT";
-		};
+		};*/
 
 		skybox = Skybox {
-			texture = 0.0;
+			texture = 0.02;
 		};
 
 	};
@@ -221,7 +228,24 @@
 	models = {
 		boxModel = "data/model/CornellBox/CornellBox/CornellBox-Original.obj";
 		lightModel = "data/model/CornellBox/CornellBox/AreaLight.obj";
-		dragonModel1 = "data/model/dragon/dragon.obj";
+		dragonModel1 = ArticulatedModel::Specification{
+			filename = "data/model/dragon/dragon.obj";
+			preprocess = {
+				setMaterial(all(), UniversalMaterial::Specification {
+						//glossy = Color4(0.02, 0.02, 0.02, 0.2);
+						lambertian = Color3(1,0,0);
+					}) };
+			scale = 1.3;
+		};
+		dragonModel2 = ArticulatedModel::Specification{
+			filename = "data/model/dragon/dragon.obj";
+			preprocess = {
+				setMaterial(all(), UniversalMaterial::Specification {
+				//glossy = Color4(0.02, 0.02, 0.02, 0.2);
+				lambertian = Color3(0,1,0);
+			}) };
+		scale = 1.3;
+			};
 		dragonModel10 = "data/model/dragon/dragon-10.obj";
 		dragonModel100 = "data/model/dragon/dragon-100.obj";
 		dragonModel1000 = "data/model/dragon/dragon-1000.obj";
