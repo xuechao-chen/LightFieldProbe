@@ -3,16 +3,22 @@
 #include "ConfigWindow.h"
 #include "HammersleySampler.h"
 #include "LightFieldSurfaceGenerator.h"
+#include <string>
 
 void App::onInit()
 {
 	std::vector<std::string> AllScenes = {
-		"Simple Cornell Box",
-		"Simple Cornell Box (No Little Boxes)",
-		"Sponza (Glossy Area Lights)",
-		"Sponza (Statue Glossy)"
+		/* 0 */ "Simple Cornell Box",
+		/* 1 */ "Simple Cornell Box (No Little Boxes)",
+		/* 2 */ "Sponza (Glossy Area Lights)",
+		/* 3 */ "Sponza (Statue Glossy)",
+		/* 4 */ "Dragon",
+		/* 5 */ "Dragon Low"
 	};
 
+	m_LodModelName = { "dragon" };
+	m_LastLodLevel = 1;
+	
 	GApp::onInit();
 	setFrameDuration(1.0f / 60.f);
 
@@ -21,10 +27,14 @@ void App::onInit()
 
 	m_pConfigWindow = CConfigWindow::create(this);
 
+	m_pHighResScene = Scene::create(m_ambientOcclusion);
+	m_pLowResScene = Scene::create(m_ambientOcclusion);
+	loadScene(AllScenes[4].c_str());
+	useSimplifiedScene(1);
+	
 	m_pLightFieldSurfaceMetaData = __initLightFieldSurfaceMetaData();
 	m_pLightFieldSurfaceGenerator = CLightFieldSurfaceGenerator::create(this);
-	
-	loadScene(AllScenes[0].c_str());
+
 	__makeGUI();
 }
 
@@ -91,10 +101,10 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface>>& allSurfaces
 	auto pLightFieldSurface = m_pLightFieldSurfaceGenerator->updateLightFieldSurface(m_pLightFieldSurfaceMetaData);
 	if (pLightFieldSurface) m_pGIRenderer->updateLightFieldSurface(pLightFieldSurface, m_pLightFieldSurfaceMetaData);
 
-	CFrame cf = scene()->lightingEnvironment().lightArray[0]->frame();
-	if (cf.translation.y < 0) cf.translation.y = 1.92;
-	cf.translation -= Point3(0, 0.01, 0);
-	scene()->lightingEnvironment().lightArray[0]->setFrame(cf);
+	//CFrame cf = scene()->lightingEnvironment().lightArray[0]->frame();
+	//if (cf.translation.y < 0) cf.translation.y = 1.92;
+	//cf.translation -= Point3(0, 0.01, 0);
+	//scene()->lightingEnvironment().lightArray[0]->setFrame(cf);
 
 	//NOTE: BUG here!
 	//if (m_pGIRenderer->m_Settings.DisplayProbe) __refreshProbes();
@@ -119,6 +129,43 @@ bool App::onEvent(const GEvent& event)
 	}
 	
 	return GApp::onEvent((event));
+}
+
+void App::useSimplifiedScene(int vSimplifiedLevel)
+{
+	if (vSimplifiedLevel == 1)
+	{
+		scene()->lightingEnvironment().ambientOcclusionSettings.enabled = true;
+	}
+	else
+	{
+		scene()->lightingEnvironment().ambientOcclusionSettings.enabled = false;
+	}
+	
+	for (const auto& EntityName : m_LodModelName)
+	{
+		std::string CurrentName = EntityName + std::to_string(m_LastLodLevel);
+		auto p = scene()->entity(CurrentName.c_str());
+		shared_ptr<VisibleEntity> pCurrentVisibleEntity = dynamic_pointer_cast<VisibleEntity>(p);
+		pCurrentVisibleEntity->setVisible(false);
+		std::string TargetName = EntityName + std::to_string(vSimplifiedLevel);
+		shared_ptr<VisibleEntity> pTargetVisiableEntity = dynamic_pointer_cast<VisibleEntity>(scene()->entity(TargetName.c_str()));
+		pTargetVisiableEntity->setVisible(true);
+	}
+	
+	m_LastLodLevel = vSimplifiedLevel;
+
+	__updateScene();
+}
+
+void App::__updateScene()
+{
+	// Trigger one frame of rendering, to force shaders to load and compile
+	m_posed3D.fastClear();
+	m_posed2D.fastClear();
+	if (scene()) {
+		onPose(m_posed3D, m_posed2D);
+	}
 }
 
 void App::onAfterLoadScene(const Any& any, const String& sceneName)

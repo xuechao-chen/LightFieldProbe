@@ -14,6 +14,11 @@ class App : public GApp
 	
 	shared_ptr<CProbeGIRenderer> m_pGIRenderer;
 
+	shared_ptr<Scene> m_pHighResScene;
+	shared_ptr<Scene> m_pLowResScene;
+	std::vector<std::string> m_LodModelName;
+	int m_LastLodLevel;
+	
 	shared_ptr<SLightFieldSurface> m_pLightFieldSurface;
 	shared_ptr<SLightFieldSurfaceMetaData> m_pLightFieldSurfaceMetaData;
 	shared_ptr<CLightFieldSurfaceGenerator> m_pLightFieldSurfaceGenerator;
@@ -23,6 +28,7 @@ public:
 	~App() { m_pConfigWindow.reset(); }
 
 	void precompute();
+	void useSimplifiedScene(int vSimplifiedLevel);
 	
 protected:
 	virtual void onInit() override;
@@ -34,6 +40,7 @@ private:
 	void __makeGUI();
 	void __refreshProbes(float vProbeRadius = -1.0f);
 	void __enableEmissiveLight(bool vEnable);
+	void __updateScene();
 
 	shared_ptr<SLightFieldSurfaceMetaData> __initLightFieldSurfaceMetaData();
 };
